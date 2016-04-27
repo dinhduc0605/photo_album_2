@@ -1,4 +1,4 @@
-package com.framgia.photoalbum.ui.activty;
+package com.framgia.photoalbum.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
