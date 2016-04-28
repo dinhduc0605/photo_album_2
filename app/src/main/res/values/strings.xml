@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Photo Album</string>
+
     <string name="choose_image">Choose Image</string>
+
+    <string name="error_create_file_failed">Something error in create file</string>
+    <string name="error_camera_not_available">Camera is not available.</string>
 </resources>
