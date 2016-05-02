@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">Photo Album</string>
-
-    <string name="choose_image">Choose Image</string>
+    <string name="label_choose_image">Choose Image</string>
 
     <string name="error_create_file_failed">Something error in create file</string>
     <string name="error_camera_not_available">Camera is not available.</string>
+    <string name="tab_effect">Effect</string>
+    <string name="tab_adjust">Adjust</string>
+    <string name="tab_crop">Crop</string>
+    <string name="tab_merge">Merge</string>
+    <string name="tab_high_light">Highlight</string>
+    <string name="label_edit_activity">Edit Photo</string>
 </resources>

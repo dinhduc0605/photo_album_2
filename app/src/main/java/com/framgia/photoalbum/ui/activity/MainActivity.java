@@ -8,9 +8,20 @@ import android.widget.Button;
 
 import com.framgia.photoalbum.R;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class MainActivity extends AppCompatActivity {
-    View decorView;
-    Button photoEditorBtn;
+    View mDecorView;
+    @Bind(R.id.photoEditor)
+    Button mPhotoEditorBtn;
+
+    @OnClick(R.id.photoEditor)
+    public void openPhotoEditor(View v) {
+        Intent intent = new Intent(getBaseContext(), ChooseImageActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,26 +32,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        photoEditorBtn = (Button) findViewById(R.id.photoEditor);
-        decorView = getWindow().getDecorView();
+        ButterKnife.bind(this);
+        mDecorView = getWindow().getDecorView();
     }
 
     private void bindViewControl() {
         //listen to even which status bar appear, hide it immediately
-        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+        mDecorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
             public void onSystemUiVisibilityChange(int i) {
                 if ((i & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                    decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                    mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
                 }
-            }
-        });
-        //open choose image activity when click on button
-        photoEditorBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getBaseContext(), ChooseImageActivity.class);
-                startActivity(intent);
             }
         });
     }
@@ -49,6 +52,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         //hide status bar
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 }
