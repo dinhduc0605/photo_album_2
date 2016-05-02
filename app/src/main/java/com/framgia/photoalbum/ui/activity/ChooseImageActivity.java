@@ -6,10 +6,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.BuildConfig;
@@ -23,19 +25,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ChooseImageActivity extends AppCompatActivity {
-
+    public static final String IMAGE_PATH = "imagePath";
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
-
-    private RecyclerView mImageGrid;
-    private ArrayList<ImageItem> mImageItems = new ArrayList<>();
-    private ImageGridAdapter mAdapter;
-    private Toolbar mToolbar;
-
+    private static final String TAG = "ChooseImageActivity";
     private Uri mPhotoUri;
+
+    @Bind(R.id.imageGrid)
+    RecyclerView mImageGrid;
+    @Bind(R.id.btnCamera)
+    FloatingActionButton mCameraBtn;
+    @Bind(R.id.toolbar)
+    Toolbar mToolbar;
+    ArrayList<ImageItem> mImageItems = new ArrayList<>();
+    ImageGridAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,36 +58,62 @@ public class ChooseImageActivity extends AppCompatActivity {
      */
     private void initView() {
         //set mToolbar as actionbar
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //init view
-        mImageGrid = (RecyclerView) findViewById(R.id.imageGrid);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
         mImageGrid.setLayoutManager(layoutManager);
-
-        //get cursor point to Image table
-        CursorLoader cursorLoader = new CursorLoader(this,
-                MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
-                new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
-                null,
-                null,
-                MediaStore.Images.Thumbnails.IMAGE_ID);
-        Cursor imageCursor = cursorLoader.loadInBackground();
-        if (imageCursor.moveToFirst()) {
-            do {
-                String path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
-
-                ImageItem imageItem = new ImageItem(path, id);
-                mImageItems.add(imageItem);
-            } while (imageCursor.moveToNext());
-        }
+        mImageItems = getImageList();
 
         //set up image grid
         mAdapter = new ImageGridAdapter(this, mImageItems);
         mImageGrid.setAdapter(mAdapter);
+    }
+
+    /**
+     * Get image list in device
+     *
+     * @return image list
+     */
+    private ArrayList<ImageItem> getImageList() {
+        ArrayList<ImageItem> imageItems = new ArrayList<>();
+        //get cursor loader of Thumbnail table
+        CursorLoader thumbnailLoader = new CursorLoader(this,
+                MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
+                //get image id & thumbnail path
+                new String[]{MediaStore.Images.Thumbnails.IMAGE_ID, MediaStore.Images.Thumbnails.DATA},
+                null,
+                null,
+                MediaStore.Images.Thumbnails.IMAGE_ID);
+        //get cursor point to thumbnail table
+        Cursor thumbnailCursor = thumbnailLoader.loadInBackground();
+        if (thumbnailCursor.moveToLast()) {
+            do {
+                //get thumbnail path
+                String thumbnailPath = thumbnailCursor.getString(thumbnailCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                //get image id
+                int id = thumbnailCursor.getInt(thumbnailCursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID));
+                //get cursor loader of image table
+                CursorLoader imageLoader = new CursorLoader(
+                        this,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        new String[]{MediaStore.Images.Media.DATA},
+                        id + " = " + MediaStore.Images.Media._ID, null, null);
+                //get cursor point to image table
+                Cursor imageCursor = imageLoader.loadInBackground();
+                String imagePath = null;
+                if (imageCursor.moveToFirst()) {
+                    // get image path
+                    imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                }
+                imageCursor.close();
+                ImageItem imageItem = new ImageItem(imagePath, id, thumbnailPath);
+                imageItems.add(imageItem);
+            } while (thumbnailCursor.moveToPrevious());
+        }
+        thumbnailCursor.close();
+        return imageItems;
     }
 
     /**
@@ -89,7 +122,6 @@ public class ChooseImageActivity extends AppCompatActivity {
     private void bindViewControl() {
 
     }
-
 
     @OnClick(R.id.btnCamera)
     public void captureImage() {
@@ -113,7 +145,8 @@ public class ChooseImageActivity extends AppCompatActivity {
             startEditorActivity(photoPath);
 
             if (BuildConfig.DEBUG)
-                Toast.makeText(ChooseImageActivity.this, "path = " + photoPath, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(ChooseImageActivity.this, "path = " + photoPath, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, photoPath);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -121,14 +154,15 @@ public class ChooseImageActivity extends AppCompatActivity {
 
     private void startEditorActivity(String photoPath) {
         // TODO start editor activity with path of photo which captured or picked from album
-
+        Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra(IMAGE_PATH, photoPath);
+        startActivity(intent);
     }
 
     private void startCapture(Uri path) {
         Intent takeIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, path);
 
-        // Check whether camera not available
         if (!CommonUtils.isAvailable(this, takeIntent)) {
             Toast.makeText(this,
                     getResources().getString(R.string.error_camera_not_available),

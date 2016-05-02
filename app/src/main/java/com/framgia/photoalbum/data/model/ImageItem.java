@@ -4,33 +4,24 @@ package com.framgia.photoalbum.data.model;
  * Created by dinhduc on 26/04/2016.
  */
 public class ImageItem {
-    private String imagePath;
-    private int id;
+    private String mImagePath;
+    private int mId;
+    private String mThumbnailPath;
 
-    public ImageItem() {
-
-    }
-
-    public ImageItem(String imagePath, int id) {
-        this.imagePath = imagePath;
-        this.id = id;
+    public ImageItem(String imagePath, int id, String thumbnailPath) {
+        this.mImagePath = imagePath;
+        this.mId = id;
+        this.mThumbnailPath = thumbnailPath;
     }
 
     public int getId() {
-        return id;
+        return mId;
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getImagePath() {
-        return imagePath;
+        return mImagePath;
     }
 
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public String getThumbnailPath() {
+        return mThumbnailPath;
     }
-
 }
