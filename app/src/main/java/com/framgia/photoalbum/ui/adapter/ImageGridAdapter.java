@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.data.model.ImageItem;
 import com.framgia.photoalbum.ui.activity.ChooseImageActivity;
 import com.framgia.photoalbum.ui.activity.EditActivity;
@@ -58,10 +59,11 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mActivity, EditActivity.class);
-                intent.putExtra(ChooseImageActivity.IMAGE_PATH, image.getImagePath());
+                intent.putExtra(ChooseImageActivity.IMAGE_ID, image.getId());
                 mActivity.startActivity(intent);
             }
         });
+
     }
 
     @Override
