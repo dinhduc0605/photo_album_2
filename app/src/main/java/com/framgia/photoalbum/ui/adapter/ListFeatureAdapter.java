@@ -22,10 +22,12 @@ import butterknife.ButterKnife;
 public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.ViewHolder> {
     Context mContext;
     ArrayList<FeatureItem> mFeatureItems;
+    OnFeatureClicked mOnFeatureClicked;
 
     public ListFeatureAdapter(Context context, ArrayList<FeatureItem> featureItems) {
         mContext = context;
         mFeatureItems = featureItems;
+        mOnFeatureClicked = (OnFeatureClicked) context;
     }
 
     @Override
@@ -35,10 +37,17 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         FeatureItem item = mFeatureItems.get(position);
         holder.imageView.setImageResource(item.getIconRes());
         holder.textView.setText(item.getFeatureName());
+
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnFeatureClicked.onClick(view, position);
+            }
+        });
     }
 
     @Override
@@ -56,5 +65,9 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
+    }
+
+    public interface OnFeatureClicked {
+        void onClick(View v, int position);
     }
 }

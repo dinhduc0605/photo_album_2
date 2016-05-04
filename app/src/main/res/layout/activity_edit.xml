@@ -13,7 +13,8 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/listFeature"
         android:layout_below="@+id/toolbar"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp"
+        android:scaleType="centerInside" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/listFeature"
@@ -24,10 +25,10 @@
     </android.support.v7.widget.RecyclerView>
 
     <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/toolbar">
 
     </FrameLayout>
 </RelativeLayout>

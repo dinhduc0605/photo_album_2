@@ -10,4 +10,8 @@
     <string name="tab_merge">Merge</string>
     <string name="tab_high_light">Highlight</string>
     <string name="label_edit_activity">Edit Photo</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_highlight_fragment">HightLight</string>
 </resources>

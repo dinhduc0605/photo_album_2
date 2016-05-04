@@ -30,7 +30,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ChooseImageActivity extends AppCompatActivity {
-    public static final String IMAGE_PATH = "imagePath";
+    public static final String IMAGE_ID = "image_id";
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
     private static final String TAG = "ChooseImageActivity";
     private Uri mPhotoUri;
@@ -94,21 +94,8 @@ public class ChooseImageActivity extends AppCompatActivity {
                 String thumbnailPath = thumbnailCursor.getString(thumbnailCursor.getColumnIndex(MediaStore.Images.Media.DATA));
                 //get image id
                 int id = thumbnailCursor.getInt(thumbnailCursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID));
-                //get cursor loader of image table
-                CursorLoader imageLoader = new CursorLoader(
-                        this,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        new String[]{MediaStore.Images.Media.DATA},
-                        id + " = " + MediaStore.Images.Media._ID, null, null);
-                //get cursor point to image table
-                Cursor imageCursor = imageLoader.loadInBackground();
-                String imagePath = null;
-                if (imageCursor.moveToFirst()) {
-                    // get image path
-                    imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                }
-                imageCursor.close();
-                ImageItem imageItem = new ImageItem(imagePath, id, thumbnailPath);
+
+                ImageItem imageItem = new ImageItem(null, id, thumbnailPath);
                 imageItems.add(imageItem);
             } while (thumbnailCursor.moveToPrevious());
         }
@@ -155,7 +142,7 @@ public class ChooseImageActivity extends AppCompatActivity {
     private void startEditorActivity(String photoPath) {
         // TODO start editor activity with path of photo which captured or picked from album
         Intent intent = new Intent(this, EditActivity.class);
-        intent.putExtra(IMAGE_PATH, photoPath);
+        intent.putExtra(IMAGE_ID, photoPath);
         startActivity(intent);
     }
 
