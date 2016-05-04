@@ -1,6 +1,5 @@
 package com.framgia.photoalbum.crop;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -8,14 +7,14 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.framgia.photoalbum.util.DimenUtils;
 
-public class HighLightView extends View {
+public class HighLightView {
 
     private static final float OUTLINE_DP = 2;
 
@@ -52,22 +51,19 @@ public class HighLightView extends View {
     private int mScreenW, mScreenH;
     private ImageView mImageShow;
 
-    public HighLightView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public HighLightView(View viewContext) {
+        mViewContext = viewContext;
     }
 
-    public HighLightView(Context context) {
-        super(context);
-    }
-
-    private void setup(Matrix m, RectF cropRect, RectF imageRect) {
+    public void setup(Matrix m, RectF cropRect, RectF imageRect) {
         this.mCropRect = cropRect;
         this.mImageRect = imageRect;
-        this.mDrawRect = computeLayout();
         this.mMatrix = new Matrix(m);
         this.path = new Path();
+        mViewDrawingRect = new Rect();
 
-        mViewContext = this;
+        this.mDrawRect = computeLayout();
+
 
         mOutsidePaint = new Paint();
         mOutsidePaint.setARGB(125, 50, 50, 50);
@@ -90,20 +86,22 @@ public class HighLightView extends View {
         RectF r = new RectF(mCropRect.left, mCropRect.top,
                 mCropRect.right, mCropRect.bottom);
 
+        mMatrix.mapRect(r);
+
         return new Rect(Math.round(r.left), Math.round(r.top),
                 Math.round(r.right), Math.round(r.bottom));
     }
 
-    @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         canvas.save();
 
-        getDrawingRect(mViewDrawingRect);
+        mViewContext.getDrawingRect(mViewDrawingRect);
 
         path.reset();
 
         path.addRect(new RectF(mDrawRect), Path.Direction.CW);
+
+        Log.d("hung", "onDraw: " + mDrawRect.toString());
         mOutlinePaint.setColor(mHighlightColor);
 
         canvas.clipPath(path, Region.Op.DIFFERENCE);
@@ -146,7 +144,6 @@ public class HighLightView extends View {
         canvas.drawCircle(mDrawRect.right, yMiddle, mHandleRadius, mHandlePaint);
     }
 
-    @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -202,19 +199,20 @@ public class HighLightView extends View {
 
         // Set the mCropRect inside Image only
         mCropRect.offset(
-                Math.max(0, mDrawRect.left - mCropRect.left),
-                Math.max(0, mDrawRect.top - mCropRect.top));
+                Math.max(0, mImageRect.left - mCropRect.left),
+                Math.max(0, mImageRect.top - mCropRect.top));
 
         mCropRect.offset(
-                Math.min(0, mDrawRect.right - mCropRect.right),
-                Math.min(0, mDrawRect.bottom - mCropRect.bottom));
+                Math.min(0, mImageRect.right - mCropRect.right),
+                Math.min(0, mImageRect.bottom - mCropRect.bottom));
 
         mDrawRect = computeLayout();
 
         // Calculate invalRect in order to invalidate only Pixel in this Rect
         invalRect.union(mDrawRect);
         invalRect.inset(-(int) mHandleRadius, -(int) mHandleRadius);
-        invalidate(invalRect);
+
+        mViewContext.invalidate(invalRect);
     }
 
     private void growBy(int event, float dx, float dy) {
@@ -222,6 +220,19 @@ public class HighLightView extends View {
 
         dx *= event == EVENT_GROW_LEFT ? -1 : 1;
         dy *= event == EVENT_GROW_TOP ? -1 : 1;
+
+        if (dx > 0F && r.width() + 2 * dx > mImageRect.width()) {
+            dx = (mImageRect.width() - r.width()) / 2F;
+//            if (maintainAspectRatio) {
+//                dy = dx / initialAspectRatio;
+//            }
+        }
+        if (dy > 0F && r.height() + 2 * dy > mImageRect.height()) {
+            dy = (mImageRect.height() - r.height()) / 2F;
+//            if (maintainAspectRatio) {
+//                dx = dy * initialAspectRatio;
+//            }
+        }
 
         r.inset(-dx, -dy);
 
@@ -238,10 +249,23 @@ public class HighLightView extends View {
             r.inset(0F, -(heightCap - r.height()) / 2F);
         }
 
+        // Put the cropping rectangle inside the image rectangle
+        if (r.left < mImageRect.left) {
+            r.offset(mImageRect.left - r.left, 0F);
+        } else if (r.right > mImageRect.right) {
+            r.offset(-(r.right - mImageRect.right), 0F);
+        }
+
+        if (r.top < mImageRect.top) {
+            r.offset(0F, mImageRect.top - r.top);
+        } else if (r.bottom > mImageRect.bottom) {
+            r.offset(0F, -(r.bottom - mImageRect.bottom));
+        }
+
         mCropRect.set(r);
 
         mDrawRect = computeLayout();
-        invalidate();
+        mViewContext.invalidate();
     }
 
     private int getTouchEvent(float x, float y) {
@@ -264,6 +288,10 @@ public class HighLightView extends View {
         }
 
         return event;
+    }
+
+    public void invalidate() {
+        mDrawRect = computeLayout();
     }
 
 }
