@@ -6,14 +6,11 @@
     android:background="@color/colorBackground"
     tools:context="com.framgia.photoalbum.ui.activity.EditActivity">
 
-    <include layout="@layout/toolbar" />
-
     <ImageView
-        android:id="@+id/editImage"
+        android:id="@+id/imageEdit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/listFeature"
-        android:layout_below="@+id/toolbar"
         android:layout_margin="10dp"
         android:scaleType="centerInside" />
 
@@ -21,15 +18,11 @@
         android:id="@+id/listFeature"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
-
-    </android.support.v7.widget.RecyclerView>
+        android:layout_alignParentBottom="true" />
 
     <FrameLayout
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_below="@+id/toolbar">
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    </FrameLayout>
 </RelativeLayout>

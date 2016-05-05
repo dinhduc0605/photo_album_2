@@ -25,6 +25,7 @@ import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
 import com.framgia.photoalbum.ui.fragment.CropFragment;
 import com.framgia.photoalbum.ui.fragment.EditFragment;
+import com.framgia.photoalbum.ui.fragment.EffectFragment;
 import com.framgia.photoalbum.ui.fragment.HighlightFragment;
 import com.framgia.photoalbum.util.CommonUtils;
 
@@ -73,6 +74,11 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         switch (position) {
             case EFFECT_FEATURE:
+                mEditFragment = EffectFragment.newInstance(mImagePath);
+                fragmentTransaction
+                        .replace(R.id.container, mEditFragment)
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case ADJUST_FEATURE:
                 break;
