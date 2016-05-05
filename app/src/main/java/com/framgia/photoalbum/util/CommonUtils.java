@@ -132,9 +132,9 @@ public class CommonUtils {
     /**
      * rotate image depend on image's orientation
      *
-     * @param source
-     * @param angle
-     * @return
+     * @param source source bitmap
+     * @param angle angle that bitmap need to be rotated
+     * @return rotated bitmap
      */
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
@@ -144,9 +144,10 @@ public class CommonUtils {
 
     /**
      * Change contrast and brightness of bitmap
-     * @param bmp source bitmap
-     * @param target target bitmap
-     * @param contrast  contrast parameter
+     *
+     * @param bmp        source bitmap
+     * @param target     target bitmap
+     * @param contrast   contrast parameter
      * @param brightness brightness parameter
      * @return target bitmap
      */
@@ -166,6 +167,28 @@ public class CommonUtils {
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
         canvas.drawBitmap(bmp, 0, 0, paint);
         return target;
+    }
+
+    /**
+     * Scale source bitmap to specific width and height
+     * @param bmp source bitmap
+     * @param reqWidth required width of image
+     * @param reqHeight required height of image
+     * @return target bitmap
+     */
+    public static Bitmap scaleBitmap(Bitmap bmp, int reqWidth, int reqHeight) {
+        int bitmapWidth = bmp.getWidth();
+        int bitmapHeight = bmp.getHeight();
+        float ratio = (float) bitmapWidth / bitmapHeight;
+        //Check if image is landscape or portrait
+        if (ratio > 1) {
+            bitmapWidth = reqWidth;
+            bitmapHeight = (int) (bitmapWidth / ratio);
+        } else {
+            bitmapHeight = reqHeight;
+            bitmapWidth = (int) (bitmapHeight * ratio);
+        }
+        return Bitmap.createScaledBitmap(bmp, bitmapWidth, bitmapHeight, true);
     }
 
 }
