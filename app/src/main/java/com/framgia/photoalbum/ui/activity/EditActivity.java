@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,15 +17,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
-import com.framgia.photoalbum.ui.custom.HighLightDrawable;
+import com.framgia.photoalbum.ui.fragment.CropFragment;
+import com.framgia.photoalbum.ui.fragment.EditFragment;
 import com.framgia.photoalbum.ui.fragment.HighlightFragment;
 import com.framgia.photoalbum.util.CommonUtils;
 
@@ -50,20 +48,23 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
 
+    private String mImagePath;
+
     ArrayList<FeatureItem> mFeatureItems = new ArrayList<>();
     ListFeatureAdapter mAdapter;
     ActionBar mActionBar;
 
     public static Bitmap imageBitmap;
+    private EditFragment mEditFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
-        String imagePath = getImagePath();
+        mImagePath = getImagePath();
 
         LoadImageTask loadImageTask = new LoadImageTask();
-        loadImageTask.execute(imagePath);
+        loadImageTask.execute(mImagePath);
     }
 
     @Override
@@ -76,14 +77,19 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             case ADJUST_FEATURE:
                 break;
             case CROP_FEATURE:
+                mEditFragment = CropFragment.newInstance(mImagePath);
+                fragmentTransaction
+                        .replace(R.id.container, mEditFragment)
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case MERGE_FEATURE:
                 break;
             case HIGHLIGHT_FEATURE:
                 mActionBar.setTitle(getString(R.string.label_highlight_fragment));
-                HighlightFragment highlightFragment = new HighlightFragment();
+                mEditFragment = new HighlightFragment();
                 fragmentTransaction
-                        .replace(R.id.container, highlightFragment)
+                        .replace(R.id.container, mEditFragment)
                         .addToBackStack(getString(R.string.label_highlight_fragment))
                         .commit();
                 break;
@@ -92,7 +98,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_edit_toolbar, menu);
+        return true;
     }
 
     @Override
@@ -100,6 +107,10 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         if (item.getItemId() == android.R.id.home) {
             mActionBar.setTitle(getString(R.string.label_edit_activity));
             onBackPressed();
+        } else if (item.getItemId() == R.id.action_done) {
+            if (mEditFragment != null) {
+                mEditFragment.apply();
+            }
         }
         return true;
     }
@@ -117,6 +128,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     /**
      * get image's absolute path from intent
+     *
      * @return image'path
      */
     private String getImagePath() {
@@ -184,5 +196,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
             }
         }
+    }
+
+    public void clearFragment() {
+        mEditFragment = null;
     }
 }

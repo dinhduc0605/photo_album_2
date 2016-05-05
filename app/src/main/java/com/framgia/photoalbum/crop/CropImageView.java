@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ImageView;
@@ -14,7 +15,7 @@ import android.widget.ImageView;
  */
 public class CropImageView extends ImageView {
 
-    private HighLightView mHighlightView;
+    private HighlightView mHighlightView;
     private RotateBitmap mDisplayBitmap = new RotateBitmap(null, 0);
 
     private Matrix mSuppMatrix = new Matrix();
@@ -85,22 +86,25 @@ public class CropImageView extends ImageView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mHighlightView.onTouchEvent(event);
-        return true;
+        if (mHighlightView != null) {
+            return mHighlightView.onTouchEvent(event);
+        }
+        return super.onTouchEvent(event);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mHighlightView.onDraw(canvas);
+        if (mHighlightView != null)
+            mHighlightView.onDraw(canvas);
     }
 
     private void init() {
-        mHighlightView = new HighLightView(this);
+        mHighlightView = new HighlightView(this);
         setScaleType(ScaleType.MATRIX);
     }
 
-    private void center() {
+    public void center() {
         final Bitmap bitmap = mDisplayBitmap.getBitmap();
         if (bitmap == null) {
             return;
@@ -191,7 +195,7 @@ public class CropImageView extends ImageView {
         return unrotated;
     }
 
-    public void setImageBitmap(final Bitmap bitmap) {
+    public void setImageBitmap(final RotateBitmap bitmap) {
 
         // If this method run before onLayout, wait it complete
         if (mViewWidth <= 0) {
@@ -203,13 +207,37 @@ public class CropImageView extends ImageView {
             return;
         }
 
-        if (mDisplayBitmap.getBitmap() != null) {
-            mDisplayBitmap.recycle();
+        if (bitmap.getBitmap() != null) {
+            getProperBaseMatrix(bitmap, mBaseMatrix, true);
+            setBitmapDisplayed(bitmap.getBitmap(), bitmap.getRotation());
+        } else {
+            mBaseMatrix.reset();
+            setBitmapDisplayed(null, 0);
+        }
+
+        mSuppMatrix.reset();
+        setImageMatrix(getImageViewMatrix());
+
+        setDefault();
+    }
+
+    public void setBitmapDisplayed(Bitmap bitmap, int rotation) {
+        super.setImageBitmap(bitmap);
+        Drawable d = getDrawable();
+        if (d != null) {
+            d.setDither(true);
         }
 
         mDisplayBitmap.setBitmap(bitmap);
-        super.setImageBitmap(mDisplayBitmap.getBitmap());
+        mDisplayBitmap.setRotation(rotation);
+    }
 
-        setDefault();
+    public HighlightView getHighlightView() {
+        return mHighlightView;
+    }
+
+
+    public void clearHighlight() {
+        mHighlightView = null;
     }
 }
