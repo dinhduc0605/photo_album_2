@@ -14,11 +14,11 @@ import android.widget.ImageView;
 
 import com.framgia.photoalbum.util.DimenUtils;
 
-public class HighLightView {
+public class HighlightView {
 
-    private static final float OUTLINE_DP = 2;
+    private static final float OUTLINE_DP = 2.5f;
 
-    private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFF33B5E5;
+    private static final int DEFAULT_HIGHLIGHT_COLOR = 0xFFFFFFFF;
 
     private static final int EVENT_NONE = 1;
     private static final int EVENT_GROW_BOTTOM = 2;
@@ -30,7 +30,7 @@ public class HighLightView {
     private Paint mOutsidePaint;
     private Paint mOutlinePaint;
     private Paint mHandlePaint;
-    private float mHandleRadius = 10f;
+    private float mHandleRadius = 20f;
 
     private float mOutlineWidth;
     private View mViewContext;
@@ -51,7 +51,7 @@ public class HighLightView {
     private int mScreenW, mScreenH;
     private ImageView mImageShow;
 
-    public HighLightView(View viewContext) {
+    public HighlightView(View viewContext) {
         mViewContext = viewContext;
     }
 
@@ -73,6 +73,7 @@ public class HighLightView {
         mOutlinePaint.setAntiAlias(true);
         mOutlineWidth = DimenUtils.dpToPx(mViewContext.getContext(), OUTLINE_DP);
         mOutlinePaint.setStrokeWidth(mOutlineWidth);
+        mOutlinePaint.setColor(mHighlightColor);
 
         mHandlePaint = new Paint();
         mHandlePaint.setStyle(Paint.Style.FILL);
@@ -101,8 +102,7 @@ public class HighLightView {
 
         path.addRect(new RectF(mDrawRect), Path.Direction.CW);
 
-        Log.d("hung", "onDraw: " + mDrawRect.toString());
-        mOutlinePaint.setColor(mHighlightColor);
+        mOutlinePaint.setStrokeWidth(mOutlineWidth);
 
         canvas.clipPath(path, Region.Op.DIFFERENCE);
         canvas.drawRect(mViewDrawingRect, mOutsidePaint);
@@ -292,6 +292,16 @@ public class HighLightView {
 
     public void invalidate() {
         mDrawRect = computeLayout();
+    }
+
+    /**
+     *
+     * @param scale scale dimension
+     * @return the cropping rectangle in image space with specified scale
+     */
+    public Rect getScaledCropRect(float scale) {
+        return new Rect((int) (mCropRect.left * scale), (int) (mCropRect.top * scale),
+                (int) (mCropRect.right * scale), (int) (mCropRect.bottom * scale));
     }
 
 }

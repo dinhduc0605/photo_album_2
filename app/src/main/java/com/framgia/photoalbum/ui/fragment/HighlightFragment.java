@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,7 +17,7 @@ import com.framgia.photoalbum.ui.custom.HighLightDrawable;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class HighlightFragment extends Fragment {
+public class HighlightFragment extends EditFragment {
     @Bind(R.id.imageHighlight)
     ImageView mImageHighlight;
 
@@ -91,5 +90,10 @@ public class HighlightFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void apply() {
+
     }
 }
