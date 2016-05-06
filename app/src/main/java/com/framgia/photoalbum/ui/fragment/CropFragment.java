@@ -30,8 +30,6 @@ import butterknife.ButterKnife;
  */
 public class CropFragment extends EditFragment {
 
-    private static final String BUNDLE_IMAGE_PATH = "BUNDLE_IMAGE_PATH";
-
     @Bind(R.id.imageCrop)
     CropImageView mImageCrop;
 
@@ -42,7 +40,6 @@ public class CropFragment extends EditFragment {
     private HighlightView mHighlightView;
     private boolean isSaving;
     private Bitmap mCropBitmap;
-    private Uri mSourceUri;
 
     public static CropFragment newInstance(String path) {
         Bundle bundle = new Bundle();
