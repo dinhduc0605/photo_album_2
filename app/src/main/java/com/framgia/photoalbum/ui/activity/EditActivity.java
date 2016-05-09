@@ -4,7 +4,9 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,11 +17,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
@@ -139,22 +143,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
      */
     private String getImagePath() {
         Intent intent = getIntent();
-        int imageId = intent.getIntExtra(ChooseImageActivity.IMAGE_ID, 0);
-        //get cursor loader of image table
-        CursorLoader imageLoader = new CursorLoader(
-                this,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[]{MediaStore.Images.Media.DATA},
-                imageId + " = " + MediaStore.Images.Media._ID, null, null);
-        //get cursor point to image table
-        Cursor imageCursor = imageLoader.loadInBackground();
-        String imagePath = null;
-        if (imageCursor.moveToFirst()) {
-            // get image path
-            imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        }
-        imageCursor.close();
-        return imagePath;
+        return intent.getStringExtra(ChooseImageActivity.IMAGE_PATH);
     }
 
     /**
@@ -199,6 +188,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 initView();
                 bindViewControl();
                 mEditImage.setImageBitmap(imageBitmap);
+                if (BuildConfig.DEBUG) {
+                    Log.w(TAG, "" +((BitmapDrawable) mEditImage.getDrawable()).getBitmap().getWidth());
+                }
 
             }
         }

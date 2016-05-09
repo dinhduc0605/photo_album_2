@@ -58,30 +58,32 @@ public class HighlightFragment extends EditFragment {
             public void run() {
                 Log.w(TAG, "" + mImageHighlight.getWidth());
                 mImageBitmap = CommonUtils.scaleBitmap(mImageBitmap, mImageHighlight.getWidth(), mImageHighlight.getHeight());
+                mImageHighlight.getLayoutParams().height = mImageBitmap.getHeight();
+                mImageHighlight.getLayoutParams().width = mImageBitmap.getWidth();
+                mImageHighlight.requestLayout();
+                mHighLightDrawable = new HighLightDrawable(getResources(), mImageBitmap, centerPoint, mRadius);
+                //set callback when drawable is invalidated
+                mHighLightDrawable.setCallback(new Drawable.Callback() {
+                    @Override
+                    public void invalidateDrawable(Drawable drawable) {
+                        mImageHighlight.setImageDrawable(drawable);
+                    }
+
+                    @Override
+                    public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {
+
+                    }
+
+                    @Override
+                    public void unscheduleDrawable(Drawable drawable, Runnable runnable) {
+
+                    }
+                });
+
+                mImageHighlight.setImageDrawable(mHighLightDrawable);
             }
         });
 
-        mHighLightDrawable = new HighLightDrawable(getResources(), mImageBitmap, centerPoint, mRadius);
-        //set callback when drawable is invalidated
-        mHighLightDrawable.setCallback(new Drawable.Callback() {
-            @Override
-            public void invalidateDrawable(Drawable drawable) {
-                mImageHighlight.setImageDrawable(drawable);
-            }
-
-            @Override
-            public void scheduleDrawable(Drawable drawable, Runnable runnable, long l) {
-
-            }
-
-            @Override
-            public void unscheduleDrawable(Drawable drawable, Runnable runnable) {
-
-            }
-        });
-
-
-        mImageHighlight.setImageDrawable(mHighLightDrawable);
         mImageHighlight.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -103,7 +105,7 @@ public class HighlightFragment extends EditFragment {
                         if (!mScaleGestureDetector.isInProgress()) {
                             centerPoint.x += MotionEventCompat.getX(motionEvent, pointerIndex) - lastTouch.x;
                             centerPoint.y += MotionEventCompat.getY(motionEvent, pointerIndex) - lastTouch.y;
-                            mHighLightDrawable.createHighlightArea(centerPoint, mRadius);
+                            mHighLightDrawable.setHighlightArea(centerPoint, mRadius);
                             mHighLightDrawable.invalidateSelf();
                         }
                         lastTouch.x = MotionEventCompat.getX(motionEvent, pointerIndex);
@@ -144,7 +146,7 @@ public class HighlightFragment extends EditFragment {
             float mScaleFactor = detector.getScaleFactor();
             mRadius *= mScaleFactor;
             mRadius = Math.max(50f, Math.min(mRadius, 200f));
-            mHighLightDrawable.createHighlightArea(centerPoint, mRadius);
+            mHighLightDrawable.setHighlightArea(centerPoint, mRadius);
             mHighLightDrawable.invalidateSelf();
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onScale: " + mScaleFactor);

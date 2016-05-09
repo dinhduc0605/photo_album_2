@@ -2,7 +2,6 @@ package com.framgia.photoalbum.ui.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -10,13 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.framgia.photoalbum.BuildConfig;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.framgia.photoalbum.data.model.ImageItem;
 import com.framgia.photoalbum.ui.activity.ChooseImageActivity;
 import com.framgia.photoalbum.ui.activity.EditActivity;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -53,13 +51,17 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final ImageItem image = mImageItems.get(position);
-        File file = new File(image.getThumbnailPath());
-        Picasso.with(mActivity).load(Uri.fromFile(file)).into(holder.imageView);
+        Glide.with(mActivity)
+                .load(image.getImagePath())
+                .centerCrop()
+                .skipMemoryCache(false)
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .into(holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(mActivity, EditActivity.class);
-                intent.putExtra(ChooseImageActivity.IMAGE_ID, image.getId());
+                intent.putExtra(ChooseImageActivity.IMAGE_PATH, image.getImagePath());
                 mActivity.startActivity(intent);
             }
         });
