@@ -6,12 +6,10 @@ package com.framgia.photoalbum.data.model;
 public class ImageItem {
     private String mImagePath;
     private int mId;
-    private String mThumbnailPath;
 
-    public ImageItem(String imagePath, int id, String thumbnailPath) {
-        this.mImagePath = imagePath;
-        this.mId = id;
-        this.mThumbnailPath = thumbnailPath;
+    public ImageItem(String imagePath, int id) {
+        mImagePath = imagePath;
+        mId = id;
     }
 
     public int getId() {
@@ -19,9 +17,5 @@ public class ImageItem {
     }
     public String getImagePath() {
         return mImagePath;
-    }
-
-    public String getThumbnailPath() {
-        return mThumbnailPath;
     }
 }

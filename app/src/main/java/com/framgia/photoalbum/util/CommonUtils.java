@@ -133,7 +133,7 @@ public class CommonUtils {
      * rotate image depend on image's orientation
      *
      * @param source source bitmap
-     * @param angle angle that bitmap need to be rotated
+     * @param angle  angle that bitmap need to be rotated
      * @return rotated bitmap
      */
     public static Bitmap rotateImage(Bitmap source, float angle) {
@@ -171,22 +171,24 @@ public class CommonUtils {
 
     /**
      * Scale source bitmap to specific width and height
-     * @param bmp source bitmap
-     * @param reqWidth required width of image
-     * @param reqHeight required height of image
+     *
+     * @param bmp        source bitmap
+     * @param viewWidth  required width of image
+     * @param viewHeight required height of image
      * @return target bitmap
      */
-    public static Bitmap scaleBitmap(Bitmap bmp, int reqWidth, int reqHeight) {
+    public static Bitmap scaleBitmap(Bitmap bmp, float viewWidth, float viewHeight) {
         int bitmapWidth = bmp.getWidth();
         int bitmapHeight = bmp.getHeight();
-        float ratio = (float) bitmapWidth / bitmapHeight;
+        float ratioWidth = bitmapWidth / viewWidth;
+        float ratioHeight = bitmapHeight / viewHeight;
         //Check if image is landscape or portrait
-        if (ratio > 1) {
-            bitmapWidth = reqWidth;
-            bitmapHeight = (int) (bitmapWidth / ratio);
+        if (ratioWidth > ratioHeight) {
+            bitmapWidth = (int) viewWidth;
+            bitmapHeight = (int) (bitmapHeight / ratioWidth);
         } else {
-            bitmapHeight = reqHeight;
-            bitmapWidth = (int) (bitmapHeight * ratio);
+            bitmapHeight = (int) viewHeight;
+            bitmapWidth = (int) (bitmapWidth / ratioHeight);
         }
         return Bitmap.createScaledBitmap(bmp, bitmapWidth, bitmapHeight, true);
     }

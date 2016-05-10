@@ -30,7 +30,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class ChooseImageActivity extends AppCompatActivity {
-    public static final String IMAGE_ID = "image_id";
+    public static final String IMAGE_PATH = "image_path";
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
     private static final String TAG = "ChooseImageActivity";
     private Uri mPhotoUri;
@@ -79,27 +79,27 @@ public class ChooseImageActivity extends AppCompatActivity {
     private ArrayList<ImageItem> getImageList() {
         ArrayList<ImageItem> imageItems = new ArrayList<>();
         //get cursor loader of Thumbnail table
-        CursorLoader thumbnailLoader = new CursorLoader(this,
-                MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
+        CursorLoader imageLoader = new CursorLoader(this,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 //get image id & thumbnail path
-                new String[]{MediaStore.Images.Thumbnails.IMAGE_ID, MediaStore.Images.Thumbnails.DATA},
+                new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
                 null,
                 null,
-                MediaStore.Images.Thumbnails.IMAGE_ID);
+                null);
         //get cursor point to thumbnail table
-        Cursor thumbnailCursor = thumbnailLoader.loadInBackground();
-        if (thumbnailCursor.moveToLast()) {
+        Cursor imageCursor = imageLoader.loadInBackground();
+        if (imageCursor.moveToLast()) {
             do {
-                //get thumbnail path
-                String thumbnailPath = thumbnailCursor.getString(thumbnailCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                //get image path
+                String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
                 //get image id
-                int id = thumbnailCursor.getInt(thumbnailCursor.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID));
+                int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
 
-                ImageItem imageItem = new ImageItem(null, id, thumbnailPath);
+                ImageItem imageItem = new ImageItem(imagePath, id);
                 imageItems.add(imageItem);
-            } while (thumbnailCursor.moveToPrevious());
+            } while (imageCursor.moveToPrevious());
         }
-        thumbnailCursor.close();
+        imageCursor.close();
         return imageItems;
     }
 
@@ -142,7 +142,7 @@ public class ChooseImageActivity extends AppCompatActivity {
     private void startEditorActivity(String photoPath) {
         // TODO start editor activity with path of photo which captured or picked from album
         Intent intent = new Intent(this, EditActivity.class);
-        intent.putExtra(IMAGE_ID, photoPath);
+        intent.putExtra(IMAGE_PATH, photoPath);
         startActivity(intent);
     }
 
