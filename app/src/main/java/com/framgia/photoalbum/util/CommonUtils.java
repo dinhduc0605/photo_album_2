@@ -147,8 +147,8 @@ public class CommonUtils {
      *
      * @param bmp        source bitmap
      * @param target     target bitmap
-     * @param contrast   contrast parameter
-     * @param brightness brightness parameter
+     * @param contrast   contrast parameter 0..10, 1 is default
+     * @param brightness brightness parameter -255..255, 0 is default
      * @return target bitmap
      */
     public static Bitmap changeBitmapContrastBrightness(Bitmap bmp, Bitmap target, float contrast, float brightness) {

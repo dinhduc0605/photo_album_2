@@ -23,6 +23,7 @@ import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
+import com.framgia.photoalbum.ui.fragment.AdjustFragment;
 import com.framgia.photoalbum.ui.fragment.ColorAdjustmentFragment;
 import com.framgia.photoalbum.ui.fragment.CropFragment;
 import com.framgia.photoalbum.ui.fragment.EditFragment;
@@ -38,10 +39,11 @@ import butterknife.ButterKnife;
 public class EditActivity extends AppCompatActivity implements ListFeatureAdapter.OnFeatureClicked {
     private static final String TAG = "EditActivity";
     public static final int EFFECT_FEATURE = 0;
-    public static final int ADJUST_FEATURE = 1;
-    public static final int CROP_FEATURE = 2;
-    public static final int MERGE_FEATURE = 3;
-    public static final int HIGHLIGHT_FEATURE = 4;
+    public static final int COLOR_FEATURE = 1;
+    public static final int ADJUST_FEATURE = 2;
+    public static final int CROP_FEATURE = 3;
+    public static final int MERGE_FEATURE = 4;
+    public static final int HIGHLIGHT_FEATURE = 5;
 
     @Bind(R.id.editImage)
     ImageView mEditImage;
@@ -76,36 +78,27 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         switch (position) {
             case EFFECT_FEATURE:
                 mEditFragment = EffectFragment.newInstance(mImagePath);
-                fragmentTransaction
-                        .replace(R.id.container, mEditFragment)
-                        .addToBackStack(null)
-                        .commit();
+                break;
+            case COLOR_FEATURE:
+                mEditFragment = ColorAdjustmentFragment.newInstance(mImagePath);
                 break;
             case ADJUST_FEATURE:
-                mEditFragment = ColorAdjustmentFragment.newInstance(mImagePath);
-                fragmentTransaction
-                        .replace(R.id.container, mEditFragment)
-                        .addToBackStack(null)
-                        .commit();
+                mEditFragment = new AdjustFragment();
                 break;
             case CROP_FEATURE:
                 mEditFragment = CropFragment.newInstance(mImagePath);
-                fragmentTransaction
-                        .replace(R.id.container, mEditFragment)
-                        .addToBackStack(null)
-                        .commit();
                 break;
             case MERGE_FEATURE:
                 break;
             case HIGHLIGHT_FEATURE:
                 mActionBar.setTitle(getString(R.string.label_highlight_fragment));
                 mEditFragment = new HighlightFragment();
-                fragmentTransaction
-                        .replace(R.id.container, mEditFragment)
-                        .addToBackStack(getString(R.string.label_highlight_fragment))
-                        .commit();
                 break;
         }
+        fragmentTransaction
+                .replace(R.id.container, mEditFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -122,6 +115,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         } else if (item.getItemId() == R.id.action_done) {
             if (mEditFragment != null) {
                 mEditFragment.apply();
+                mEditImage.setImageBitmap(imageBitmap);
+                mActionBar.setTitle(getString(R.string.label_edit_activity));
+                onBackPressed();
             }
         }
         return true;
@@ -132,7 +128,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
      */
     private void initData() {
         mFeatureItems.add(new FeatureItem(R.drawable.tab_effect_normal, getString(R.string.tab_effect)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_color_adjust, getString(R.string.tab_adjust)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_color_normal, getString(R.string.tab_color)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal, getString(R.string.tab_adjust)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_crop_normal, getString(R.string.tab_crop)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_merge_normal, getString(R.string.tab_merge)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_high_light_normal, getString(R.string.tab_high_light)));
@@ -191,7 +188,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 bindViewControl();
                 mEditImage.setImageBitmap(imageBitmap);
                 if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "" +((BitmapDrawable) mEditImage.getDrawable()).getBitmap().getWidth());
+                    Log.w(TAG, "" + ((BitmapDrawable) mEditImage.getDrawable()).getBitmap().getWidth());
                 }
 
             }
