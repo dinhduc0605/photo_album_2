@@ -1,15 +1,11 @@
 package com.framgia.photoalbum.ui.activity;
 
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -27,6 +23,7 @@ import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
+import com.framgia.photoalbum.ui.fragment.ColorAdjustmentFragment;
 import com.framgia.photoalbum.ui.fragment.CropFragment;
 import com.framgia.photoalbum.ui.fragment.EditFragment;
 import com.framgia.photoalbum.ui.fragment.EffectFragment;
@@ -85,6 +82,11 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                         .commit();
                 break;
             case ADJUST_FEATURE:
+                mEditFragment = ColorAdjustmentFragment.newInstance(mImagePath);
+                fragmentTransaction
+                        .replace(R.id.container, mEditFragment)
+                        .addToBackStack(null)
+                        .commit();
                 break;
             case CROP_FEATURE:
                 mEditFragment = CropFragment.newInstance(mImagePath);
@@ -130,7 +132,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
      */
     private void initData() {
         mFeatureItems.add(new FeatureItem(R.drawable.tab_effect_normal, getString(R.string.tab_effect)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal, getString(R.string.tab_adjust)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_color_adjust, getString(R.string.tab_adjust)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_crop_normal, getString(R.string.tab_crop)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_merge_normal, getString(R.string.tab_merge)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_high_light_normal, getString(R.string.tab_high_light)));
