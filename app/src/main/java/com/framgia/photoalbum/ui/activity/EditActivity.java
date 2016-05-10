@@ -29,6 +29,7 @@ import com.framgia.photoalbum.ui.fragment.CropFragment;
 import com.framgia.photoalbum.ui.fragment.EditFragment;
 import com.framgia.photoalbum.ui.fragment.EffectFragment;
 import com.framgia.photoalbum.ui.fragment.HighlightFragment;
+import com.framgia.photoalbum.ui.fragment.OrientationFragment;
 import com.framgia.photoalbum.util.CommonUtils;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public static final int CROP_FEATURE = 3;
     public static final int MERGE_FEATURE = 4;
     public static final int HIGHLIGHT_FEATURE = 5;
+    private static final int ORIENTATION_FEATURE = 6;
 
     @Bind(R.id.editImage)
     ImageView mEditImage;
@@ -94,6 +96,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 mActionBar.setTitle(getString(R.string.label_highlight_fragment));
                 mEditFragment = new HighlightFragment();
                 break;
+            case ORIENTATION_FEATURE:
+                mEditFragment = OrientationFragment.newInstance(mImagePath);
+                break;
         }
         fragmentTransaction
                 .replace(R.id.container, mEditFragment)
@@ -133,6 +138,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         mFeatureItems.add(new FeatureItem(R.drawable.tab_crop_normal, getString(R.string.tab_crop)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_merge_normal, getString(R.string.tab_merge)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_high_light_normal, getString(R.string.tab_high_light)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_orientation, getString(R.string.orientation)));
     }
 
     /**
