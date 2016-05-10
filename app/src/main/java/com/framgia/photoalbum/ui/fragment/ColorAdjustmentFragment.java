@@ -50,7 +50,7 @@ public class ColorAdjustmentFragment extends EditFragment implements
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_adjustment, container, false);
+        View view = inflater.inflate(R.layout.fragment_color, container, false);
         ButterKnife.bind(this, view);
 
         if (getArguments() != null) {
