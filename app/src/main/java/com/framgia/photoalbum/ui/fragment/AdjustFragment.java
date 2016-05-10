@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
+import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.AdjustItem;
 import com.framgia.photoalbum.ui.activity.EditActivity;
@@ -35,6 +37,7 @@ public class AdjustFragment extends EditFragment {
     public static final int SEEK_BAR_LIGHT = 0;
     public static final int SEEK_BAR_CONTRAST = 1;
     public static final int SEEK_BAR_HUE = 2;
+    private static final String TAG = "AdjustFragment";
     @Bind(R.id.adjustImage)
     ImageView mImageView;
     @Bind(R.id.listAdjustFeature)
@@ -67,7 +70,11 @@ public class AdjustFragment extends EditFragment {
         View view = inflater.inflate(R.layout.fragment_adjust, container, false);
         ButterKnife.bind(this, view);
         mImageBitmapSrc = EditActivity.imageBitmap;
-        mImageBitmapDes = Bitmap.createBitmap(mImageBitmapSrc.getWidth(), mImageBitmapSrc.getHeight(), mImageBitmapSrc.getConfig());
+        mImageBitmapDes = Bitmap.createBitmap(
+                mImageBitmapSrc.getWidth(),
+                mImageBitmapSrc.getHeight(),
+                mImageBitmapSrc.getConfig()
+        );
         return view;
     }
 
@@ -88,8 +95,12 @@ public class AdjustFragment extends EditFragment {
                         adjustSeekBar.setProgress(255);
                         break;
                     case SEEK_BAR_CONTRAST:
+                        adjustSeekBar.setMax(100);
+                        adjustSeekBar.setProgress(50);
                         break;
                     case SEEK_BAR_HUE:
+                        adjustSeekBar.setMax(360);
+                        adjustSeekBar.setProgress(180);
                         break;
                 }
             }
@@ -100,12 +111,25 @@ public class AdjustFragment extends EditFragment {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 switch (mPosition) {
                     case SEEK_BAR_LIGHT:
-                        mImageBitmapDes = CommonUtils.changeBitmapContrastBrightness(mImageBitmapSrc, mImageBitmapDes, 1, i - 255);
+                        CommonUtils.changeBitmapContrastBrightness(mImageBitmapSrc, mImageBitmapDes, 1, i - 255);
                         mImageView.setImageBitmap(mImageBitmapDes);
                         break;
                     case SEEK_BAR_CONTRAST:
+                        float progress;
+                        if (i < 50) {
+                            progress = i / 50f;
+                        } else {
+                            progress = 1 + (i - 50) / 50f * 9;
+                        }
+                        CommonUtils.changeBitmapContrastBrightness(mImageBitmapSrc, mImageBitmapDes, progress, 0);
+                        mImageView.setImageBitmap(mImageBitmapDes);
                         break;
                     case SEEK_BAR_HUE:
+                        if (BuildConfig.DEBUG) {
+                            Log.w(TAG, "" + i);
+                        }
+                        CommonUtils.adjustHue(mImageBitmapSrc, mImageBitmapDes, i - 180);
+                        mImageView.setImageBitmap(mImageBitmapDes);
                         break;
                 }
             }
@@ -152,8 +176,7 @@ public class AdjustFragment extends EditFragment {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnClear:
-                mImageBitmapDes = CommonUtils.changeBitmapContrastBrightness(mImageBitmapSrc, mImageBitmapDes, 1, 0);
-                mImageView.setImageBitmap(mImageBitmapDes);
+                mImageView.setImageBitmap(mImageBitmapSrc);
                 adjustFeatureList.setVisibility(View.VISIBLE);
                 layoutAdjust.setVisibility(View.INVISIBLE);
                 break;
