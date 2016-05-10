@@ -3,4 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="item_list_size">30dp</dimen>
+    <dimen name="background_circle_button_size">50dp</dimen>
+    <dimen name="text_size_desc">14sp</dimen>
+    <dimen name="btn_circle_padding">13dp</dimen>
 </resources>

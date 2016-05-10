@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:clickable="true"
+    tools:context="com.framgia.photoalbum.ui.activity.EditActivity">
+
+    <ImageView
+        android:id="@+id/imageEdit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/listEffect"
+        android:layout_margin="10dp"
+        android:scaleType="centerInside" />
+
+    <LinearLayout
+        android:id="@+id/listEffect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/btnFlipHorz"
+                android:layout_width="@dimen/background_circle_button_size"
+                android:layout_height="@dimen/background_circle_button_size"
+                android:background="@drawable/background_circle_border"
+                android:padding="@dimen/btn_circle_padding"
+                android:src="@drawable/ic_flip_horizontal" />
+
+            <ImageView
+                android:id="@+id/btnFlipVert"
+                android:layout_width="@dimen/background_circle_button_size"
+                android:layout_height="@dimen/background_circle_button_size"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@id/btnFlipHorz"
+                android:background="@drawable/background_circle_border"
+                android:padding="@dimen/btn_circle_padding"
+                android:src="@drawable/ic_flip_vertical" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnFlipHorz"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="2dp"
+                android:text="Flip"
+                android:textSize="@dimen/text_size_desc" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/btnRotateCCW"
+                android:layout_width="@dimen/background_circle_button_size"
+                android:layout_height="@dimen/background_circle_button_size"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/background_circle_border"
+                android:padding="@dimen/btn_circle_padding"
+                android:src="@drawable/ic_rotate_left" />
+
+            <ImageView
+                android:id="@+id/btnRotateCW"
+                android:layout_width="@dimen/background_circle_button_size"
+                android:layout_height="@dimen/background_circle_button_size"
+                android:layout_toRightOf="@id/btnRotateCCW"
+                android:background="@drawable/background_circle_border"
+                android:padding="@dimen/btn_circle_padding"
+                android:src="@drawable/ic_rotate_right" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnRotateCW"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="2dp"
+                android:text="@string/rotate"
+                android:textSize="@dimen/text_size_desc" />
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>
