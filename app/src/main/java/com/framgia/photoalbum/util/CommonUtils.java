@@ -8,6 +8,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
@@ -149,9 +150,8 @@ public class CommonUtils {
      * @param target     target bitmap
      * @param contrast   contrast parameter 0..10, 1 is default
      * @param brightness brightness parameter -255..255, 0 is default
-     * @return target bitmap
      */
-    public static Bitmap changeBitmapContrastBrightness(Bitmap bmp, Bitmap target, float contrast, float brightness) {
+    public static void changeBitmapContrastBrightness(Bitmap bmp, Bitmap target, float contrast, float brightness) {
         ColorMatrix cm = new ColorMatrix(new float[]
                 {
                         contrast, 0, 0, 0, brightness,
@@ -166,7 +166,40 @@ public class CommonUtils {
         Paint paint = new Paint();
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
         canvas.drawBitmap(bmp, 0, 0, paint);
-        return target;
+    }
+
+    public static void adjustHue(Bitmap srcBitmap, Bitmap desBitmap, float value) {
+
+        value = cleanValue(value, 180f) / 180f * (float) Math.PI;
+        if (BuildConfig.DEBUG) {
+            Log.w(TAG, "" + value);
+        }
+//        if (value == 0.0) {
+//            return;
+//        }
+        float cosVal = (float) Math.cos(value);
+        float sinVal = (float) Math.sin(value);
+        float lumR = 0.213f;
+        float lumG = 0.715f;
+        float lumB = 0.072f;
+        float[] mat = new float[]
+                {
+                        lumR + cosVal * (1 - lumR) + sinVal * (-lumR), lumG + cosVal * (-lumG) + sinVal * (-lumG), lumB + cosVal * (-lumB) + sinVal * (1 - lumB), 0, 0,
+                        lumR + cosVal * (-lumR) + sinVal * (0.143f), lumG + cosVal * (1 - lumG) + sinVal * (0.140f), lumB + cosVal * (-lumB) + sinVal * (-0.283f), 0, 0,
+                        lumR + cosVal * (-lumR) + sinVal * (-(1 - lumR)), lumG + cosVal * (-lumG) + sinVal * (lumG), lumB + cosVal * (1 - lumB) + sinVal * (lumB), 0, 0,
+                        0f, 0f, 0f, 1f, 0f,
+                        0f, 0f, 0f, 0f, 1f
+                };
+        ColorMatrix cm = new ColorMatrix(mat);
+        Canvas canvas = new Canvas(desBitmap);
+
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+        canvas.drawBitmap(srcBitmap, 0, 0, paint);
+    }
+
+    private static float cleanValue(float p_val, float p_limit) {
+        return Math.min(p_limit, Math.max(-p_limit, p_val));
     }
 
     /**
