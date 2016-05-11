@@ -24,12 +24,6 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
     ArrayList<FeatureItem> mFeatureItems;
     OnFeatureClicked mOnFeatureClicked;
 
-    public ListFeatureAdapter(Context context, ArrayList<FeatureItem> featureItems) {
-        mContext = context;
-        mFeatureItems = featureItems;
-        mOnFeatureClicked = (OnFeatureClicked) context;
-    }
-
     public ListFeatureAdapter(Context context, ArrayList<FeatureItem> featureItems,
                               OnFeatureClicked onFeatureClicked) {
         mContext = context;

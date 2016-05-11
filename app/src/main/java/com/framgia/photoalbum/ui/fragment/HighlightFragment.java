@@ -57,7 +57,7 @@ public class HighlightFragment extends EditFragment {
             @Override
             public void run() {
                 Log.w(TAG, "" + mImageHighlight.getWidth());
-                mImageBitmap = CommonUtils.scaleBitmap(mImageBitmap, mImageHighlight.getWidth(), mImageHighlight.getHeight());
+                mImageBitmap = CommonUtils.centerBitmap(mImageBitmap, mImageHighlight.getWidth(), mImageHighlight.getHeight());
                 mImageHighlight.getLayoutParams().height = mImageBitmap.getHeight();
                 mImageHighlight.getLayoutParams().width = mImageBitmap.getWidth();
                 mImageHighlight.requestLayout();

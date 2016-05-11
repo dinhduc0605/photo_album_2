@@ -44,10 +44,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public static final int COLOR_FEATURE = 1;
     public static final int ADJUST_FEATURE = 2;
     public static final int CROP_FEATURE = 3;
-    public static final int MERGE_FEATURE = 4;
-    public static final int HIGHLIGHT_FEATURE = 5;
-    private static final int ORIENTATION_FEATURE = 6;
-    private static final int GAMMA_FEATURE = 7;
+    public static final int HIGHLIGHT_FEATURE = 4;
+    private static final int ORIENTATION_FEATURE = 5;
+    private static final int GAMMA_FEATURE = 6;
 
     @Bind(R.id.editImage)
     ImageView mEditImage;
@@ -81,24 +80,27 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         switch (position) {
             case EFFECT_FEATURE:
+                mActionBar.setTitle(getString(R.string.label_effect_fragment));
                 mEditFragment = EffectFragment.newInstance(mImagePath);
                 break;
             case COLOR_FEATURE:
+                mActionBar.setTitle(getString(R.string.label_color_fragment));
                 mEditFragment = ColorAdjustmentFragment.newInstance(mImagePath);
                 break;
             case ADJUST_FEATURE:
+                mActionBar.setTitle(getString(R.string.label_adjust_fragment));
                 mEditFragment = new AdjustFragment();
                 break;
             case CROP_FEATURE:
+                mActionBar.setTitle(getString(R.string.label_crop_fragment));
                 mEditFragment = CropFragment.newInstance(mImagePath);
-                break;
-            case MERGE_FEATURE:
                 break;
             case HIGHLIGHT_FEATURE:
                 mActionBar.setTitle(getString(R.string.label_highlight_fragment));
                 mEditFragment = new HighlightFragment();
                 break;
             case ORIENTATION_FEATURE:
+                mActionBar.setTitle(getString(R.string.label_rotate_fragment));
                 mEditFragment = OrientationFragment.newInstance(mImagePath);
                 break;
             case GAMMA_FEATURE:
@@ -141,7 +143,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         mFeatureItems.add(new FeatureItem(R.drawable.tab_color_normal, getString(R.string.tab_color)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal, getString(R.string.tab_adjust)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_crop_normal, getString(R.string.tab_crop)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_merge_normal, getString(R.string.tab_merge)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_high_light_normal, getString(R.string.tab_high_light)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_orientation, getString(R.string.orientation)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_gamma, getString(R.string.gamma)));
@@ -166,7 +167,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         mActionBar = getSupportActionBar();
         mActionBar.setDisplayHomeAsUpEnabled(true);
         initData();
-        mAdapter = new ListFeatureAdapter(this, mFeatureItems);
+        mAdapter = new ListFeatureAdapter(this, mFeatureItems, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mListFeature.setLayoutManager(layoutManager);
         mListFeature.setAdapter(mAdapter);

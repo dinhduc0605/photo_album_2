@@ -210,12 +210,12 @@ public class CommonUtils {
      * @param viewHeight required height of image
      * @return target bitmap
      */
-    public static Bitmap scaleBitmap(Bitmap bmp, float viewWidth, float viewHeight) {
+    public static Bitmap centerBitmap(Bitmap bmp, float viewWidth, float viewHeight) {
         int bitmapWidth = bmp.getWidth();
         int bitmapHeight = bmp.getHeight();
         float ratioWidth = bitmapWidth / viewWidth;
         float ratioHeight = bitmapHeight / viewHeight;
-        //Check if image is landscape or portrait
+
         if (ratioWidth > ratioHeight) {
             bitmapWidth = (int) viewWidth;
             bitmapHeight = (int) (bitmapHeight / ratioWidth);
@@ -226,4 +226,19 @@ public class CommonUtils {
         return Bitmap.createScaledBitmap(bmp, bitmapWidth, bitmapHeight, true);
     }
 
+    public static Bitmap matchBitmap(Bitmap bmp, float viewWidth, float viewHeight) {
+        int bitmapWidth = bmp.getWidth();
+        int bitmapHeight = bmp.getHeight();
+        float ratioWidth = bitmapWidth / viewWidth;
+        float ratioHeight = bitmapHeight / viewHeight;
+
+        if (ratioWidth < ratioHeight) {
+            bitmapWidth = (int) viewWidth;
+            bitmapHeight = (int) (bitmapHeight / ratioWidth);
+        } else {
+            bitmapHeight = (int) viewHeight;
+            bitmapWidth = (int) (bitmapWidth / ratioHeight);
+        }
+        return Bitmap.createScaledBitmap(bmp, bitmapWidth, bitmapHeight, true);
+    }
 }
