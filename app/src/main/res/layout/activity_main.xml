@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.activity.MainActivity">
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,4 +17,12 @@
         android:layout_height="100dp"
         android:layout_centerInParent="true"
         android:background="@drawable/photo_editor_button" />
+
+    <Button
+        android:id="@+id/collage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/photoEditor"
+        android:layout_centerInParent="true"
+        android:text="@string/collage" />
 </RelativeLayout>

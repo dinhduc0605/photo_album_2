@@ -28,4 +28,18 @@
     <string name="orientation">Orientation</string>
     <string name="rotate">Rotate</string>
     <string name="gamma">Gamma</string>
+    <string name="label_effect_fragment">Effect</string>
+    <string name="label_color_fragment">Color</string>
+    <string name="label_adjust_fragment">Adjust</string>
+    <string name="label_crop_fragment">Crop</string>
+    <string name="label_merge_fragment">Merge</string>
+    <string name="label_rotate_fragment">Rotate</string>
+    <string name="collage">Collage</string>
+    <string name="layout">Layout 1</string>
+    <string name="collage_1">Collage 1</string>
+    <string name="collage_2">Collage 2</string>
+    <string name="collage_3">Collage 3</string>
+    <string name="collage_4">Collage 4</string>
+    <string name="collage_5">Collage 5</string>
+    <string name="collage_6">Collage 6</string>
 </resources>
