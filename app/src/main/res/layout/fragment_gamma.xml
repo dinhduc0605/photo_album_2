@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:clickable="true"
+    android:orientation="vertical"
+    tools:context="com.framgia.photoalbum.ui.activity.EditActivity">
+
+    <ImageView
+        android:id="@+id/imageEdit"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        android:layout_weight="1"
+        android:scaleType="centerInside" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:clickable="true"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:weightSum="10"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/red"
+                android:textSize="@dimen/text_size_gamma" />
+
+            <SeekBar
+                android:id="@+id/seekbarRed"
+                android:layout_width="0dp"
+                android:layout_weight="8.5"
+                android:layout_height="wrap_content"
+                android:max="48"
+                android:progress="24"
+                tools:ignore="UnusedAttribute" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:weightSum="10"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/green"
+                android:textSize="@dimen/text_size_gamma" />
+
+            <SeekBar
+                android:layout_weight="8.5"
+                android:id="@+id/seekbarGreen"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:max="48"
+                android:progress="24"
+                tools:ignore="UnusedAttribute" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="10"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/blue"
+                android:textSize="@dimen/text_size_gamma" />
+
+            <SeekBar
+                android:layout_weight="8.5"
+                android:id="@+id/seekbarBlue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:max="48"
+                android:progress="24"
+                tools:ignore="UnusedAttribute" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
