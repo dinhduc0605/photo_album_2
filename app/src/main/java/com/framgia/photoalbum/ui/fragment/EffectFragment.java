@@ -2,7 +2,6 @@ package com.framgia.photoalbum.ui.fragment;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,12 +14,15 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.asynctask.EffectApplyAsyncTask;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.effect.EffectFilter;
+import com.framgia.photoalbum.effect.Emboss;
 import com.framgia.photoalbum.effect.GrayScale;
 import com.framgia.photoalbum.effect.Negative;
+import com.framgia.photoalbum.effect.Noise;
+import com.framgia.photoalbum.effect.Sharpen;
+import com.framgia.photoalbum.effect.Sketch;
 import com.framgia.photoalbum.ui.activity.EditActivity;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.Bind;
@@ -35,6 +37,10 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
 
     private static final int EFFECT_GRAY_SCALE = 0;
     private static final int EFFECT_NEGATIVE = 1;
+    private static final int EFFECT_SHARPEN = 2;
+    private static final int EFFECT_EMBOSS = 3;
+    private static final int EFFECT_SKETCH = 4;
+    private static final int EFFECT_NOISE = 5;
 
     @Bind(R.id.imageEdit)
     ImageView imageDisplayed;
@@ -52,11 +58,6 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
         View view = inflater.inflate(R.layout.fragment_effect, container, false);
         ButterKnife.bind(this, view);
 
-        if (getArguments() != null) {
-            String path = getArguments().getString(BUNDLE_IMAGE_PATH);
-            mSourceUri = Uri.fromFile(new File(path));
-        }
-
         initComponent();
 
         return view;
@@ -70,11 +71,20 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
         mProcessDialog.setMessage(getContext().getString(R.string.loading));
         mProcessDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProcessDialog.setIndeterminate(true);
+        mProcessDialog.setCancelable(false);
 
         mFeatureItems.add(new FeatureItem(R.drawable.tab_effect_normal,
-                        getContext().getString(R.string.gray_scale)));
+                getContext().getString(R.string.gray_scale)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
-                        getContext().getString(R.string.negative)));
+                getContext().getString(R.string.negative)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.sharpen)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.emboss)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.sketch)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.noise)));
 
         mAdapter = new ListFeatureAdapter(getContext(), mFeatureItems, this);
         RecyclerView.LayoutManager layoutManager =
@@ -126,6 +136,18 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
                 break;
             case EFFECT_NEGATIVE:
                 applyEffect(new Negative());
+                break;
+            case EFFECT_SHARPEN:
+                applyEffect(new Sharpen());
+                break;
+            case EFFECT_EMBOSS:
+                applyEffect(new Emboss());
+                break;
+            case EFFECT_SKETCH:
+                applyEffect(new Sketch());
+                break;
+            case EFFECT_NOISE:
+                applyEffect(new Noise());
                 break;
         }
     }
