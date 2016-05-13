@@ -7,4 +7,9 @@
     <dimen name="text_size_desc">14sp</dimen>
     <dimen name="btn_circle_padding">13dp</dimen>
     <dimen name="text_size_gamma">16sp</dimen>
+    <dimen name="recycler_view_height">100dp</dimen>
+    <dimen name="recycler_view_width">100dp</dimen>
+    <dimen name="item_recycler_view_margin">10dp</dimen>
+    <dimen name="item_image_grid_size">110dp</dimen>
+    <dimen name="item_image_grid_margin">5dp</dimen>
 </resources>

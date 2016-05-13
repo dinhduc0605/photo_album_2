@@ -25,16 +25,16 @@ import butterknife.ButterKnife;
 
 public class HighlightFragment extends EditFragment {
     private static final String TAG = "HighlightFragment";
-    @Bind(R.id.imageHighlight)
-    ImageView mImageHighlight;
     private HighLightDrawable mHighLightDrawable;
-    Point centerPoint = new Point(100, 100);
-    float mRadius = 100;
+    private Point mCenterPoint = new Point(100, 100);
+    private float mRadius = 100;
     private Bitmap mImageBitmap;
     private ScaleGestureDetector mScaleGestureDetector;
-    private PointF lastTouch;
-    int mActivePointerId;
+    private PointF mLastTouch;
+    private int mActivePointerId;
 
+    @Bind(R.id.imageHighlight)
+    ImageView mImageHighlight;
     public HighlightFragment() {
 
     }
@@ -61,7 +61,7 @@ public class HighlightFragment extends EditFragment {
                 mImageHighlight.getLayoutParams().height = mImageBitmap.getHeight();
                 mImageHighlight.getLayoutParams().width = mImageBitmap.getWidth();
                 mImageHighlight.requestLayout();
-                mHighLightDrawable = new HighLightDrawable(getResources(), mImageBitmap, centerPoint, mRadius);
+                mHighLightDrawable = new HighLightDrawable(getResources(), mImageBitmap, mCenterPoint, mRadius);
                 //set callback when drawable is invalidated
                 mHighLightDrawable.setCallback(new Drawable.Callback() {
                     @Override
@@ -92,10 +92,10 @@ public class HighlightFragment extends EditFragment {
                 switch (MotionEventCompat.getActionMasked(motionEvent)) {
                     case MotionEvent.ACTION_DOWN: {
                         //Last touch coordinate
-                        lastTouch = new PointF();
+                        mLastTouch = new PointF();
                         int pointerIndex = MotionEventCompat.getActionIndex(motionEvent);
-                        lastTouch.x = MotionEventCompat.getX(motionEvent, pointerIndex);
-                        lastTouch.y = MotionEventCompat.getY(motionEvent, pointerIndex);
+                        mLastTouch.x = MotionEventCompat.getX(motionEvent, pointerIndex);
+                        mLastTouch.y = MotionEventCompat.getY(motionEvent, pointerIndex);
                         mActivePointerId = MotionEventCompat.getPointerId(motionEvent, 0);
                         break;
                     }
@@ -103,13 +103,13 @@ public class HighlightFragment extends EditFragment {
                         int pointerIndex = MotionEventCompat.findPointerIndex(motionEvent, mActivePointerId);
                         // when highlight is scaling, it can't to be moved
                         if (!mScaleGestureDetector.isInProgress()) {
-                            centerPoint.x += MotionEventCompat.getX(motionEvent, pointerIndex) - lastTouch.x;
-                            centerPoint.y += MotionEventCompat.getY(motionEvent, pointerIndex) - lastTouch.y;
-                            mHighLightDrawable.setHighlightArea(centerPoint, mRadius);
+                            mCenterPoint.x += MotionEventCompat.getX(motionEvent, pointerIndex) - mLastTouch.x;
+                            mCenterPoint.y += MotionEventCompat.getY(motionEvent, pointerIndex) - mLastTouch.y;
+                            mHighLightDrawable.setHighlightArea(mCenterPoint, mRadius);
                             mHighLightDrawable.invalidateSelf();
                         }
-                        lastTouch.x = MotionEventCompat.getX(motionEvent, pointerIndex);
-                        lastTouch.y = MotionEventCompat.getY(motionEvent, pointerIndex);
+                        mLastTouch.x = MotionEventCompat.getX(motionEvent, pointerIndex);
+                        mLastTouch.y = MotionEventCompat.getY(motionEvent, pointerIndex);
                         break;
                     }
                     case MotionEvent.ACTION_POINTER_UP: {
@@ -117,8 +117,8 @@ public class HighlightFragment extends EditFragment {
                         int pointerId = MotionEventCompat.getPointerId(motionEvent, pointerIndex);
                         if (pointerId == mActivePointerId) {
                             int newPointerIndex = (pointerIndex == 0) ? 1 : 0;
-                            lastTouch.x = MotionEventCompat.getX(motionEvent, newPointerIndex);
-                            lastTouch.y = MotionEventCompat.getY(motionEvent, newPointerIndex);
+                            mLastTouch.x = MotionEventCompat.getX(motionEvent, newPointerIndex);
+                            mLastTouch.y = MotionEventCompat.getY(motionEvent, newPointerIndex);
                             mActivePointerId = MotionEventCompat.getPointerId(motionEvent, newPointerIndex);
                         }
                     }
@@ -131,12 +131,6 @@ public class HighlightFragment extends EditFragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
-    @Override
     public void apply() {
     }
 
@@ -146,7 +140,7 @@ public class HighlightFragment extends EditFragment {
             float mScaleFactor = detector.getScaleFactor();
             mRadius *= mScaleFactor;
             mRadius = Math.max(50f, Math.min(mRadius, 200f));
-            mHighLightDrawable.setHighlightArea(centerPoint, mRadius);
+            mHighLightDrawable.setHighlightArea(mCenterPoint, mRadius);
             mHighLightDrawable.invalidateSelf();
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "onScale: " + mScaleFactor);

@@ -12,6 +12,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.BuildConfig;
@@ -34,6 +35,8 @@ public class ChooseImageActivity extends AppCompatActivity {
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
     private static final String TAG = "ChooseImageActivity";
     private Uri mPhotoUri;
+    private ArrayList<ImageItem> mImageItems = new ArrayList<>();
+    private ImageGridAdapter mAdapter;
 
     @Bind(R.id.imageGrid)
     RecyclerView mImageGrid;
@@ -41,8 +44,6 @@ public class ChooseImageActivity extends AppCompatActivity {
     FloatingActionButton mCameraBtn;
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
-    ArrayList<ImageItem> mImageItems = new ArrayList<>();
-    ImageGridAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +112,9 @@ public class ChooseImageActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.btnCamera)
-    public void captureImage() {
+    public void onClick(View view) {
         try {
-            File photo = FileUtils.createImageFile();
+            File photo = FileUtils.createCacheFile();
             mPhotoUri = Uri.fromFile(photo);
             startCapture(mPhotoUri);
         } catch (IOException e) {

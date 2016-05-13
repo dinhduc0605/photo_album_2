@@ -64,12 +64,6 @@ public class OrientationFragment extends EditFragment {
         return fragment;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
     private void initComponent() {
         mEditBitmap = EditActivity.imageBitmap;
         mResultBitmap = mEditBitmap.copy(mEditBitmap.getConfig(), false);

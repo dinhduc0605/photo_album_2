@@ -21,8 +21,8 @@ import java.util.ArrayList;
  * Created by dinhduc on 26/04/2016.
  */
 public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.ViewHolder> {
-    ArrayList<ImageItem> mImageItems;
-    Activity mActivity;
+    private ArrayList<ImageItem> mImageItems;
+    private Activity mActivity;
 
     public ImageGridAdapter(Activity activity, ArrayList<ImageItem> imageItems) {
         mImageItems = imageItems;

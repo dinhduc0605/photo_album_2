@@ -155,15 +155,6 @@ public class CropFragment extends EditFragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-        if (getActivity() instanceof EditActivity) {
-            ((EditActivity) getActivity()).clearFragment();
-        }
-    }
-
-    @Override
     public void apply() {
         onCropClick();
     }

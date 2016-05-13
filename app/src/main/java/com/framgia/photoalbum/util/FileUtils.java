@@ -16,21 +16,31 @@ import java.util.Date;
  */
 public class FileUtils {
 
-    public static File createTemporaryFile(String part, String ext) throws IOException {
+    public static File createCacheFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
         File cacheDir = Environment.getExternalStorageDirectory();
 
         cacheDir = new File(cacheDir.getAbsolutePath() + "/.PhotoAlbumCached/");
 
-        if (!cacheDir.exists()) cacheDir.mkdirs();
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs();
+        }
 
-        return File.createTempFile(part, ext, cacheDir);
+        return File.createTempFile(timeStamp, ".jpg", cacheDir);
     }
 
-    public static File createImageFile() throws IOException {
+    public static File createEditedImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File cacheDir = Environment.getExternalStorageDirectory();
 
-        File photo = createTemporaryFile(timeStamp, ".jpg");
-        return photo;
+        cacheDir = new File(cacheDir.getAbsolutePath() + "/Photo Album/");
+
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs();
+        }
+
+        return File.createTempFile(timeStamp, ".jpg", cacheDir);
     }
 
     /**

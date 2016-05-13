@@ -98,12 +98,6 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
-    @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
     }

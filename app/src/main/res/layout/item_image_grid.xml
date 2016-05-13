@@ -6,9 +6,9 @@
 
     <ImageView
         android:id="@+id/image_item_image_grid"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
-        android:layout_margin="5dp"
+        android:layout_width="@dimen/item_image_grid_size"
+        android:layout_height="@dimen/item_image_grid_size"
+        android:layout_margin="@dimen/item_image_grid_margin"
         android:scaleType="centerCrop" />
 
 </LinearLayout>

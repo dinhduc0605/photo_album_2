@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,6 +37,11 @@ public class AdjustFragment extends EditFragment {
     public static final int SEEK_BAR_CONTRAST = 1;
     public static final int SEEK_BAR_HUE = 2;
     private static final String TAG = "AdjustFragment";
+    private AdjustFeatureAdapter mAdapter;
+    private ArrayList<AdjustItem> mAdjustItems = new ArrayList<>();
+    private Bitmap mImageBitmapSrc, mImageBitmapDes;
+    private int mPosition;
+
     @Bind(R.id.adjustImage)
     ImageView mImageView;
     @Bind(R.id.listAdjustFeature)
@@ -52,12 +56,6 @@ public class AdjustFragment extends EditFragment {
     LinearLayout layoutAdjust;
     @Bind(R.id.layoutAdjustBar)
     FrameLayout layoutAdjustBar;
-
-    AdjustFeatureAdapter adapter;
-    ArrayList<AdjustItem> mAdjustItems = new ArrayList<>();
-    Bitmap mImageBitmapSrc, mImageBitmapDes;
-    int mPosition;
-
 
     public AdjustFragment() {
         // Required empty public constructor
@@ -83,7 +81,7 @@ public class AdjustFragment extends EditFragment {
         super.onActivityCreated(savedInstanceState);
         initData();
         mImageView.setImageBitmap(mImageBitmapSrc);
-        adapter = new AdjustFeatureAdapter(getActivity(), mAdjustItems, new AdjustFeatureAdapter.OnEditListener() {
+        mAdapter = new AdjustFeatureAdapter(getActivity(), mAdjustItems, new AdjustFeatureAdapter.OnEditListener() {
             @Override
             public void onEdit(int position) {
                 mPosition = position;
@@ -148,16 +146,7 @@ public class AdjustFragment extends EditFragment {
                 new LinearLayoutManager(getContext(),
                         LinearLayoutManager.HORIZONTAL,
                         false));
-        adjustFeatureList.setAdapter(adapter);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-        if (getActivity() instanceof EditActivity) {
-            ((EditActivity) getActivity()).clearFragment();
-        }
+        adjustFeatureList.setAdapter(mAdapter);
     }
 
     @Override

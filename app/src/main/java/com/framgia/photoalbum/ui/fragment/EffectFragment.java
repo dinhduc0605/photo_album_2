@@ -123,12 +123,6 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
-    @Override
     public void onClick(View v, int position) {
         switch (position) {
             case EFFECT_GRAY_SCALE:

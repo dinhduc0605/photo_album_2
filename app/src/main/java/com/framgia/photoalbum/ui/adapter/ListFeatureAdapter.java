@@ -20,9 +20,9 @@ import butterknife.ButterKnife;
  * Created by dinhduc on 27/04/2016.
  */
 public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.ViewHolder> {
-    Context mContext;
-    ArrayList<FeatureItem> mFeatureItems;
-    OnFeatureClicked mOnFeatureClicked;
+    private Context mContext;
+    private ArrayList<FeatureItem> mFeatureItems;
+    private OnFeatureClicked mOnFeatureClicked;
 
     public ListFeatureAdapter(Context context, ArrayList<FeatureItem> featureItems,
                               OnFeatureClicked onFeatureClicked) {
