@@ -14,9 +14,12 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 
 import com.framgia.photoalbum.BuildConfig;
 
@@ -240,5 +243,18 @@ public class CommonUtils {
             bitmapWidth = (int) (bitmapWidth / ratioHeight);
         }
         return Bitmap.createScaledBitmap(bmp, bitmapWidth, bitmapHeight, true);
+    }
+
+    public static Bitmap getBitmapFromView(View view) {
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null) {
+            bgDrawable.draw(canvas);
+        } else {
+            canvas.drawColor(Color.WHITE);
+        }
+        view.draw(canvas);
+        return returnedBitmap;
     }
 }

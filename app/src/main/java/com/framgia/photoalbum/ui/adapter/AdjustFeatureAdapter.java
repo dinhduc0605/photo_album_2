@@ -20,9 +20,9 @@ import java.util.ArrayList;
  * Created by dinhduc on 10/05/2016.
  */
 public class AdjustFeatureAdapter extends RecyclerView.Adapter<AdjustFeatureAdapter.ViewHolder> {
-    Activity mActivity;
-    ArrayList<AdjustItem> mAdjustItems;
-    OnEditListener mOnEditListener;
+    private Activity mActivity;
+    private ArrayList<AdjustItem> mAdjustItems;
+    private OnEditListener mOnEditListener;
 
     public AdjustFeatureAdapter(Activity activity, ArrayList<AdjustItem> adjustItems, OnEditListener onEditListener) {
         mActivity = activity;

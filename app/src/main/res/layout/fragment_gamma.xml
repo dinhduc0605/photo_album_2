@@ -12,9 +12,8 @@
         android:id="@+id/imageEdit"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="10dp"
-        android:layout_weight="1"
-        android:scaleType="centerInside" />
+        android:layout_margin="@dimen/activity_horizontal_margin"
+        android:layout_weight="1" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,21 +27,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:weightSum="10"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="10">
 
             <TextView
-                android:layout_weight="1.5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.5"
                 android:text="@string/red"
                 android:textSize="@dimen/text_size_gamma" />
 
             <SeekBar
                 android:id="@+id/seekbarRed"
                 android:layout_width="0dp"
-                android:layout_weight="8.5"
                 android:layout_height="wrap_content"
+                android:layout_weight="8.5"
                 android:max="48"
                 android:progress="24"
                 tools:ignore="UnusedAttribute" />
@@ -52,21 +51,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:weightSum="10"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="10">
 
             <TextView
-                android:layout_weight="1.5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.5"
                 android:text="@string/green"
                 android:textSize="@dimen/text_size_gamma" />
 
             <SeekBar
-                android:layout_weight="8.5"
                 android:id="@+id/seekbarGreen"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="8.5"
                 android:max="48"
                 android:progress="24"
                 tools:ignore="UnusedAttribute" />
@@ -74,24 +73,24 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_weight="10"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
+            android:layout_weight="10"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_weight="1.5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1.5"
                 android:text="@string/blue"
                 android:textSize="@dimen/text_size_gamma" />
 
             <SeekBar
-                android:layout_weight="8.5"
                 android:id="@+id/seekbarBlue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="8.5"
                 android:max="48"
                 android:progress="24"
                 tools:ignore="UnusedAttribute" />

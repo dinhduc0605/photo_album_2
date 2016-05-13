@@ -95,12 +95,6 @@ public class ColorAdjustmentFragment extends EditFragment implements
         }
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.unbind(this);
-    }
-
     @OnClick({R.id.btnClear, R.id.btnDone})
     public void onClick(View view) {
         if (view.getId() == R.id.btnClear) {

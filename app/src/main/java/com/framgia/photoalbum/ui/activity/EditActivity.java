@@ -168,7 +168,11 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         mActionBar.setDisplayHomeAsUpEnabled(true);
         initData();
         mAdapter = new ListFeatureAdapter(this, mFeatureItems, this);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(
+                this,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        );
         mListFeature.setLayoutManager(layoutManager);
         mListFeature.setAdapter(mAdapter);
 

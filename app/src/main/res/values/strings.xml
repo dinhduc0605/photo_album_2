@@ -46,4 +46,5 @@
     <string name="collage_4">Collage 4</string>
     <string name="collage_5">Collage 5</string>
     <string name="collage_6">Collage 6</string>
+    <string name="saveImage">Save</string>
 </resources>
