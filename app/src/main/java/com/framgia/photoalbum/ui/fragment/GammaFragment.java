@@ -55,7 +55,7 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
     }
 
     private void initComponent() {
-        mEditBitmap = EditActivity.imageBitmap;
+        mEditBitmap = EditActivity.sSourceBitmap;
         imageDisplayed.setImageBitmap(mEditBitmap);
 
         mProcessDialog = new ProgressDialog(getContext());

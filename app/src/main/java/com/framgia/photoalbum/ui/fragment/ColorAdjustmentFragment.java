@@ -41,7 +41,6 @@ public class ColorAdjustmentFragment extends EditFragment implements
     @Bind(R.id.layoutAdjust)
     View mLayoutAdjust;
 
-    private Bitmap mEditBitmap;
     private ProgressDialog mProcessDialog;
     private ArrayList<FeatureItem> mFeatureItems = new ArrayList<>();
     private ListFeatureAdapter mAdapter;
@@ -99,13 +98,13 @@ public class ColorAdjustmentFragment extends EditFragment implements
     public void onClick(View view) {
         if (view.getId() == R.id.btnClear) {
             Bitmap res = mColorAdjustPerform.applyEffect(mEditBitmap, 0);
-            imageDisplayed.setImageBitmap(res);
+            EditActivity.setResultBitmap(res);
+            imageDisplayed.setImageBitmap(EditActivity.sResultBitmap);
         }
         showSeekbar(false);
     }
 
     private void initComponent() {
-        mEditBitmap = EditActivity.imageBitmap;
         imageDisplayed.setImageBitmap(mEditBitmap);
 
         // Config dialog
@@ -144,7 +143,8 @@ public class ColorAdjustmentFragment extends EditFragment implements
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Bitmap res = mColorAdjustPerform.applyEffect(mEditBitmap, seekBar.getProgress() - OFFSET);
-                imageDisplayed.setImageBitmap(res);
+                EditActivity.setResultBitmap(res);
+                imageDisplayed.setImageBitmap(EditActivity.sResultBitmap);
             }
         });
     }

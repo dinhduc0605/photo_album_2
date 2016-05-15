@@ -51,7 +51,7 @@ public class HighlightFragment extends EditFragment {
         mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         View view = inflater.inflate(R.layout.fragment_highlight, container, false);
         ButterKnife.bind(this, view);
-        mImageBitmap = EditActivity.imageBitmap;
+        mImageBitmap = EditActivity.sSourceBitmap;
 
         mImageHighlight.post(new Runnable() {
             @Override

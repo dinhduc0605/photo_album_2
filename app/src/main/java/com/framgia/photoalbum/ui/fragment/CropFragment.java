@@ -1,12 +1,15 @@
 package com.framgia.photoalbum.ui.fragment;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,7 @@ import com.framgia.photoalbum.crop.CropImageView;
 import com.framgia.photoalbum.crop.HighlightView;
 import com.framgia.photoalbum.crop.RotateBitmap;
 import com.framgia.photoalbum.ui.activity.EditActivity;
+import com.framgia.photoalbum.util.CommonUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +40,7 @@ public class CropFragment extends EditFragment {
     // Output image size
     private int maxX;
     private int maxY;
+    private int exifRotation;
 
     private HighlightView mHighlightView;
     private boolean isSaving;
@@ -62,7 +67,7 @@ public class CropFragment extends EditFragment {
             mSourceUri = Uri.fromFile(new File(path));
         }
 
-        Bitmap src = EditActivity.imageBitmap;
+        Bitmap src = EditActivity.sSourceBitmap;
         mCropBitmap = src.copy(src.getConfig(), false);
 
         RotateBitmap rotateBitmap = new RotateBitmap(mCropBitmap, 0);
@@ -70,8 +75,15 @@ public class CropFragment extends EditFragment {
         mImageCrop.setImageBitmap(rotateBitmap);
 
         mHighlightView = mImageCrop.getHighlightView();
+        loadInput();
 
         return view;
+    }
+
+    private void loadInput() {
+        if (mSourceUri != null) {
+            exifRotation = CommonUtils.getExifRotation(mSourceUri.getPath());
+        }
     }
 
     /**
@@ -90,6 +102,19 @@ public class CropFragment extends EditFragment {
             BitmapRegionDecoder decoder = BitmapRegionDecoder.newInstance(is, false);
             final int width = decoder.getWidth();
             final int height = decoder.getHeight();
+
+            if (exifRotation != 0) {
+                // Adjust crop area to account for image rotation
+                Matrix matrix = new Matrix();
+                matrix.setRotate(-exifRotation);
+
+                RectF adjusted = new RectF();
+                matrix.mapRect(adjusted, new RectF(rect));
+
+                // Adjust to account for origin at 0,0
+                adjusted.offset(adjusted.left < 0 ? width : 0, adjusted.top < 0 ? height : 0);
+                rect = new Rect((int) adjusted.left, (int) adjusted.top, (int) adjusted.right, (int) adjusted.bottom);
+            }
 
             try {
                 croppedImage = decoder.decodeRegion(rect, new BitmapFactory.Options());
@@ -138,10 +163,9 @@ public class CropFragment extends EditFragment {
 
         croppedImage = decodeRegionCrop(r, outWidth, outHeight);
 
+
         if (croppedImage != null) {
-            mImageCrop.setImageBitmap(new RotateBitmap(croppedImage, 0));
-            mImageCrop.center();
-            mImageCrop.clearHighlight();
+            EditActivity.setResultBitmap(croppedImage);
         }
     }
 
@@ -157,5 +181,6 @@ public class CropFragment extends EditFragment {
     @Override
     public void apply() {
         onCropClick();
+
     }
 }

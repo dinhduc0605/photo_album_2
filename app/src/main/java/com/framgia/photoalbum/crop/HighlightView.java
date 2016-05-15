@@ -48,7 +48,6 @@ public class HighlightView {
     private int mTouchEvent;
 
     private int mScreenW, mScreenH;
-    private ImageView mImageShow;
 
     public HighlightView(View viewContext) {
         mViewContext = viewContext;
@@ -74,7 +73,7 @@ public class HighlightView {
         mOutlinePaint.setStrokeWidth(mOutlineWidth);
         mOutlinePaint.setColor(mHighlightColor);
 
-        mHandlePaint = new Paint();
+        mHandlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mHandlePaint.setStyle(Paint.Style.FILL);
         mHandlePaint.setColor(mHighlightColor);
     }
