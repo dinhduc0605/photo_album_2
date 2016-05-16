@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.framgia.photoalbum.R;
@@ -28,9 +27,7 @@ public class OrientationFragment extends EditFragment {
     @Bind(R.id.imageEdit)
     ImageView imageDisplayed;
 
-    private Bitmap mEditBitmap;
     private Bitmap mResultBitmap;
-    private ProgressDialog mProcessDialog;
     private Orientation mOrientation = new Orientation();
 
 
@@ -38,11 +35,6 @@ public class OrientationFragment extends EditFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_orientation, container, false);
         ButterKnife.bind(this, view);
-
-        if (getArguments() != null) {
-            String path = getArguments().getString(BUNDLE_IMAGE_PATH);
-            mSourceUri = Uri.fromFile(new File(path));
-        }
 
         initComponent();
 
@@ -65,15 +57,8 @@ public class OrientationFragment extends EditFragment {
     }
 
     private void initComponent() {
-        mEditBitmap = EditActivity.imageBitmap;
-        mResultBitmap = mEditBitmap.copy(mEditBitmap.getConfig(), false);
         imageDisplayed.setImageBitmap(mEditBitmap);
-
-        // Config dialog
-        mProcessDialog = new ProgressDialog(getContext());
-        mProcessDialog.setMessage(getContext().getString(R.string.loading));
-        mProcessDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProcessDialog.setIndeterminate(true);
+        mResultBitmap = mEditBitmap.copy(mEditBitmap.getConfig(), true);
     }
 
     @OnClick({R.id.btnFlipHorz, R.id.btnFlipVert, R.id.btnRotateCCW, R.id.btnRotateCW})
@@ -92,6 +77,7 @@ public class OrientationFragment extends EditFragment {
                 mResultBitmap = mOrientation.rotate(mResultBitmap, 90);
                 break;
         }
+        EditActivity.setResultBitmap(mResultBitmap);
         imageDisplayed.setImageBitmap(mResultBitmap);
     }
 }

@@ -67,7 +67,7 @@ public class AdjustFragment extends EditFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_adjust, container, false);
         ButterKnife.bind(this, view);
-        mImageBitmapSrc = EditActivity.imageBitmap;
+        mImageBitmapSrc = EditActivity.sSourceBitmap;
         mImageBitmapDes = Bitmap.createBitmap(
                 mImageBitmapSrc.getWidth(),
                 mImageBitmapSrc.getHeight(),
@@ -151,7 +151,7 @@ public class AdjustFragment extends EditFragment {
 
     @Override
     public void apply() {
-        EditActivity.imageBitmap = mImageBitmapDes;
+        EditActivity.sSourceBitmap = mImageBitmapDes;
     }
 
 

@@ -22,6 +22,7 @@ import com.framgia.photoalbum.effect.Sharpen;
 import com.framgia.photoalbum.effect.Sketch;
 import com.framgia.photoalbum.ui.activity.EditActivity;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
+import com.framgia.photoalbum.util.CommonUtils;
 
 import java.util.ArrayList;
 
@@ -48,7 +49,6 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     @Bind(R.id.listEffect)
     RecyclerView mRecyclerViewEffect;
 
-    private Bitmap mEditBitmap;
     private ProgressDialog mProcessDialog;
     private ArrayList<FeatureItem> mFeatureItems = new ArrayList<>();
     private ListFeatureAdapter mAdapter;
@@ -64,7 +64,8 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     }
 
     private void initComponent() {
-        mEditBitmap = EditActivity.imageBitmap;
+        mEditBitmap = EditActivity.sSourceBitmap;
+
         imageDisplayed.setImageBitmap(mEditBitmap);
 
         mProcessDialog = new ProgressDialog(getContext());
@@ -119,7 +120,8 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
 
     @Override
     public void onResult(Bitmap bitmap) {
-        imageDisplayed.setImageBitmap(bitmap);
+        EditActivity.setResultBitmap(bitmap);
+        imageDisplayed.setImageBitmap(EditActivity.sResultBitmap);
     }
 
     @Override

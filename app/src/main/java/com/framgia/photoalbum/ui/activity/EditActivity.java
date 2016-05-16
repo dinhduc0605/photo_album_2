@@ -1,5 +1,6 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -61,7 +62,12 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     ListFeatureAdapter mAdapter;
     ActionBar mActionBar;
 
-    public static Bitmap imageBitmap;
+    public static Bitmap sSourceBitmap;
+    public static Bitmap sResultBitmap;
+    public static Context sContext;
+
+    LoadImageTask loadImageTask;
+
     private EditFragment mEditFragment;
 
     @Override
@@ -70,8 +76,10 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         setContentView(R.layout.activity_edit);
         mImagePath = getImagePath();
 
-        LoadImageTask loadImageTask = new LoadImageTask();
+        loadImageTask = new LoadImageTask();
         loadImageTask.execute(mImagePath);
+
+        sContext = getApplicationContext();
     }
 
     @Override
@@ -127,7 +135,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         } else if (item.getItemId() == R.id.action_done) {
             if (mEditFragment != null) {
                 mEditFragment.apply();
-                mEditImage.setImageBitmap(imageBitmap);
+                saveEffect();
+                mEditImage.setImageBitmap(sSourceBitmap);
                 mActionBar.setTitle(getString(R.string.label_edit_activity));
                 onBackPressed();
             }
@@ -200,12 +209,12 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         protected void onPostExecute(Bitmap bitmap) {
             super.onPostExecute(bitmap);
             if (bitmap != null) {
-                imageBitmap = bitmap;
+                sSourceBitmap = bitmap;
                 initView();
                 bindViewControl();
-                mEditImage.setImageBitmap(imageBitmap);
+                mEditImage.setImageBitmap(sSourceBitmap);
                 if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "" + ((BitmapDrawable) mEditImage.getDrawable()).getBitmap().getWidth());
+                    Log.w(TAG, "" + bitmap.getWidth() + " " + bitmap.getHeight());
                 }
 
             }
@@ -214,5 +223,27 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     public void clearFragment() {
         mEditFragment = null;
+    }
+
+    public void saveEffect() {
+
+        if (sResultBitmap != null && !sResultBitmap.isRecycled()) {
+            CommonUtils.recycleBitmap(sSourceBitmap);
+            sSourceBitmap = sResultBitmap.copy(sResultBitmap.getConfig(), true);
+        }
+    }
+
+    public static void setResultBitmap(Bitmap bitmap) {
+        CommonUtils.recycleBitmap(sResultBitmap);
+        sResultBitmap = bitmap;
+    }
+
+    @Override
+    protected void onDestroy() {
+        CommonUtils.setImageViewBitmap(mEditImage, null);
+        if (loadImageTask != null && loadImageTask.isCancelled()) {
+            loadImageTask.cancel(true);
+        }
+        super.onDestroy();
     }
 }

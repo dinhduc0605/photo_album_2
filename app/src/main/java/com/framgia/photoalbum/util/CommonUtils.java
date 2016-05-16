@@ -20,9 +20,11 @@ import android.media.ExifInterface;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.framgia.photoalbum.BuildConfig;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -73,7 +75,7 @@ public class CommonUtils {
         if (reqHeight < height || reqWidth < width) {
             final int haftHeight = height / 2;
             final int haftWidth = width / 2;
-            while ((haftHeight / inSampleSize) >= reqHeight && (haftWidth / inSampleSize) >= reqWidth) {
+            while ((haftHeight / inSampleSize) > reqHeight || (haftWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }
@@ -256,5 +258,40 @@ public class CommonUtils {
         }
         view.draw(canvas);
         return returnedBitmap;
+    }
+
+    public static void recycleBitmap(Bitmap bitmap) {
+        if (bitmap != null && !bitmap.isRecycled()) {
+            bitmap.recycle();
+            bitmap = null;
+        }
+    }
+
+    public static void setImageViewBitmap(ImageView imageView, Bitmap bitmap) {
+        if (imageView == null) {
+            return;
+        }
+
+        ((BitmapDrawable) imageView.getDrawable()).getBitmap().recycle();
+        imageView.setImageBitmap(bitmap);
+    }
+
+    public static int getExifRotation(String path) {
+        if (path == null || path.isEmpty()) return 0;
+        try {
+            ExifInterface exif = new ExifInterface(path);
+            switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return 90;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    return 180;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    return 270;
+                default:
+                    return ExifInterface.ORIENTATION_UNDEFINED;
+            }
+        } catch (IOException e) {
+            return 0;
+        }
     }
 }

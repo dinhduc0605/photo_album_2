@@ -1,9 +1,11 @@
 package com.framgia.photoalbum.effect;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.RenderScript;
 
-import java.util.Random;
+import com.framgia.photoalbum.ScriptC_NoiseFilter;
+import com.framgia.photoalbum.ui.activity.EditActivity;
 
 /**
  * Created by HungNT on 5/5/16.
@@ -12,31 +14,24 @@ public class Noise extends EffectFilter {
 
     @Override
     public Bitmap applyEffect(Bitmap src) {
-        final int COLOR_MAX = 0xFF;
 
-        int width = src.getWidth();
-        int height = src.getHeight();
-        int[] pixels = new int[width * height];
-        Random random = new Random();
+        Bitmap res = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
 
-        src.getPixels(pixels, 0, width, 0, 0, width, height);
+        RenderScript rs = RenderScript.create(EditActivity.sContext);
 
-        int index;
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        Allocation allocationIn = Allocation.createFromBitmap(rs, src);
+        Allocation allocationOut = Allocation.createTyped(rs, allocationIn.getType());
 
-                index = y * width + x;
-                // get random color
-                int randColor = Color.rgb(random.nextInt(COLOR_MAX),
-                        random.nextInt(COLOR_MAX), random.nextInt(COLOR_MAX));
+        ScriptC_NoiseFilter script = new ScriptC_NoiseFilter(rs);
 
-                pixels[index] |= randColor;
-            }
-        }
+        script.set_gIn(allocationIn);
+        script.set_gOut(allocationOut);
+        script.set_gScript(script);
 
-        Bitmap bmOut = Bitmap.createBitmap(width, height, src.getConfig());
-        bmOut.setPixels(pixels, 0, width, 0, 0, width, height);
+        script.invoke_filter();
 
-        return bmOut;
+        allocationOut.copyTo(res);
+
+        return res;
     }
 }
