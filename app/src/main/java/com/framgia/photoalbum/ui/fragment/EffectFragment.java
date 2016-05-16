@@ -13,16 +13,18 @@ import android.widget.ImageView;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.asynctask.EffectApplyAsyncTask;
 import com.framgia.photoalbum.data.model.FeatureItem;
+import com.framgia.photoalbum.effect.EdgeDetech;
 import com.framgia.photoalbum.effect.EffectFilter;
 import com.framgia.photoalbum.effect.Emboss;
+import com.framgia.photoalbum.effect.GaussianBlur;
 import com.framgia.photoalbum.effect.GrayScale;
 import com.framgia.photoalbum.effect.Negative;
 import com.framgia.photoalbum.effect.Noise;
+import com.framgia.photoalbum.effect.OilPaint;
 import com.framgia.photoalbum.effect.Sharpen;
 import com.framgia.photoalbum.effect.Sketch;
 import com.framgia.photoalbum.ui.activity.EditActivity;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
-import com.framgia.photoalbum.util.CommonUtils;
 
 import java.util.ArrayList;
 
@@ -42,6 +44,9 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     private static final int EFFECT_EMBOSS = 3;
     private static final int EFFECT_SKETCH = 4;
     private static final int EFFECT_NOISE = 5;
+    private static final int EFFECT_EDGE = 6;
+    private static final int EFFECT_OIL_PAINT = 7;
+    private static final int EFFECT_BLUR = 8;
 
     @Bind(R.id.imageEdit)
     ImageView imageDisplayed;
@@ -86,6 +91,12 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
                 getContext().getString(R.string.sketch)));
         mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
                 getContext().getString(R.string.noise)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.egde_detech)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.oil_paint)));
+        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+                getContext().getString(R.string.blur)));
 
         mAdapter = new ListFeatureAdapter(getContext(), mFeatureItems, this);
         RecyclerView.LayoutManager layoutManager =
@@ -105,12 +116,10 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
         return fragment;
     }
 
-
     @Override
     public void apply() {
         // TODO apply effect selected and save in cache
     }
-
 
     public void applyEffect(EffectFilter effect) {
         EffectApplyAsyncTask mEffectApplyTask =
@@ -144,6 +153,15 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
                 break;
             case EFFECT_NOISE:
                 applyEffect(new Noise());
+                break;
+            case EFFECT_EDGE:
+                applyEffect(new EdgeDetech());
+                break;
+            case EFFECT_OIL_PAINT:
+                applyEffect(new OilPaint());
+                break;
+            case EFFECT_BLUR:
+                applyEffect(new GaussianBlur());
                 break;
         }
     }

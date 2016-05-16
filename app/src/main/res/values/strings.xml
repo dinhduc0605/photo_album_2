@@ -47,4 +47,9 @@
     <string name="collage_5">Collage 5</string>
     <string name="collage_6">Collage 6</string>
     <string name="saveImage">Save</string>
+    <string name="egde_detech">Edge detection</string>
+    <string name="oil_paint">Oil Paint</string>
+    <string name="blur">Gaussian Blur</string>
+    <string name="error_cannot_save_image">Cannot save image to sdcard</string>
+    <string name="error_save_image_success">"Your image is saved to this folder "</string>
 </resources>

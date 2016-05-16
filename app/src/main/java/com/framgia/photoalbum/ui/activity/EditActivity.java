@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
@@ -33,7 +33,11 @@ import com.framgia.photoalbum.ui.fragment.GammaFragment;
 import com.framgia.photoalbum.ui.fragment.HighlightFragment;
 import com.framgia.photoalbum.ui.fragment.OrientationFragment;
 import com.framgia.photoalbum.util.CommonUtils;
+import com.framgia.photoalbum.util.FileUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.Bind;
@@ -139,6 +143,25 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 mEditImage.setImageBitmap(sSourceBitmap);
                 mActionBar.setTitle(getString(R.string.label_edit_activity));
                 onBackPressed();
+            } else {
+                try {
+                    File file = FileUtils.createEditedImageFile();
+                    FileOutputStream outputStream = new FileOutputStream(file);
+                    sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                    CommonUtils.invalidateGallery(getApplicationContext(), file);
+
+                    outputStream.flush();
+                    outputStream.close();
+
+                    Toast.makeText(this,
+                            getString(R.string.error_save_image_success) + file.getPath(), Toast.LENGTH_LONG)
+                            .show();
+                } catch (IOException e) {
+                    Toast.makeText(this,
+                            R.string.error_cannot_save_image,
+                            Toast.LENGTH_SHORT).show();
+                }
+
             }
         }
         return true;
@@ -244,6 +267,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         if (loadImageTask != null && loadImageTask.isCancelled()) {
             loadImageTask.cancel(true);
         }
+        CommonUtils.recycleBitmap(sSourceBitmap);
+        CommonUtils.recycleBitmap(sResultBitmap);
+        System.gc();
         super.onDestroy();
     }
 }
