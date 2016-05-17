@@ -37,6 +37,7 @@ void filter() {
 	setup();
 	initLUTtable();
     rsForEach(gScript, gIn, gOut, 0, 0);
+}
 
 void root(const uchar4 *v_in, uchar4 *v_out, const void *usrData, uint32_t x, uint32_t y) {
 	float4 f4 = rsUnpackColor8888(*v_in);
