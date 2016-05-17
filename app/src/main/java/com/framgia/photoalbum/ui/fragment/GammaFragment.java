@@ -2,7 +2,6 @@ package com.framgia.photoalbum.ui.fragment;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +13,6 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.asynctask.EffectApplyAsyncTask;
 import com.framgia.photoalbum.effect.Gamma;
 import com.framgia.photoalbum.ui.activity.EditActivity;
-
-import java.io.File;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,12 +27,7 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
     ImageView imageDisplayed;
     @Bind(R.id.seekbarRed)
     SeekBar mSeekbarRed;
-    @Bind(R.id.seekbarGreen)
-    SeekBar mSeekbarGreen;
-    @Bind(R.id.seekbarBlue)
-    SeekBar mSeekbarBlue;
 
-    private Bitmap mEditBitmap;
     private ProgressDialog mProcessDialog;
     private Gamma mGammaEffect = new Gamma();
 
@@ -43,11 +35,6 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gamma, container, false);
         ButterKnife.bind(this, view);
-
-        if (getArguments() != null) {
-            String path = getArguments().getString(BUNDLE_IMAGE_PATH);
-            mSourceUri = Uri.fromFile(new File(path));
-        }
 
         initComponent();
 
@@ -62,9 +49,8 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
         mProcessDialog.setMessage(getContext().getString(R.string.loading));
         mProcessDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProcessDialog.setIndeterminate(true);
+        mProcessDialog.setCancelable(false);
 
-        mSeekbarBlue.setOnSeekBarChangeListener(this);
-        mSeekbarGreen.setOnSeekBarChangeListener(this);
         mSeekbarRed.setOnSeekBarChangeListener(this);
 
     }
@@ -86,14 +72,16 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
 
 
     public void applyEffect() {
-        mGammaEffect.setValue(mSeekbarRed.getProgress(), mSeekbarBlue.getProgress(), mSeekbarGreen.getProgress());
-        EffectApplyAsyncTask mEffectApplyTask =
+        int val = 100 - mSeekbarRed.getProgress();
+        mGammaEffect.setValue(val);
+        EffectApplyAsyncTask progressTask =
                 new EffectApplyAsyncTask(mEditBitmap, mGammaEffect, mProcessDialog, this);
-        mEffectApplyTask.execute();
+        progressTask.execute();
     }
 
     @Override
     public void onResult(Bitmap bitmap) {
+        EditActivity.setResultBitmap(bitmap);
         imageDisplayed.setImageBitmap(bitmap);
     }
 

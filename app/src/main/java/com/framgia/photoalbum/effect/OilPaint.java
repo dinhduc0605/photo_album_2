@@ -2,20 +2,18 @@ package com.framgia.photoalbum.effect;
 
 import android.graphics.Bitmap;
 import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.Element;
 import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicConvolve3x3;
 
 import com.framgia.photoalbum.ScriptC_GammaFilter;
+import com.framgia.photoalbum.ScriptC_OilPaintFilter;
 import com.framgia.photoalbum.ui.activity.EditActivity;
 
 /**
- * Created by HungNT on 5/11/16.
+ * Created by HungNT on 5/12/16.
  */
-public class Gamma extends EffectFilter {
-    private float mGamma;
-
-    public void setValue(float gamma) {
-        this.mGamma = gamma;
-    }
+public class OilPaint extends EffectFilter {
 
     @Override
     public Bitmap applyEffect(Bitmap src) {
@@ -26,12 +24,11 @@ public class Gamma extends EffectFilter {
         Allocation allocationIn = Allocation.createFromBitmap(rs, src);
         Allocation allocationOut = Allocation.createTyped(rs, allocationIn.getType());
 
-        ScriptC_GammaFilter gammaFilter = new ScriptC_GammaFilter(rs);
-        gammaFilter.set_gGamma(mGamma);
-        gammaFilter.set_gIn(allocationIn);
-        gammaFilter.set_gOut(allocationOut);
-        gammaFilter.set_gScript(gammaFilter);
-        gammaFilter.invoke_filter();
+        ScriptC_OilPaintFilter filter = new ScriptC_OilPaintFilter(rs);
+        filter.set_gIn(allocationIn);
+        filter.set_gOut(allocationOut);
+        filter.set_gScript(filter);
+        filter.invoke_filter();
 
         allocationOut.copyTo(bmOut);
 
@@ -39,7 +36,7 @@ public class Gamma extends EffectFilter {
         rs.destroy();
         allocationIn.destroy();
         allocationOut.destroy();
-        gammaFilter.destroy();
+        filter.destroy();
 
         return bmOut;
     }
