@@ -17,13 +17,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
+import com.framgia.photoalbum.ui.custom.ScaleImageView;
 import com.framgia.photoalbum.ui.fragment.AdjustFragment;
 import com.framgia.photoalbum.ui.fragment.ColorAdjustmentFragment;
 import com.framgia.photoalbum.ui.fragment.CropFragment;
@@ -53,8 +53,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     private static final int ORIENTATION_FEATURE = 5;
     private static final int GAMMA_FEATURE = 6;
 
+
     @Bind(R.id.editImage)
-    ImageView mEditImage;
+    ScaleImageView mEditImage;
     @Bind(R.id.listFeature)
     RecyclerView mListFeature;
     @Bind(R.id.toolbar)
@@ -81,6 +82,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         mImagePath = getImagePath();
 
         loadImageTask = new LoadImageTask();
+
+        LoadImageTask loadImageTask = new LoadImageTask();
         loadImageTask.execute(mImagePath);
 
         sContext = getApplicationContext();
@@ -167,6 +170,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         return true;
     }
 
+
     /**
      * Init data for feature bar at bottom
      */
@@ -217,6 +221,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     }
 
+
     /**
      * Load image in worker thread
      */
@@ -225,7 +230,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         @Override
         protected Bitmap doInBackground(String... paths) {
             Point screenSize = CommonUtils.getDisplaySize(EditActivity.this);
-            return CommonUtils.decodeSampledBitmapResource(paths[0], screenSize.x, screenSize.y);
+            Bitmap bitmap = CommonUtils.decodeSampledBitmapResource(paths[0], screenSize.x, screenSize.y);
+            return CommonUtils.centerBitmap(bitmap, screenSize.x, screenSize.y);
         }
 
         @Override
@@ -243,6 +249,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             }
         }
     }
+
 
     public void clearFragment() {
         mEditFragment = null;
@@ -272,4 +279,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         System.gc();
         super.onDestroy();
     }
+
+
 }

@@ -26,7 +26,6 @@ public class PartImageView extends ImageView {
     private Bitmap mImageBitmap;
     private Paint mPaint = new Paint();
     private PointF mFirstTouch;
-    private boolean mScaled = false;
     private Matrix mDrawMatrix = new Matrix();
     private ScaleGestureDetector mScaleImageDetector;
     private GestureDetector mScrollImageDetector;
@@ -63,9 +62,8 @@ public class PartImageView extends ImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //when bitmap haven't be mScaled and not null
-        if (!mScaled && mImageBitmap != null) {
-            mDrawMatrix.postTranslate(0, 0);
+        if (mImageBitmap != null) {
+            Log.d(TAG, "onDraw: ");
             mImageBitmap = CommonUtils.matchBitmap(mImageBitmap, getWidth(), getHeight());
             canvas.drawBitmap(mImageBitmap, mDrawMatrix, mPaint);
         }
@@ -73,6 +71,7 @@ public class PartImageView extends ImageView {
 
     @Override
     public void setImageBitmap(Bitmap bm) {
+        Log.d(TAG, "setImageBitmap: ");
         mImageBitmap = bm;
         invalidate();
     }

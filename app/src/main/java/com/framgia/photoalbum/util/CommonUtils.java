@@ -132,8 +132,8 @@ public class CommonUtils {
         }
 
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "" + photoBitmap);
             Log.w(TAG, "" + options.inSampleSize);
+            Log.w(TAG, rotatedBitmap.getWidth() + "-" + rotatedBitmap.getHeight());
         }
         return rotatedBitmap;
     }
