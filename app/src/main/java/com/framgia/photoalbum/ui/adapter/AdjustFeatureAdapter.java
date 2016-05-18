@@ -1,11 +1,12 @@
 package com.framgia.photoalbum.ui.adapter;
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,12 +21,12 @@ import java.util.ArrayList;
  * Created by dinhduc on 10/05/2016.
  */
 public class AdjustFeatureAdapter extends RecyclerView.Adapter<AdjustFeatureAdapter.ViewHolder> {
-    private Activity mActivity;
+    private Context mContext;
     private ArrayList<AdjustItem> mAdjustItems;
     private OnEditListener mOnEditListener;
 
-    public AdjustFeatureAdapter(Activity activity, ArrayList<AdjustItem> adjustItems, OnEditListener onEditListener) {
-        mActivity = activity;
+    public AdjustFeatureAdapter(Context context, ArrayList<AdjustItem> adjustItems, OnEditListener onEditListener) {
+        mContext = context;
         mAdjustItems = adjustItems;
         mOnEditListener = onEditListener;
     }
@@ -33,13 +34,15 @@ public class AdjustFeatureAdapter extends RecyclerView.Adapter<AdjustFeatureAdap
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         DisplayMetrics metrics = new DisplayMetrics();
-        mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        ((WindowManager) mContext
+                .getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay()
+                .getMetrics(metrics);
         int layoutWidth = metrics.widthPixels / getItemCount();
-        int layoutHeight = (int) DimenUtils.dpToPx(mActivity, 100);
-        View view = LayoutInflater.from(mActivity).inflate(R.layout.item_list_feature, parent, false);
+        int layoutHeight = (int) mContext.getResources().getDimension(R.dimen.recycler_view_height);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_list_feature, parent, false);
         RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(layoutWidth, layoutHeight);
         view.setLayoutParams(rlParams);
-
         return new ViewHolder(view);
     }
 
