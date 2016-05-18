@@ -23,17 +23,27 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
     private Context mContext;
     private ArrayList<FeatureItem> mFeatureItems;
     private OnFeatureClicked mOnFeatureClicked;
+    private int mLayoutItemRes;
 
     public ListFeatureAdapter(Context context, ArrayList<FeatureItem> featureItems,
                               OnFeatureClicked onFeatureClicked) {
         mContext = context;
         mFeatureItems = featureItems;
         mOnFeatureClicked = onFeatureClicked;
+        mLayoutItemRes = R.layout.item_list_feature;
+    }
+
+    public ListFeatureAdapter(Context context, ArrayList<FeatureItem> featureItems,
+                              OnFeatureClicked onFeatureClicked, int layoutItemRes) {
+        mContext = context;
+        mFeatureItems = featureItems;
+        mOnFeatureClicked = onFeatureClicked;
+        this.mLayoutItemRes = layoutItemRes;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_list_feature, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(mLayoutItemRes, parent, false);
         return new ViewHolder(view);
     }
 

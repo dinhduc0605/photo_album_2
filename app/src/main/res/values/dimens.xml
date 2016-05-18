@@ -13,4 +13,6 @@
     <dimen name="item_image_grid_size">110dp</dimen>
     <dimen name="item_image_grid_margin">5dp</dimen>
     <dimen name="text_size_title_dialog">20sp</dimen>
+    <dimen name="item_list_filter_size">50dp</dimen>
+    <dimen name="text_filter_name_size">12sp</dimen>
 </resources>

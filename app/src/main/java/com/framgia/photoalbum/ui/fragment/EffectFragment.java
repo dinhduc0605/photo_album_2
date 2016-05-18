@@ -21,8 +21,8 @@ import com.framgia.photoalbum.effect.GrayScale;
 import com.framgia.photoalbum.effect.Negative;
 import com.framgia.photoalbum.effect.Noise;
 import com.framgia.photoalbum.effect.OilPaint;
+import com.framgia.photoalbum.effect.Pixelate;
 import com.framgia.photoalbum.effect.Sharpen;
-import com.framgia.photoalbum.effect.Sketch;
 import com.framgia.photoalbum.ui.activity.EditActivity;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
 
@@ -42,7 +42,7 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     private static final int EFFECT_NEGATIVE = 1;
     private static final int EFFECT_SHARPEN = 2;
     private static final int EFFECT_EMBOSS = 3;
-    private static final int EFFECT_SKETCH = 4;
+    private static final int EFFECT_PIXELATE = 4;
     private static final int EFFECT_NOISE = 5;
     private static final int EFFECT_EDGE = 6;
     private static final int EFFECT_OIL_PAINT = 7;
@@ -79,26 +79,26 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
         mProcessDialog.setIndeterminate(true);
         mProcessDialog.setCancelable(false);
 
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_effect_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_gray,
                 getContext().getString(R.string.gray_scale)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_negative,
                 getContext().getString(R.string.negative)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_sharpen,
                 getContext().getString(R.string.sharpen)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_emboss,
                 getContext().getString(R.string.emboss)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
-                getContext().getString(R.string.sketch)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_pixelate,
+                getContext().getString(R.string.pixelate)));
+        mFeatureItems.add(new FeatureItem(R.drawable.img_noise,
                 getContext().getString(R.string.noise)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_edge,
                 getContext().getString(R.string.egde_detech)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_oil_paint,
                 getContext().getString(R.string.oil_paint)));
-        mFeatureItems.add(new FeatureItem(R.drawable.tab_adjust_normal,
+        mFeatureItems.add(new FeatureItem(R.drawable.img_blur,
                 getContext().getString(R.string.blur)));
 
-        mAdapter = new ListFeatureAdapter(getContext(), mFeatureItems, this);
+        mAdapter = new ListFeatureAdapter(getContext(), mFeatureItems, this, R.layout.item_list_filter);
         RecyclerView.LayoutManager layoutManager =
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 
@@ -148,8 +148,8 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
             case EFFECT_EMBOSS:
                 applyEffect(new Emboss());
                 break;
-            case EFFECT_SKETCH:
-                applyEffect(new Sketch());
+            case EFFECT_PIXELATE:
+                applyEffect(new Pixelate());
                 break;
             case EFFECT_NOISE:
                 applyEffect(new Noise());
