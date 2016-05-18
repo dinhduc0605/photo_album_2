@@ -61,7 +61,6 @@ public class ChooseImageActivity extends AppCompatActivity {
         //set mToolbar as actionbar
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         //init view
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
         mImageGrid.setLayoutManager(layoutManager);
@@ -86,7 +85,7 @@ public class ChooseImageActivity extends AppCompatActivity {
                 new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
                 null,
                 null,
-                null);
+                MediaStore.Images.Media._ID);
         //get cursor point to thumbnail table
         Cursor imageCursor = imageLoader.loadInBackground();
         if (imageCursor.moveToLast()) {

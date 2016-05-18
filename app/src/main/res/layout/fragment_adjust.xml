@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground"
+    android:clickable="true"
     tools:context="com.framgia.photoalbum.ui.fragment.AdjustFragment">
 
     <ImageView
@@ -34,7 +35,7 @@
             android:visibility="gone">
 
             <ImageView
-                android:id="@+id/btnClear"
+                android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -47,11 +48,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:max="255"
                 android:visibility="visible" />
 
             <ImageView
-                android:id="@+id/btnDone"
+                android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"

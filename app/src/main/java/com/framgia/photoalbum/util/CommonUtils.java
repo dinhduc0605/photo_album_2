@@ -154,12 +154,19 @@ public class CommonUtils {
     /**
      * Change contrast and brightness of bitmap
      *
-     * @param bmp        source bitmap
-     * @param target     target bitmap
-     * @param contrast   contrast parameter 0..10, 1 is default
-     * @param brightness brightness parameter -255..255, 0 is default
+     * @param bmp                source bitmap
+     * @param target             target bitmap
+     * @param contrastProgress   contrast parameter 0..10, 1 is default
+     * @param brightnessProgress brightness parameter -255..255, 0 is default
      */
-    public static void changeBitmapContrastBrightness(Bitmap bmp, Bitmap target, float contrast, float brightness) {
+    public static void editContrastBrightness(Bitmap bmp, Bitmap target, float contrastProgress, float brightnessProgress) {
+        float contrast;
+        if (contrastProgress < 50) {
+            contrast = contrastProgress / 50f;
+        } else {
+            contrast = 1 + (contrastProgress - 50) / 50f * 9;
+        }
+        float brightness = (brightnessProgress - 50) * 255 / 50;
         ColorMatrix cm = new ColorMatrix(new float[]
                 {
                         contrast, 0, 0, 0, brightness,
@@ -176,17 +183,14 @@ public class CommonUtils {
         canvas.drawBitmap(bmp, 0, 0, paint);
     }
 
-    public static void adjustHue(Bitmap srcBitmap, Bitmap desBitmap, float value) {
-
-        value = cleanValue(value, 180f) / 180f * (float) Math.PI;
+    public static void editHue(Bitmap srcBitmap, Bitmap desBitmap, float hueProgress) {
+        float hue = (hueProgress - 50) * 180 / 100;
+        hue = cleanValue(hue, 180f) / 180f * (float) Math.PI;
         if (BuildConfig.DEBUG) {
-            Log.w(TAG, "" + value);
+            Log.w(TAG, "" + hue);
         }
-//        if (value == 0.0) {
-//            return;
-//        }
-        float cosVal = (float) Math.cos(value);
-        float sinVal = (float) Math.sin(value);
+        float cosVal = (float) Math.cos(hue);
+        float sinVal = (float) Math.sin(hue);
         float lumR = 0.213f;
         float lumG = 0.715f;
         float lumB = 0.072f;
@@ -204,6 +208,11 @@ public class CommonUtils {
         Paint paint = new Paint();
         paint.setColorFilter(new ColorMatrixColorFilter(cm));
         canvas.drawBitmap(srcBitmap, 0, 0, paint);
+    }
+
+    public static void editContrastHueLight(Bitmap srcBitmap, Bitmap desBitmap, float hue, float light, float contrast) {
+        editContrastBrightness(srcBitmap, desBitmap, contrast, light);
+        editHue(desBitmap, desBitmap, hue);
     }
 
     private static float cleanValue(float p_val, float p_limit) {

@@ -85,9 +85,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         setContentView(R.layout.activity_edit);
         mImagePath = getImagePath();
 
-        mLoadImageTask = new LoadImageTask();
-        mLoadImageTask.execute(mImagePath);
-
+        initView();
+        bindViewControl();
         sContext = getApplicationContext();
     }
 
@@ -198,6 +197,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         mListFeature.setLayoutManager(layoutManager);
         mListFeature.setAdapter(mAdapter);
 
+        mLoadImageTask = new LoadImageTask();
+        mLoadImageTask.execute(mImagePath);
+
     }
 
     /**
@@ -224,8 +226,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             super.onPostExecute(bitmap);
             if (bitmap != null) {
                 sSourceBitmap = bitmap;
-                initView();
-                bindViewControl();
                 mEditImage.setImageBitmap(sSourceBitmap);
                 if (BuildConfig.DEBUG) {
                     Log.w(TAG, "" + bitmap.getWidth() + " " + bitmap.getHeight());
