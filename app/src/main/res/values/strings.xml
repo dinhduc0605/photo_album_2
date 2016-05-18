@@ -52,4 +52,8 @@
     <string name="blur">Gaussian Blur</string>
     <string name="error_cannot_save_image">Cannot save image to sdcard</string>
     <string name="error_save_image_success">"Your image is saved to this folder "</string>
+    <string name="msg_save_confirm">Do you want to save image?</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="share_via">Share Via</string>
 </resources>
