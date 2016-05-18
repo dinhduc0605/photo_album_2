@@ -56,4 +56,5 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="share_via">Share Via</string>
+    <string name="pixelate">Pixelate</string>
 </resources>
