@@ -12,4 +12,5 @@
     <dimen name="item_recycler_view_margin">10dp</dimen>
     <dimen name="item_image_grid_size">110dp</dimen>
     <dimen name="item_image_grid_margin">5dp</dimen>
+    <dimen name="text_size_title_dialog">20sp</dimen>
 </resources>

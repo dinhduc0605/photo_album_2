@@ -1,7 +1,11 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.AsyncTask;
@@ -9,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +29,7 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
 import com.framgia.photoalbum.ui.custom.ScaleImageView;
+import com.framgia.photoalbum.ui.dialog.ShareDialog;
 import com.framgia.photoalbum.ui.fragment.AdjustFragment;
 import com.framgia.photoalbum.ui.fragment.ColorAdjustmentFragment;
 import com.framgia.photoalbum.ui.fragment.CropFragment;
@@ -39,6 +45,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -53,15 +60,12 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     private static final int ORIENTATION_FEATURE = 5;
     private static final int GAMMA_FEATURE = 6;
 
-
     @Bind(R.id.editImage)
     ScaleImageView mEditImage;
     @Bind(R.id.listFeature)
     RecyclerView mListFeature;
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
-
-    private String mImagePath;
 
     ArrayList<FeatureItem> mFeatureItems = new ArrayList<>();
     ListFeatureAdapter mAdapter;
@@ -71,9 +75,9 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public static Bitmap sResultBitmap;
     public static Context sContext;
 
-    LoadImageTask loadImageTask;
-
+    private LoadImageTask mLoadImageTask;
     private EditFragment mEditFragment;
+    private String mImagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +85,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         setContentView(R.layout.activity_edit);
         mImagePath = getImagePath();
 
-        loadImageTask = new LoadImageTask();
-
-        LoadImageTask loadImageTask = new LoadImageTask();
-        loadImageTask.execute(mImagePath);
+        mLoadImageTask = new LoadImageTask();
+        mLoadImageTask.execute(mImagePath);
 
         sContext = getApplicationContext();
     }
@@ -147,29 +149,13 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 mActionBar.setTitle(getString(R.string.label_edit_activity));
                 onBackPressed();
             } else {
-                try {
-                    File file = FileUtils.createEditedImageFile();
-                    FileOutputStream outputStream = new FileOutputStream(file);
-                    sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                    CommonUtils.invalidateGallery(getApplicationContext(), file);
-
-                    outputStream.flush();
-                    outputStream.close();
-
-                    Toast.makeText(this,
-                            getString(R.string.error_save_image_success) + file.getPath(), Toast.LENGTH_LONG)
-                            .show();
-                } catch (IOException e) {
-                    Toast.makeText(this,
-                            R.string.error_cannot_save_image,
-                            Toast.LENGTH_SHORT).show();
-                }
-
+                showSaveConfirmDialog();
             }
+        } else if (item.getItemId() == R.id.action_share) {
+            new ShareDialog(this, getListApps()).show();
         }
         return true;
     }
-
 
     /**
      * Init data for feature bar at bottom
@@ -221,7 +207,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     }
 
-
     /**
      * Load image in worker thread
      */
@@ -250,7 +235,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         }
     }
 
-
     public void clearFragment() {
         mEditFragment = null;
     }
@@ -271,14 +255,69 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     @Override
     protected void onDestroy() {
         CommonUtils.setImageViewBitmap(mEditImage, null);
-        if (loadImageTask != null && loadImageTask.isCancelled()) {
-            loadImageTask.cancel(true);
+        if (mLoadImageTask != null && mLoadImageTask.isCancelled()) {
+            mLoadImageTask.cancel(true);
         }
         CommonUtils.recycleBitmap(sSourceBitmap);
         CommonUtils.recycleBitmap(sResultBitmap);
-        System.gc();
         super.onDestroy();
     }
 
+    public Dialog showSaveConfirmDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.msg_save_confirm);
+        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                saveImage();
+            }
+        });
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setCancelable(false);
+        builder.show();
+        return builder.create();
+    }
 
+    private void saveImage() {
+        FileOutputStream outputStream = null;
+        File file;
+
+        try {
+            file = FileUtils.createEditedImageFile();
+            outputStream = new FileOutputStream(file);
+            sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            CommonUtils.invalidateGallery(getApplicationContext(), file);
+
+            Toast.makeText(this,
+                    getString(R.string.error_save_image_success) + file.getPath(), Toast.LENGTH_LONG)
+                    .show();
+        } catch (IOException e) {
+            Toast.makeText(this,
+                    R.string.error_cannot_save_image,
+                    Toast.LENGTH_SHORT).show();
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.flush();
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private List<ResolveInfo> getListApps() {
+        List<ResolveInfo> listApp = new ArrayList<>();
+
+        if (sSourceBitmap != null && !sSourceBitmap.isRecycled()) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("image/jpeg");
+            PackageManager manager = getPackageManager();
+            listApp = manager.queryIntentActivities(intent,
+                    PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
+        }
+
+        return listApp;
+    }
 }
