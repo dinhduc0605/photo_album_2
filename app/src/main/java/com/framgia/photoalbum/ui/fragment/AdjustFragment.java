@@ -181,13 +181,8 @@ public class AdjustFragment extends EditFragment implements AdjustFeatureAdapter
     }
 
     private void showSeekBar(boolean isShow) {
-        if (isShow) {
-            adjustFeatureList.setVisibility(View.INVISIBLE);
-            layoutAdjust.setVisibility(View.VISIBLE);
-        } else {
-            adjustFeatureList.setVisibility(View.VISIBLE);
-            layoutAdjust.setVisibility(View.INVISIBLE);
-        }
+        adjustFeatureList.setVisibility(isShow ? View.INVISIBLE : View.VISIBLE);
+        layoutAdjust.setVisibility(isShow ? View.VISIBLE : View.INVISIBLE);
     }
 
 }

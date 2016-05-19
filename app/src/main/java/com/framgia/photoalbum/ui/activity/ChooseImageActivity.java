@@ -30,7 +30,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ChooseImageActivity extends AppCompatActivity {
+public class ChooseImageActivity extends AppCompatActivity implements ImageGridAdapter.OnItemClickListener {
     public static final String IMAGE_PATH = "image_path";
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
     private static final String TAG = "ChooseImageActivity";
@@ -67,7 +67,7 @@ public class ChooseImageActivity extends AppCompatActivity {
         mImageItems = getImageList();
 
         //set up image grid
-        mAdapter = new ImageGridAdapter(this, mImageItems);
+        mAdapter = new ImageGridAdapter(this, mImageItems, this);
         mImageGrid.setAdapter(mAdapter);
     }
 
@@ -129,10 +129,12 @@ public class ChooseImageActivity extends AppCompatActivity {
         // Handle image captured callback
         if (requestCode == REQUEST_CAPTURE_IMAGE && resultCode == RESULT_OK) {
             String photoPath = FileUtils.getPathFromUri(mPhotoUri, this);
-            startEditorActivity(photoPath);
-
+            if (getIntent().getBooleanExtra(CollageActivity.KEY_COLLAGE, false)) {
+                returnResultToCollage(photoPath);
+            } else {
+                startEditorActivity(photoPath);
+            }
             if (BuildConfig.DEBUG)
-//                Toast.makeText(ChooseImageActivity.this, "path = " + photoPath, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, photoPath);
         }
 
@@ -144,6 +146,11 @@ public class ChooseImageActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EditActivity.class);
         intent.putExtra(IMAGE_PATH, photoPath);
         startActivity(intent);
+    }
+
+    private void returnResultToCollage(String photoPath) {
+        setResult(RESULT_OK, getIntent().setData(Uri.parse("file://" + photoPath)));
+        finish();
     }
 
     private void startCapture(Uri path) {
@@ -159,6 +166,19 @@ public class ChooseImageActivity extends AppCompatActivity {
 
         if (takeIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeIntent, REQUEST_CAPTURE_IMAGE);
+        }
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        if (BuildConfig.DEBUG) {
+            Log.w(TAG, mImageItems.get(position).getImagePath());
+        }
+        String imagePath = mImageItems.get(position).getImagePath();
+        if (getIntent().getBooleanExtra(CollageActivity.KEY_COLLAGE, false)) {
+            returnResultToCollage(imagePath);
+        } else {
+            startEditorActivity(imagePath);
         }
     }
 }

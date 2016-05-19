@@ -58,15 +58,10 @@ public class ScaleImageView extends ImageView {
     @Override
     public void setImageBitmap(final Bitmap bm) {
         if (bm != null) {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    RectF drawableRectF = new RectF(0, 0, bm.getWidth(), bm.getHeight());
-                    RectF viewRectF = new RectF(0, 0, getWidth(), getHeight());
-                    mMatrix.setRectToRect(drawableRectF, viewRectF, Matrix.ScaleToFit.CENTER);
-                    setImageMatrix(mMatrix);
-                }
-            });
+            RectF drawableRectF = new RectF(0, 0, bm.getWidth(), bm.getHeight());
+            RectF viewRectF = new RectF(0, 0, getWidth(), getHeight());
+            mMatrix.setRectToRect(drawableRectF, viewRectF, Matrix.ScaleToFit.CENTER);
+            setImageMatrix(mMatrix);
         }
         super.setImageBitmap(bm);
 

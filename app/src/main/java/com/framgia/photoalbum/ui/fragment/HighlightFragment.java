@@ -35,6 +35,7 @@ public class HighlightFragment extends EditFragment {
 
     @Bind(R.id.imageHighlight)
     ImageView mImageHighlight;
+
     public HighlightFragment() {
 
     }
@@ -132,6 +133,7 @@ public class HighlightFragment extends EditFragment {
 
     @Override
     public void apply() {
+        EditActivity.setResultBitmap(CommonUtils.getBitmapFromView(mImageHighlight));
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {

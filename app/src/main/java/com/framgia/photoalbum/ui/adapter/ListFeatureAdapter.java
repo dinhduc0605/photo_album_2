@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.framgia.photoalbum.R;
@@ -48,15 +49,15 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder,int position) {
         FeatureItem item = mFeatureItems.get(position);
-        holder.imageView.setImageResource(item.getIconRes());
-        holder.textView.setText(item.getFeatureName());
+        holder.mImageView.setImageResource(item.getIconRes());
+        holder.mTextView.setText(item.getFeatureName());
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
+        holder.mRootItemListFeature.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnFeatureClicked.onClick(view, position);
+                mOnFeatureClicked.onClick(view, holder.getAdapterPosition());
             }
         });
     }
@@ -68,13 +69,15 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
 
     class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.iv_item_list_feature)
-        ImageView imageView;
+        ImageView mImageView;
         @Bind(R.id.tv_item_list_feature)
-        TextView textView;
+        TextView mTextView;
+        LinearLayout mRootItemListFeature;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            mRootItemListFeature = (LinearLayout) itemView;
         }
     }
 
