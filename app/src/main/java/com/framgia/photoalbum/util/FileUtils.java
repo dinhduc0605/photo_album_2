@@ -21,18 +21,24 @@ import java.util.Date;
  */
 public class FileUtils {
 
+    private static final String IMG_TEMP_FILE_NAME = "img_temp.tmp";
+
     public static File createCacheFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-
         File cacheDir = Environment.getExternalStorageDirectory();
-
         cacheDir = new File(cacheDir.getAbsolutePath() + "/.PhotoAlbumCached/");
 
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
         }
 
-        return File.createTempFile(timeStamp, ".jpg", cacheDir);
+        File file = new File(cacheDir.getAbsolutePath(), IMG_TEMP_FILE_NAME);
+        if (file.exists()) {
+            file.delete();
+        }
+
+        file.createNewFile();
+
+        return file;
     }
 
     public static File createEditedImageFile() throws IOException {
