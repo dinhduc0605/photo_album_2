@@ -2,11 +2,16 @@ package com.framgia.photoalbum.util;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.widget.Toast;
+
+import com.framgia.photoalbum.R;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -62,5 +67,34 @@ public class FileUtils {
         }
 
         return filePath;
+    }
+
+    public static void saveEditedImage(Context context, Bitmap editedBitmap) {
+        FileOutputStream outputStream = null;
+        File file;
+
+        try {
+            file = FileUtils.createEditedImageFile();
+            outputStream = new FileOutputStream(file);
+            editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            CommonUtils.invalidateGallery(context, file);
+
+            Toast.makeText(context,
+                    context.getString(R.string.error_save_image_success) + file.getPath(),
+                    Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(context,
+                    R.string.error_cannot_save_image,
+                    Toast.LENGTH_SHORT).show();
+        } finally {
+            try {
+                if (outputStream != null) {
+                    outputStream.flush();
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

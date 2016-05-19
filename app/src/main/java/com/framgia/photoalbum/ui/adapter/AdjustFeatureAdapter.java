@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,6 +17,9 @@ import com.framgia.photoalbum.data.model.AdjustItem;
 import com.framgia.photoalbum.util.DimenUtils;
 
 import java.util.ArrayList;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by dinhduc on 10/05/2016.
@@ -51,7 +55,7 @@ public class AdjustFeatureAdapter extends RecyclerView.Adapter<AdjustFeatureAdap
         AdjustItem adjustItem = mAdjustItems.get(position);
         holder.imageView.setImageResource(adjustItem.getIconRes());
         holder.textView.setText(adjustItem.getFeatureName());
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
+        holder.rootItemListFeature.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mOnEditListener.onEdit(position);
@@ -65,13 +69,16 @@ public class AdjustFeatureAdapter extends RecyclerView.Adapter<AdjustFeatureAdap
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+        @Bind(R.id.iv_item_list_feature)
         ImageView imageView;
+        @Bind(R.id.tv_item_list_feature)
         TextView textView;
+        @Bind(R.id.root_item_list_feature)
+        LinearLayout rootItemListFeature;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.iv_item_list_feature);
-            textView = (TextView) itemView.findViewById(R.id.tv_item_list_feature);
+            ButterKnife.bind(this, itemView);
         }
     }
 

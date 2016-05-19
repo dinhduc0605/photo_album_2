@@ -31,13 +31,14 @@ public class HighLightDrawable extends BitmapDrawable {
         if (BuildConfig.DEBUG) {
             Log.w(TAG, "" + bitmap.getWidth() + "-" + bitmap.getHeight());
         }
+
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
         //draw gradient circle
-        RadialGradient radialGradient = new RadialGradient(mCenterPoint.x, mCenterPoint.y, mRadius, 0x00000000, 0xE6000000, Shader.TileMode.CLAMP);
+        RadialGradient radialGradient = new RadialGradient(mCenterPoint.x, mCenterPoint.y, mRadius, 0x00000000, 0xCC000000, Shader.TileMode.CLAMP);
         Paint paint = new Paint();
         paint.setDither(true);
         paint.setShader(radialGradient);
@@ -50,7 +51,7 @@ public class HighLightDrawable extends BitmapDrawable {
 
         //create a mask on image
         Paint maskPaint = new Paint();
-        maskPaint.setColor(0xE6000000);
+        maskPaint.setColor(0xCC000000);
         canvas.drawRect(mMaskArea, maskPaint);
 
     }

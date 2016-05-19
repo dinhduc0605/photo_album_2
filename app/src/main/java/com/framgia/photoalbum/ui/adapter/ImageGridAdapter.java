@@ -33,8 +33,10 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     private static final String TAG = "ImageGridAdapter";
     private ArrayList<ImageItem> mImageItems;
     private Context mContext;
+    private OnItemClickListener mOnItemClickListener;
 
-    public ImageGridAdapter(Context context, ArrayList<ImageItem> imageItems) {
+    public ImageGridAdapter(Context context, ArrayList<ImageItem> imageItems, OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
         mImageItems = imageItems;
         mContext = context;
     }
@@ -49,12 +51,12 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
                 .getMetrics(metrics);
 
         int width = metrics.widthPixels;
-        int imageViewWidth = (width - 30) / 3;
+        int imageViewWidth = (width - 15) / 3;
 
         //create image view
         ImageView imageView = new ImageView(mContext);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(imageViewWidth, imageViewWidth);
-        layoutParams.setMargins(5, 5, 5, 5);
+        layoutParams.setMargins(5, 5, 0, 5);
         imageView.setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         return new ViewHolder(imageView);
@@ -70,19 +72,14 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         Picasso.with(mContext)
                 .load("file://" + image.getImagePath())
                 .config(Bitmap.Config.RGB_565)
-                .resize(150,150)
+                .resize(150, 150)
                 .centerCrop()
                 .placeholder(R.drawable.ic_camera)
                 .into(holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, image.getImagePath());
-                }
-                Intent intent = new Intent(mContext, EditActivity.class);
-                intent.putExtra(ChooseImageActivity.IMAGE_PATH, image.getImagePath());
-                mContext.startActivity(intent);
+                mOnItemClickListener.onItemClick(holder.getAdapterPosition());
             }
         });
 
@@ -100,6 +97,10 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
             super(itemView);
             imageView = (ImageView) itemView;
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
     }
 
 }

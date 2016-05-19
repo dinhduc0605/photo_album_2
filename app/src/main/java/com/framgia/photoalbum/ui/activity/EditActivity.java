@@ -22,7 +22,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
@@ -41,14 +40,13 @@ import com.framgia.photoalbum.ui.fragment.OrientationFragment;
 import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.FileUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
+import static com.framgia.photoalbum.util.CommonUtils.*;
 
 public class EditActivity extends AppCompatActivity implements ListFeatureAdapter.OnFeatureClicked {
     private static final String TAG = "EditActivity";
@@ -216,9 +214,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
         @Override
         protected Bitmap doInBackground(String... paths) {
-            Point screenSize = CommonUtils.getDisplaySize(EditActivity.this);
-            Bitmap bitmap = CommonUtils.decodeSampledBitmapResource(paths[0], screenSize.x, screenSize.y);
-            return CommonUtils.centerBitmap(bitmap, screenSize.x, screenSize.y);
+            Point screenSize = getDisplaySize(EditActivity.this);
+            return decodeSampledBitmapResource(paths[0], screenSize.x, screenSize.y);
         }
 
         @Override
@@ -240,26 +237,25 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     }
 
     public void saveEffect() {
-
         if (sResultBitmap != null && !sResultBitmap.isRecycled()) {
-            CommonUtils.recycleBitmap(sSourceBitmap);
+            recycleBitmap(sSourceBitmap);
             sSourceBitmap = sResultBitmap.copy(sResultBitmap.getConfig(), true);
         }
     }
 
     public static void setResultBitmap(Bitmap bitmap) {
-        CommonUtils.recycleBitmap(sResultBitmap);
+        recycleBitmap(sResultBitmap);
         sResultBitmap = bitmap;
     }
 
     @Override
     protected void onDestroy() {
-        CommonUtils.setImageViewBitmap(mEditImage, null);
+        setImageViewBitmap(mEditImage, null);
         if (mLoadImageTask != null && mLoadImageTask.isCancelled()) {
             mLoadImageTask.cancel(true);
         }
-        CommonUtils.recycleBitmap(sSourceBitmap);
-        CommonUtils.recycleBitmap(sResultBitmap);
+        recycleBitmap(sSourceBitmap);
+        recycleBitmap(sResultBitmap);
         super.onDestroy();
     }
 
@@ -269,42 +265,13 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                saveImage();
+                FileUtils.saveEditedImage(getBaseContext(), sSourceBitmap);
             }
         });
         builder.setNegativeButton(getString(R.string.cancel), null);
         builder.setCancelable(false);
         builder.show();
         return builder.create();
-    }
-
-    private void saveImage() {
-        FileOutputStream outputStream = null;
-        File file;
-
-        try {
-            file = FileUtils.createEditedImageFile();
-            outputStream = new FileOutputStream(file);
-            sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            CommonUtils.invalidateGallery(getApplicationContext(), file);
-
-            Toast.makeText(this,
-                    getString(R.string.error_save_image_success) + file.getPath(), Toast.LENGTH_LONG)
-                    .show();
-        } catch (IOException e) {
-            Toast.makeText(this,
-                    R.string.error_cannot_save_image,
-                    Toast.LENGTH_SHORT).show();
-        } finally {
-            try {
-                if (outputStream != null) {
-                    outputStream.flush();
-                    outputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private List<ResolveInfo> getListApps() {

@@ -94,6 +94,7 @@ public class CommonUtils {
      * @return
      */
     public static Bitmap decodeSampledBitmapResource(String path, int reqWidth, int reqHeight) {
+        float angle = 0;
         if (path == null) return null;
         Log.d(TAG, path);
         Bitmap photoBitmap = null;
@@ -105,28 +106,29 @@ public class CommonUtils {
         try {
             ExifInterface exifInterface = new ExifInterface(path);
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, orientation+"");
+            }
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     options.inSampleSize = calculateInSampleSize(options.outHeight, options.outWidth, reqWidth, reqHeight);
-                    photoBitmap = BitmapFactory.decodeFile(path, options);
-                    rotatedBitmap = CommonUtils.rotateImage(photoBitmap, 90);
-                    photoBitmap.recycle();
+                    angle = 90;
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_180:
                     options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight, reqWidth, reqHeight);
-                    photoBitmap = BitmapFactory.decodeFile(path, options);
-                    rotatedBitmap = CommonUtils.rotateImage(photoBitmap, 180);
+                    angle = 180;
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_270:
                     options.inSampleSize = calculateInSampleSize(options.outHeight, options.outWidth, reqWidth, reqHeight);
-                    photoBitmap = BitmapFactory.decodeFile(path, options);
-                    rotatedBitmap = CommonUtils.rotateImage(photoBitmap, 270);
+                    angle = 270;
                     break;
                 default:
                     options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight, reqWidth, reqHeight);
-                    rotatedBitmap = BitmapFactory.decodeFile(path, options);
+                    angle = 0;
                     break;
             }
+            photoBitmap = BitmapFactory.decodeFile(path, options);
+            rotatedBitmap = CommonUtils.rotateImage(photoBitmap, angle);
         } catch (IOException e) {
             e.printStackTrace();
         }

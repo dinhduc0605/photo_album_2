@@ -5,6 +5,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.framgia.photoalbum.BuildConfig;
@@ -22,7 +23,7 @@ public class CollageUtils {
     private static int mMargin;
     private static PickImageToMergeListener sListener;
 
-    private static void init(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
+    private static void setUp(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
         sRootView = rootView;
         sActivity = activity;
         sPartImageViews = partImageViews;
@@ -32,8 +33,15 @@ public class CollageUtils {
         }
     }
 
+    private static void initPartImageView(int position) {
+        sPartImageViews[position] = new PartImageView(sActivity);
+        sPartImageViews[position].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        sPartImageViews[position].setImageResource(R.drawable.collage_hint);
+        sPartImageViews[position].setId(position + 1);
+    }
+
     public static void createLayout_2_1(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
-        init(rootView, activity, partImageViews);
+        setUp(rootView, activity, partImageViews);
         rootView.post(new Runnable() {
             @Override
             public void run() {
@@ -43,17 +51,18 @@ public class CollageUtils {
                     Log.w(TAG, mViewWidth + "-" + mViewHeight);
                 }
                 for (int i = 0; i < sPartImageViews.length; i++) {
-                    sPartImageViews[i] = new PartImageView(sActivity);
-                    sPartImageViews[i].setId(i + 1);
-
+                    initPartImageView(i);
                     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                            mViewWidth / sPartImageViews.length - sPartImageViews.length * mMargin,
+                            (mViewWidth - (sPartImageViews.length + 1) * mMargin) / sPartImageViews.length,
                             mViewHeight
                     );
                     if (i > 0) {
                         layoutParams.addRule(RelativeLayout.RIGHT_OF, i);
+                        layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
+                    } else {
+                        layoutParams.setMargins(mMargin, mMargin, 0, mMargin);
                     }
-                    layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
+
                     sPartImageViews[i].setLayoutParams(layoutParams);
                     sPartImageViews[i].setBackgroundColor(
                             ContextCompat.getColor(
@@ -76,7 +85,7 @@ public class CollageUtils {
     }
 
     public static void createLayout_2_2(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
-        init(rootView, activity, partImageViews);
+        setUp(rootView, activity, partImageViews);
         sRootView.post(new Runnable() {
             @Override
             public void run() {
@@ -86,17 +95,19 @@ public class CollageUtils {
                     Log.w(TAG, mViewWidth + "-" + mViewHeight);
                 }
                 for (int i = 0; i < sPartImageViews.length; i++) {
-                    sPartImageViews[i] = new PartImageView(sActivity);
-                    sPartImageViews[i].setId(i + 1);
+                    initPartImageView(i);
 
                     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                             mViewWidth,
-                            mViewHeight / sPartImageViews.length - sPartImageViews.length * mMargin
+                            (mViewHeight - (sPartImageViews.length + 1) * mMargin) / sPartImageViews.length
                     );
                     if (i > 0) {
                         layoutParams.addRule(RelativeLayout.BELOW, i);
+                        layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
+                    } else {
+                        layoutParams.setMargins(mMargin, mMargin, mMargin, 0);
                     }
-                    layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
+
                     sPartImageViews[i].setLayoutParams(layoutParams);
                     sPartImageViews[i].setBackgroundColor(
                             ContextCompat.getColor(
@@ -119,7 +130,7 @@ public class CollageUtils {
     }
 
     public static void createLayout_2_3(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
-        init(rootView, activity, partImageViews);
+        setUp(rootView, activity, partImageViews);
         sRootView.post(new Runnable() {
             @Override
             public void run() {
@@ -129,23 +140,24 @@ public class CollageUtils {
                     Log.w(TAG, mViewWidth + "-" + mViewHeight);
                 }
                 for (int i = 0; i < sPartImageViews.length; i++) {
-                    sPartImageViews[i] = new PartImageView(sActivity);
-                    sPartImageViews[i].setId(i + 1);
+                    initPartImageView(i);
 
                     RelativeLayout.LayoutParams layoutParams;
                     if (i > 0) {
                         layoutParams = new RelativeLayout.LayoutParams(
                                 mViewWidth,
-                                mViewHeight / 4 * 3 - sPartImageViews.length * mMargin
+                                (mViewHeight - (sPartImageViews.length + 1) * mMargin) / 4 * 3
                         );
                         layoutParams.addRule(RelativeLayout.BELOW, i);
+                        layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
                     } else {
                         layoutParams = new RelativeLayout.LayoutParams(
                                 mViewWidth,
-                                mViewHeight / 4 - sPartImageViews.length * mMargin
+                                (mViewHeight - (sPartImageViews.length + 1) * mMargin) / 4
                         );
+                        layoutParams.setMargins(mMargin, mMargin, mMargin, 0);
                     }
-                    layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
+
                     sPartImageViews[i].setLayoutParams(layoutParams);
                     sPartImageViews[i].setBackgroundColor(
                             ContextCompat.getColor(
@@ -169,7 +181,7 @@ public class CollageUtils {
     }
 
     public static void createLayout_3_1(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
-        init(rootView, activity, partImageViews);
+        setUp(rootView, activity, partImageViews);
         sRootView.post(new Runnable() {
             @Override
             public void run() {
@@ -179,16 +191,18 @@ public class CollageUtils {
                     Log.w(TAG, mViewWidth + "-" + mViewHeight);
                 }
                 for (int i = 0; i < sPartImageViews.length; i++) {
-                    sPartImageViews[i] = new PartImageView(sActivity);
-                    sPartImageViews[i].setId(i + 1);
+                    initPartImageView(i);
                     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
                             mViewWidth,
-                            mViewHeight / sPartImageViews.length - mMargin * 2
+                            (mViewHeight - mMargin * (sPartImageViews.length + 1)) / sPartImageViews.length
                     );
                     if (i > 0) {
                         layoutParams.addRule(RelativeLayout.BELOW, i);
+                        layoutParams.setMargins(mMargin, 0, mMargin, mMargin);
+                    } else {
+                        layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
                     }
-                    layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
+
                     sPartImageViews[i].setLayoutParams(layoutParams);
                     sPartImageViews[i].setBackgroundColor(
                             ContextCompat.getColor(
@@ -211,7 +225,7 @@ public class CollageUtils {
     }
 
     public static void createLayout_3_2(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
-        init(rootView, activity, partImageViews);
+        setUp(rootView, activity, partImageViews);
         sRootView.post(new Runnable() {
             @Override
             public void run() {
@@ -220,31 +234,32 @@ public class CollageUtils {
                 if (BuildConfig.DEBUG) {
                     Log.w(TAG, mViewWidth + "-" + mViewHeight);
                 }
-                sPartImageViews = new PartImageView[3];
                 for (int i = 0; i < sPartImageViews.length; i++) {
-                    sPartImageViews[i] = new PartImageView(sActivity);
-                    sPartImageViews[i].setId(i + 1);
+                    initPartImageView(i);
                     RelativeLayout.LayoutParams layoutParams;
                     switch (i) {
                         case 0:
                             layoutParams = new RelativeLayout.LayoutParams(
-                                    mViewWidth / 2 - mMargin * 2,
-                                    mViewHeight / 4 * 3 - mMargin * 2
+                                    (mViewWidth - 3 * mMargin) / 2,
+                                    (mViewHeight - 3 * mMargin) / 4 * 3
                             );
+                            layoutParams.setMargins(mMargin, mMargin, 0, 0);
                             break;
                         case 1:
                             layoutParams = new RelativeLayout.LayoutParams(
-                                    mViewWidth / 2 - mMargin * 2,
-                                    mViewHeight / 4 - mMargin * 2
+                                    (mViewWidth - 3 * mMargin) / 2,
+                                    (mViewHeight - 3 * mMargin) / 4
                             );
                             layoutParams.addRule(RelativeLayout.BELOW, 1);
+                            layoutParams.setMargins(mMargin, mMargin, 0, mMargin);
                             break;
                         case 2:
                             layoutParams = new RelativeLayout.LayoutParams(
-                                    mViewWidth / 2 - mMargin * 2,
+                                    (mViewWidth - 3 * mMargin) / 2,
                                     mViewHeight
                             );
                             layoutParams.addRule(RelativeLayout.RIGHT_OF, 2);
+                            layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
                             break;
                         default:
                             layoutParams = new RelativeLayout.LayoutParams(
@@ -252,7 +267,6 @@ public class CollageUtils {
                                     ViewGroup.LayoutParams.MATCH_PARENT
                             );
                     }
-                    layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
                     sPartImageViews[i].setLayoutParams(layoutParams);
                     sPartImageViews[i].setBackgroundColor(
                             ContextCompat.getColor(
@@ -275,7 +289,7 @@ public class CollageUtils {
     }
 
     public static void createLayout_4_1(RelativeLayout rootView, Activity activity, PartImageView[] partImageViews) {
-        init(rootView, activity, partImageViews);
+        setUp(rootView, activity, partImageViews);
         sRootView.post(new Runnable() {
             @Override
             public void run() {
@@ -285,25 +299,28 @@ public class CollageUtils {
                     Log.w(TAG, mViewWidth + "-" + mViewHeight);
                 }
                 for (int i = 0; i < sPartImageViews.length; i++) {
-                    sPartImageViews[i] = new PartImageView(sActivity);
-                    sPartImageViews[i].setId(i + 1);
+                    initPartImageView(i);
                     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-                            mViewWidth / 2 - mMargin * 2,
-                            mViewHeight / 2 - mMargin * 2
+                            (mViewWidth - 3 * mMargin) / 2,
+                            (mViewHeight - 3 * mMargin) / 2
                     );
                     switch (i) {
                         case 1:
                             layoutParams.addRule(RelativeLayout.BELOW, 1);
+                            layoutParams.setMargins(mMargin, mMargin, 0, mMargin);
                             break;
                         case 2:
                             layoutParams.addRule(RelativeLayout.RIGHT_OF, 2);
+                            layoutParams.setMargins(mMargin, mMargin, mMargin, 0);
                             break;
                         case 3:
                             layoutParams.addRule(RelativeLayout.BELOW, 3);
                             layoutParams.addRule(RelativeLayout.RIGHT_OF, 2);
+                            layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
                             break;
+                        default:
+                            layoutParams.setMargins(mMargin, mMargin, 0, 0);
                     }
-                    layoutParams.setMargins(mMargin, mMargin, mMargin, mMargin);
                     sPartImageViews[i].setLayoutParams(layoutParams);
                     sPartImageViews[i].setBackgroundColor(
                             ContextCompat.getColor(

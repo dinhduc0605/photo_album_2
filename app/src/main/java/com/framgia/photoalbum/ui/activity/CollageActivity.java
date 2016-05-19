@@ -30,9 +30,10 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class CollageActivity extends AppCompatActivity implements CollageUtils.PickImageToMergeListener{
+public class CollageActivity extends AppCompatActivity implements CollageUtils.PickImageToMergeListener {
     private static final String TAG = "CollageActivity";
     public static final int REQUEST_CODE_CHOOSE_IMAGE = 0;
+    public static final String KEY_COLLAGE = "Collage";
     public static final int LAYOUT_2_1 = 0;
     public static final int LAYOUT_2_2 = 1;
     public static final int LAYOUT_2_3 = 2;
@@ -88,15 +89,7 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.saveImage) {
             Bitmap saveBitmap = CommonUtils.getBitmapFromView(rootView);
-            try {
-                File file = FileUtils.createEditedImageFile();
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                saveBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-                Toast.makeText(this, "done", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            FileUtils.saveEditedImage(getBaseContext(), saveBitmap);
         } else if (item.getItemId() == android.R.id.home) {
             finish();
         }
@@ -170,10 +163,8 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
     @Override
     public void onPick(int position) {
         mPosition = position;
-        Intent intent = new Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        );
-        startActivityForResult(intent, CollageActivity.REQUEST_CODE_CHOOSE_IMAGE);
+        Intent intent = new Intent(this, ChooseImageActivity.class);
+        intent.putExtra(KEY_COLLAGE, true);
+        startActivityForResult(intent, REQUEST_CODE_CHOOSE_IMAGE);
     }
 }
