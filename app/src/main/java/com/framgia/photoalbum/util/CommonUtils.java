@@ -26,6 +26,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.framgia.photoalbum.BuildConfig;
+import com.framgia.photoalbum.ui.activity.EditActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,6 +83,7 @@ public class CommonUtils {
                 inSampleSize *= 2;
             }
         }
+        EditActivity.sScale = inSampleSize;
         return inSampleSize;
     }
 
@@ -133,10 +135,6 @@ public class CommonUtils {
             e.printStackTrace();
         }
 
-        if (BuildConfig.DEBUG) {
-            Log.w(TAG, "" + options.inSampleSize);
-            Log.w(TAG, rotatedBitmap.getWidth() + "-" + rotatedBitmap.getHeight());
-        }
         return rotatedBitmap;
     }
 

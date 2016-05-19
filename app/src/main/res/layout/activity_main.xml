@@ -2,9 +2,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/background_home"
     android:layout_height="match_parent"
+    android:background="@drawable/background_home"
     tools:context=".ui.activity.MainActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="100dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/img_logo_app" />
 
     <Button
         android:id="@+id/photoEditor"
@@ -20,5 +30,5 @@
         android:layout_below="@+id/photoEditor"
         android:layout_centerInParent="true"
         android:layout_marginTop="@dimen/activity_horizontal_margin"
-        android:background="@drawable/collage_button"/>
+        android:background="@drawable/collage_button" />
 </RelativeLayout>

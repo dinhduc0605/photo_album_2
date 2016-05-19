@@ -1,6 +1,5 @@
 package com.framgia.photoalbum.ui.fragment;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
@@ -9,7 +8,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,7 +100,6 @@ public class CropFragment extends EditFragment {
             BitmapRegionDecoder decoder = BitmapRegionDecoder.newInstance(is, false);
             final int width = decoder.getWidth();
             final int height = decoder.getHeight();
-
             if (exifRotation != 0) {
                 // Adjust crop area to account for image rotation
                 Matrix matrix = new Matrix();
@@ -121,6 +118,7 @@ public class CropFragment extends EditFragment {
                 if (croppedImage != null && (rect.width() > outWidth || rect.height() > outHeight)) {
                     Matrix matrix = new Matrix();
                     matrix.postScale((float) outWidth / rect.width(), (float) outHeight / rect.height());
+                    matrix.setRotate(exifRotation);
                     croppedImage = Bitmap.createBitmap(croppedImage, 0, 0, croppedImage.getWidth(), croppedImage.getHeight(), matrix, true);
                 }
             } catch (IllegalArgumentException e) {
@@ -144,7 +142,7 @@ public class CropFragment extends EditFragment {
         isSaving = true;
         Bitmap croppedImage;
 
-        Rect r = mHighlightView.getScaledCropRect(1);
+        Rect r = mHighlightView.getScaledCropRect(EditActivity.sScale);
         int width = r.width();
         int height = r.height();
 
@@ -163,9 +161,10 @@ public class CropFragment extends EditFragment {
 
         croppedImage = decodeRegionCrop(r, outWidth, outHeight);
 
-
         if (croppedImage != null) {
             EditActivity.setResultBitmap(croppedImage);
+            ((EditActivity) getActivity()).saveEffect();
+            ((EditActivity) getActivity()).saveTempImage();
         }
     }
 
@@ -181,6 +180,5 @@ public class CropFragment extends EditFragment {
     @Override
     public void apply() {
         onCropClick();
-
     }
 }

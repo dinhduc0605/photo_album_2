@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.framgia.photoalbum.R;
@@ -49,17 +48,10 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder,int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         FeatureItem item = mFeatureItems.get(position);
-        holder.mImageView.setImageResource(item.getIconRes());
-        holder.mTextView.setText(item.getFeatureName());
-
-        holder.mRootItemListFeature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOnFeatureClicked.onClick(view, holder.getAdapterPosition());
-            }
-        });
+        holder.imageView.setImageResource(item.getIconRes());
+        holder.textView.setText(item.getFeatureName());
     }
 
     @Override
@@ -69,15 +61,19 @@ public class ListFeatureAdapter extends RecyclerView.Adapter<ListFeatureAdapter.
 
     class ViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.iv_item_list_feature)
-        ImageView mImageView;
+        ImageView imageView;
         @Bind(R.id.tv_item_list_feature)
-        TextView mTextView;
-        LinearLayout mRootItemListFeature;
+        TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            mRootItemListFeature = (LinearLayout) itemView;
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnFeatureClicked.onClick(v, getAdapterPosition());
+                }
+            });
         }
     }
 
