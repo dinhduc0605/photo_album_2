@@ -1,17 +1,23 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.Manifest;
 import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +27,7 @@ import com.framgia.photoalbum.data.model.ImageItem;
 import com.framgia.photoalbum.ui.adapter.ImageGridAdapter;
 import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.FileUtils;
+import com.framgia.photoalbum.util.PermissionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +44,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     private Uri mPhotoUri;
     private ArrayList<ImageItem> mImageItems = new ArrayList<>();
     private ImageGridAdapter mAdapter;
+    private String mImagePath;
 
     @Bind(R.id.imageGrid)
     RecyclerView mImageGrid;
@@ -49,6 +57,9 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_image);
+        if (BuildConfig.DEBUG) {
+            Log.w(TAG, "onCreate ");
+        }
         ButterKnife.bind(this);
         initView();
         bindViewControl();
@@ -87,19 +98,24 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
                 null,
                 MediaStore.Images.Media._ID);
         //get cursor point to thumbnail table
-        Cursor imageCursor = imageLoader.loadInBackground();
-        if (imageCursor.moveToLast()) {
-            do {
-                //get image path
-                String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                //get image id
-                int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+        try {
+            Cursor imageCursor = imageLoader.loadInBackground();
+            if (imageCursor.moveToLast()) {
+                do {
+                    //get image path
+                    String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    //get image id
+                    int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
 
-                ImageItem imageItem = new ImageItem(imagePath, id);
-                imageItems.add(imageItem);
-            } while (imageCursor.moveToPrevious());
+                    ImageItem imageItem = new ImageItem(imagePath, id);
+                    imageItems.add(imageItem);
+                } while (imageCursor.moveToPrevious());
+            }
+            imageCursor.close();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            Toast.makeText(this, getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
         }
-        imageCursor.close();
         return imageItems;
     }
 
@@ -174,11 +190,36 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
         if (BuildConfig.DEBUG) {
             Log.w(TAG, mImageItems.get(position).getImagePath());
         }
-        String imagePath = mImageItems.get(position).getImagePath();
+        mImagePath = mImageItems.get(position).getImagePath();
         if (getIntent().getBooleanExtra(CollageActivity.KEY_COLLAGE, false)) {
-            returnResultToCollage(imagePath);
+            returnResultToCollage(mImagePath);
         } else {
-            startEditorActivity(imagePath);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                PermissionUtils.requestWriteStoragePermission(this, R.id.rootView);
+            } else {
+                startEditorActivity(mImagePath);
+            }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE) {
+            if (permissions.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startEditorActivity(mImagePath);
+            } else {
+                Toast.makeText(this, getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return true;
     }
 }

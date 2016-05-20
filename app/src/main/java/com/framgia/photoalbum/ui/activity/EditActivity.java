@@ -143,14 +143,12 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public boolean onOptionsItemSelected(MenuItem item) {
         if (isProcessing) return false;
         if (item.getItemId() == android.R.id.home) {
-            mActionBar.setTitle(getString(R.string.label_edit_activity));
             onBackPressed();
         } else if (item.getItemId() == R.id.action_done) {
             if (mEditFragment != null) {
                 mEditFragment.apply();
                 saveEffect();
                 mEditImage.setImageBitmap(sSourceBitmap);
-                mActionBar.setTitle(getString(R.string.label_edit_activity));
                 onBackPressed();
             } else {
                 showSaveConfirmDialog(false);
@@ -375,6 +373,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         if (mEditFragment == null) {
             showSaveConfirmDialog(true);
         } else {
+            mActionBar.setTitle(getString(R.string.label_edit_activity));
             super.onBackPressed();
         }
     }

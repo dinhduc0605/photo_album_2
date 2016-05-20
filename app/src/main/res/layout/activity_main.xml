@@ -1,34 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background_home"
-    tools:context=".ui.activity.MainActivity">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="100dp"
-        android:adjustViewBounds="true"
-        android:src="@drawable/img_logo_app" />
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_home"
+        tools:context=".ui.activity.MainActivity">
 
-    <Button
-        android:id="@+id/photoEditor"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:layout_centerInParent="true"
-        android:background="@drawable/photo_editor_button" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="100dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/img_logo_app" />
 
-    <Button
-        android:id="@+id/collage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/photoEditor"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="@dimen/activity_horizontal_margin"
-        android:background="@drawable/collage_button" />
-</RelativeLayout>
+        <Button
+            android:id="@+id/photoEditor"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/photo_editor_button" />
+
+        <Button
+            android:id="@+id/collage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/photoEditor"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:background="@drawable/collage_button" />
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

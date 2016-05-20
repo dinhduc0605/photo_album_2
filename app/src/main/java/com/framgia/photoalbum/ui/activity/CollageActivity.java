@@ -1,9 +1,14 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,9 +26,8 @@ import com.framgia.photoalbum.ui.custom.PartImageView;
 import com.framgia.photoalbum.util.CollageUtils;
 import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.FileUtils;
+import com.framgia.photoalbum.util.PermissionUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -48,7 +52,7 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
 
-    @Bind(R.id.rootView)
+    @Bind(R.id.rootPartImageView)
     RelativeLayout rootView;
 
     @Bind(R.id.listLayoutCollage)
@@ -163,8 +167,29 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
     @Override
     public void onPick(int position) {
         mPosition = position;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            PermissionUtils.requestWriteStoragePermission(this, R.id.rootView);
+        } else {
+            startChooseImageActivity();
+        }
+    }
+
+    private void startChooseImageActivity() {
         Intent intent = new Intent(this, ChooseImageActivity.class);
         intent.putExtra(KEY_COLLAGE, true);
         startActivityForResult(intent, REQUEST_CODE_CHOOSE_IMAGE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE) {
+            if (permissions.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startChooseImageActivity();
+            }else {
+                Toast.makeText(this, getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

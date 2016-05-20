@@ -109,7 +109,7 @@ public class CommonUtils {
             ExifInterface exifInterface = new ExifInterface(path);
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
             if (BuildConfig.DEBUG) {
-                Log.w(TAG, orientation+"");
+                Log.w(TAG, orientation + "");
             }
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
@@ -131,7 +131,7 @@ public class CommonUtils {
             }
             photoBitmap = BitmapFactory.decodeFile(path, options);
             rotatedBitmap = CommonUtils.rotateImage(photoBitmap, angle);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -280,7 +280,7 @@ public class CommonUtils {
     }
 
     public static void setImageViewBitmap(ImageView imageView, Bitmap bitmap) {
-        if (imageView == null) {
+        if (imageView == null || imageView.getDrawable() == null) {
             return;
         }
 
