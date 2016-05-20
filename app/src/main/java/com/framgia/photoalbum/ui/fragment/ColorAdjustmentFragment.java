@@ -1,5 +1,7 @@
 package com.framgia.photoalbum.ui.fragment;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -45,6 +47,8 @@ public class ColorAdjustmentFragment extends EditFragment implements
     private ArrayList<FeatureItem> mFeatureItems = new ArrayList<>();
     private ListFeatureAdapter mAdapter;
     private ColorAdjustPerform mColorAdjustPerform;
+    private AnimatorSet mSlideDownAnim;
+    private AnimatorSet mSlideUpAnim;
 
 
     @Override
@@ -85,13 +89,10 @@ public class ColorAdjustmentFragment extends EditFragment implements
     }
 
     public void showSeekbar(boolean isShow) {
-        if (isShow) {
-            mLayoutAdjust.setVisibility(View.VISIBLE);
-            mRecyclerViewEffect.setVisibility(View.INVISIBLE);
-        } else {
-            mLayoutAdjust.setVisibility(View.INVISIBLE);
-            mRecyclerViewEffect.setVisibility(View.VISIBLE);
-        }
+        mSlideDownAnim.setTarget(isShow ? mRecyclerViewEffect : mLayoutAdjust);
+        mSlideDownAnim.start();
+        mSlideUpAnim.setTarget(isShow ? mLayoutAdjust : mRecyclerViewEffect);
+        mSlideUpAnim.start();
     }
 
     @OnClick({R.id.btnClear, R.id.btnDone})
@@ -105,6 +106,15 @@ public class ColorAdjustmentFragment extends EditFragment implements
     }
 
     private void initComponent() {
+        mSlideDownAnim = (AnimatorSet) AnimatorInflater.loadAnimator(
+                getContext(),
+                R.animator.slide_down_animator
+        );
+        mSlideUpAnim = (AnimatorSet) AnimatorInflater.loadAnimator(
+                getContext(),
+                R.animator.slide_up_animator
+        );
+
         imageDisplayed.setImageBitmap(mEditBitmap);
 
         // Config dialog

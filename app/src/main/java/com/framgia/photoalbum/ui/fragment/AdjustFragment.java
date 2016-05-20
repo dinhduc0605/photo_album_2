@@ -1,6 +1,8 @@
 package com.framgia.photoalbum.ui.fragment;
 
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -43,6 +44,8 @@ public class AdjustFragment extends EditFragment implements AdjustFeatureAdapter
     private Bitmap mImageBitmapSrc, mImageBitmapDes;
     private int mPosition;
     private int mCurrentLight, mCurrentContrast, mCurrentHue;
+    private AnimatorSet mSlideDownAnim;
+    private AnimatorSet mSlideUpAnim;
 
     @Bind(R.id.adjustImage)
     ImageView mImageView;
@@ -56,8 +59,9 @@ public class AdjustFragment extends EditFragment implements AdjustFeatureAdapter
     ImageView mButtonDone;
     @Bind(R.id.layoutAdjust)
     LinearLayout layoutAdjust;
-    @Bind(R.id.layoutAdjustBar)
-    FrameLayout layoutAdjustBar;
+
+//    @Bind(R.id.layoutAdjustBar)
+//    FrameLayout layoutAdjustBar;
 
     public AdjustFragment() {
         // Required empty public constructor
@@ -74,6 +78,14 @@ public class AdjustFragment extends EditFragment implements AdjustFeatureAdapter
                 mImageBitmapSrc.getWidth(),
                 mImageBitmapSrc.getHeight(),
                 mImageBitmapSrc.getConfig()
+        );
+        mSlideDownAnim = (AnimatorSet) AnimatorInflater.loadAnimator(
+                getContext(),
+                R.animator.slide_down_animator
+        );
+        mSlideUpAnim = (AnimatorSet) AnimatorInflater.loadAnimator(
+                getContext(),
+                R.animator.slide_up_animator
         );
         return view;
     }
@@ -181,8 +193,10 @@ public class AdjustFragment extends EditFragment implements AdjustFeatureAdapter
     }
 
     private void showSeekBar(boolean isShow) {
-        adjustFeatureList.setVisibility(isShow ? View.INVISIBLE : View.VISIBLE);
-        layoutAdjust.setVisibility(isShow ? View.VISIBLE : View.INVISIBLE);
+        mSlideDownAnim.setTarget(isShow ? adjustFeatureList : layoutAdjust);
+        mSlideDownAnim.start();
+        mSlideUpAnim.setTarget(isShow ? layoutAdjust : adjustFeatureList);
+        mSlideUpAnim.start();
     }
 
 }
