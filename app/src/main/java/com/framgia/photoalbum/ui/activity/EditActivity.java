@@ -125,6 +125,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 break;
         }
         fragmentTransaction
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.container, mEditFragment)
                 .addToBackStack(null)
                 .commit();

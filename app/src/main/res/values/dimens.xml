@@ -15,4 +15,5 @@
     <dimen name="text_size_title_dialog">20sp</dimen>
     <dimen name="item_list_filter_size">50dp</dimen>
     <dimen name="text_filter_name_size">12sp</dimen>
+    <dimen name="layout_adjust_margin">-100dp</dimen>
 </resources>
