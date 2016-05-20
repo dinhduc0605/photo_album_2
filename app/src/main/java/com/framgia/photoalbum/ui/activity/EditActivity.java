@@ -75,6 +75,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public static Bitmap sResultBitmap;
     public static Context sContext;
     public static int sScale = 1;
+    public static boolean isProcessing = false;
+
 
     private LoadImageTask mLoadImageTask;
     private EditFragment mEditFragment;
@@ -139,6 +141,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (isProcessing) return false;
         if (item.getItemId() == android.R.id.home) {
             mActionBar.setTitle(getString(R.string.label_edit_activity));
             onBackPressed();
@@ -150,7 +153,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
                 mActionBar.setTitle(getString(R.string.label_edit_activity));
                 onBackPressed();
             } else {
-                showSaveConfirmDialog();
+                showSaveConfirmDialog(false);
             }
         } else if (item.getItemId() == R.id.action_share) {
             new ShareDialog(this, getListApps()).show();
@@ -265,16 +268,26 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         super.onDestroy();
     }
 
-    public Dialog showSaveConfirmDialog() {
+    public Dialog showSaveConfirmDialog(final boolean isBackActivity) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.msg_save_confirm);
         builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 saveImage();
+                if (isBackActivity) {
+                    finish();
+                }
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (isBackActivity) {
+                    finish();
+                }
+            }
+        });
         builder.setCancelable(false);
         builder.show();
         return builder.create();
@@ -355,5 +368,14 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         }
 
         return listApp;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mEditFragment == null) {
+            showSaveConfirmDialog(true);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

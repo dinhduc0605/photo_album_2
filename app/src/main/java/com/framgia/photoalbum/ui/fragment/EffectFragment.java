@@ -57,12 +57,13 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     private ProgressDialog mProcessDialog;
     private ArrayList<FeatureItem> mFeatureItems = new ArrayList<>();
     private ListFeatureAdapter mAdapter;
+    private EffectApplyAsyncTask mEffectApplyTask;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_effect, container, false);
         ButterKnife.bind(this, view);
-
         initComponent();
 
         return view;
@@ -122,19 +123,22 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
     }
 
     public void applyEffect(EffectFilter effect) {
-        EffectApplyAsyncTask mEffectApplyTask =
-                new EffectApplyAsyncTask(mEditBitmap, effect, mProcessDialog, this);
+        mEffectApplyTask = new EffectApplyAsyncTask(mEditBitmap, effect, mProcessDialog, this);
         mEffectApplyTask.execute();
     }
 
     @Override
     public void onResult(Bitmap bitmap) {
+        EditActivity.isProcessing = false;
         EditActivity.setResultBitmap(bitmap);
         imageDisplayed.setImageBitmap(EditActivity.sResultBitmap);
     }
 
     @Override
     public void onClick(View v, int position) {
+        if (EditActivity.isProcessing)
+            return;
+        EditActivity.isProcessing = true;
         switch (position) {
             case EFFECT_GRAY_SCALE:
                 applyEffect(new GrayScale());
@@ -163,6 +167,15 @@ public class EffectFragment extends EditFragment implements EffectApplyAsyncTask
             case EFFECT_BLUR:
                 applyEffect(new GaussianBlur());
                 break;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mEffectApplyTask != null && !mEffectApplyTask.isCancelled()) {
+            mEffectApplyTask.cancel(true);
+            EditActivity.isProcessing = false;
         }
     }
 }

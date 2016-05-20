@@ -24,7 +24,7 @@ public class Pixelate extends EffectFilter {
         ScriptC_PixelateFilter filter = new ScriptC_PixelateFilter(rs);
         filter.set_gIn(allocationIn);
         filter.set_gOut(allocationOut);
-        filter.set_gSquareSize(15);
+        filter.set_gScript(filter);
         filter.invoke_filter();
 
         allocationOut.copyTo(bmOut);

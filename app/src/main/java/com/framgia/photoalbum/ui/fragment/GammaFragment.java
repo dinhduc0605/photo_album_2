@@ -30,6 +30,8 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
 
     private ProgressDialog mProcessDialog;
     private Gamma mGammaEffect = new Gamma();
+    private EffectApplyAsyncTask mProgressTask;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,15 +76,22 @@ public class GammaFragment extends EditFragment implements EffectApplyAsyncTask.
     public void applyEffect() {
         int val = 100 - mSeekbarRed.getProgress();
         mGammaEffect.setValue(val);
-        EffectApplyAsyncTask progressTask =
-                new EffectApplyAsyncTask(mEditBitmap, mGammaEffect, mProcessDialog, this);
-        progressTask.execute();
+        mProgressTask = new EffectApplyAsyncTask(mEditBitmap, mGammaEffect, mProcessDialog, this);
+        mProgressTask.execute();
     }
 
     @Override
     public void onResult(Bitmap bitmap) {
         EditActivity.setResultBitmap(bitmap);
         imageDisplayed.setImageBitmap(bitmap);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mProgressTask != null && !mProgressTask.isCancelled()) {
+            mProgressTask.cancel(true);
+        }
     }
 
     @Override
