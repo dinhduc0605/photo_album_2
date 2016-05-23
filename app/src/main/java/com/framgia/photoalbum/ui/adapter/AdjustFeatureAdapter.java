@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.AdjustItem;
+import com.framgia.photoalbum.util.DimenUtils;
 
 import java.util.ArrayList;
 
@@ -37,10 +38,12 @@ public class AdjustFeatureAdapter extends RecyclerView.Adapter<AdjustFeatureAdap
                 .getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay()
                 .getMetrics(metrics);
-        int layoutWidth = metrics.widthPixels / getItemCount();
+        int margin = (int) DimenUtils.dpToPx(mContext, 0.5f);
+        int layoutWidth = metrics.widthPixels / getItemCount() - 2 * margin;
         int layoutHeight = (int) mContext.getResources().getDimension(R.dimen.recycler_view_height);
         View view = LayoutInflater.from(mContext).inflate(R.layout.item_list_feature, parent, false);
         RelativeLayout.LayoutParams rlParams = new RelativeLayout.LayoutParams(layoutWidth, layoutHeight);
+        rlParams.setMargins(margin, 0, margin, 0);
         view.setLayoutParams(rlParams);
         return new ViewHolder(view);
     }

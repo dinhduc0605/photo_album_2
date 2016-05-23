@@ -59,4 +59,5 @@
     <string name="pixelate">Pixelate</string>
     <string name="storage_permission_explanation">Allow Photo Album to access your data and get all photos</string>
     <string name="write_permission_not_granted">Permission to access photos is not granted</string>
+    <string name="title_image_not_chosen">Image is not choose</string>
 </resources>

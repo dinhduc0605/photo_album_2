@@ -1,6 +1,7 @@
 package com.framgia.photoalbum.util;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.RelativeLayout;
 
 import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
+import com.framgia.photoalbum.ui.activity.CollageActivity;
 import com.framgia.photoalbum.ui.custom.PartImageView;
 
 /**
@@ -33,10 +35,18 @@ public class CollageUtils {
         }
     }
 
-    private static void initPartImageView(int position) {
+    private static void initPartImageView(final int position) {
         sPartImageViews[position] = new PartImageView(sActivity);
-        sPartImageViews[position].setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        sPartImageViews[position].setImageResource(R.drawable.collage_hint);
+        sPartImageViews[position].setScaleType(ImageView.ScaleType.MATRIX);
+//        sPartImageViews[position].setImageResource(R.drawable.collage_hint);
+        sPartImageViews[position].post(new Runnable() {
+            @Override
+            public void run() {
+                if (sActivity instanceof CollageActivity) {
+                    sPartImageViews[position].setImageBitmap(((CollageActivity) sActivity).mImageBitmaps[position]);
+                }
+            }
+        });
         sPartImageViews[position].setId(position + 1);
     }
 
@@ -344,5 +354,22 @@ public class CollageUtils {
 
     public interface PickImageToMergeListener {
         void onPick(int position);
+    }
+
+    public static void releaseMemory(Bitmap[] bitmaps) {
+        for (Bitmap bitmap : bitmaps) {
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+        }
+    }
+
+    public static boolean isAllChose(Bitmap[] bitmaps, int numberView) {
+        for (int i = 0; i < numberView; i++) {
+            if (bitmaps[i] == null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

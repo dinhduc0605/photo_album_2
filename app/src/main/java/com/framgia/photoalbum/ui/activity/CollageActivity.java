@@ -1,14 +1,16 @@
 package com.framgia.photoalbum.ui.activity;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,13 +30,14 @@ import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.PermissionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class CollageActivity extends AppCompatActivity implements CollageUtils.PickImageToMergeListener {
+import static com.framgia.photoalbum.util.CollageUtils.*;
+
+public class CollageActivity extends AppCompatActivity implements PickImageToMergeListener {
     private static final String TAG = "CollageActivity";
     public static final int REQUEST_CODE_CHOOSE_IMAGE = 0;
     public static final String KEY_COLLAGE = "Collage";
@@ -48,6 +51,8 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
     private ListFeatureAdapter mAdapter;
     private PartImageView[] mPartImageViews;
     private int mPosition;
+    public Bitmap[] mImageBitmaps = new Bitmap[4];
+    public int numberView;
 
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
@@ -72,12 +77,8 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CHOOSE_IMAGE) {
             if (resultCode == RESULT_OK) {
-                Bitmap bitmap = null;
-                try {
-                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Bitmap bitmap = BitmapFactory.decodeFile(data.getStringExtra(ChooseImageActivity.IMAGE_PATH));
+                mImageBitmaps[mPosition] = bitmap;
                 mPartImageViews[mPosition].setImageBitmap(bitmap);
             }
         }
@@ -92,8 +93,12 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.saveImage) {
-            Bitmap saveBitmap = CommonUtils.getBitmapFromView(rootView);
-            FileUtils.saveEditedImage(getBaseContext(), saveBitmap);
+            if (!isAllChose(mImageBitmaps, numberView)) {
+                showSaveConfirmDialog();
+            } else {
+                Bitmap saveBitmap = CommonUtils.getBitmapFromView(rootView);
+                FileUtils.saveEditedImage(getBaseContext(), saveBitmap);
+            }
         } else if (item.getItemId() == android.R.id.home) {
             finish();
         }
@@ -134,28 +139,34 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
         rootView.removeAllViews();
         switch (type) {
             case LAYOUT_2_1:
-                mPartImageViews = new PartImageView[2];
-                CollageUtils.createLayout_2_1(rootView, this, mPartImageViews);
+                numberView = 2;
+                mPartImageViews = new PartImageView[numberView];
+                createLayout_2_1(rootView, this, mPartImageViews);
                 break;
             case LAYOUT_2_2:
-                mPartImageViews = new PartImageView[2];
-                CollageUtils.createLayout_2_2(rootView, this, mPartImageViews);
+                numberView = 2;
+                mPartImageViews = new PartImageView[numberView];
+                createLayout_2_2(rootView, this, mPartImageViews);
                 break;
             case LAYOUT_2_3:
-                mPartImageViews = new PartImageView[2];
-                CollageUtils.createLayout_2_3(rootView, this, mPartImageViews);
+                numberView = 2;
+                mPartImageViews = new PartImageView[numberView];
+                createLayout_2_3(rootView, this, mPartImageViews);
                 break;
             case LAYOUT_3_1:
-                mPartImageViews = new PartImageView[3];
-                CollageUtils.createLayout_3_1(rootView, this, mPartImageViews);
+                numberView = 3;
+                mPartImageViews = new PartImageView[numberView];
+                createLayout_3_1(rootView, this, mPartImageViews);
                 break;
             case LAYOUT_3_2:
-                mPartImageViews = new PartImageView[3];
-                CollageUtils.createLayout_3_2(rootView, this, mPartImageViews);
+                numberView = 3;
+                mPartImageViews = new PartImageView[numberView];
+                createLayout_3_2(rootView, this, mPartImageViews);
                 break;
             case LAYOUT_4_1:
-                mPartImageViews = new PartImageView[4];
-                CollageUtils.createLayout_4_1(rootView, this, mPartImageViews);
+                numberView = 4;
+                mPartImageViews = new PartImageView[numberView];
+                createLayout_4_1(rootView, this, mPartImageViews);
                 break;
         }
     }
@@ -175,6 +186,12 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseMemory(mImageBitmaps);
+    }
+
     private void startChooseImageActivity() {
         Intent intent = new Intent(this, ChooseImageActivity.class);
         intent.putExtra(KEY_COLLAGE, true);
@@ -186,10 +203,27 @@ public class CollageActivity extends AppCompatActivity implements CollageUtils.P
         if (requestCode == PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (permissions.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startChooseImageActivity();
-            }else {
+            } else {
                 Toast.makeText(this, getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public Dialog showSaveConfirmDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.title_image_not_chosen);
+        builder.setMessage(R.string.msg_save_confirm);
+        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bitmap saveBitmap = CommonUtils.getBitmapFromView(rootView);
+                FileUtils.saveEditedImage(getBaseContext(), saveBitmap);
+            }
+        });
+        builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setCancelable(false);
+        builder.show();
+        return builder.create();
     }
 }

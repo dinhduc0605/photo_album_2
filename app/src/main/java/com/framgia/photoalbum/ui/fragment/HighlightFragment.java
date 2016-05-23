@@ -26,8 +26,8 @@ import butterknife.ButterKnife;
 public class HighlightFragment extends EditFragment {
     private static final String TAG = "HighlightFragment";
     private HighLightDrawable mHighLightDrawable;
-    private Point mCenterPoint = new Point(100, 100);
-    private float mRadius = 100;
+    private Point mCenterPoint = new Point(200, 200);
+    private float mRadius = 200;
     private Bitmap mImageBitmap;
     private ScaleGestureDetector mScaleGestureDetector;
     private PointF mLastTouch;
@@ -141,7 +141,7 @@ public class HighlightFragment extends EditFragment {
         public boolean onScale(ScaleGestureDetector detector) {
             float mScaleFactor = detector.getScaleFactor();
             mRadius *= mScaleFactor;
-            mRadius = Math.max(50f, Math.min(mRadius, 200f));
+            mRadius = Math.max(100f, Math.min(mRadius, 300f));
             mHighLightDrawable.setHighlightArea(mCenterPoint, mRadius);
             mHighLightDrawable.invalidateSelf();
             if (BuildConfig.DEBUG) {

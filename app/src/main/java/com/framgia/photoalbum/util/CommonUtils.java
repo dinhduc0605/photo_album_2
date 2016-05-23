@@ -14,6 +14,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
@@ -96,10 +97,10 @@ public class CommonUtils {
      * @return
      */
     public static Bitmap decodeSampledBitmapResource(String path, int reqWidth, int reqHeight) {
-        float angle = 0;
+        float angle;
         if (path == null) return null;
         Log.d(TAG, path);
-        Bitmap photoBitmap = null;
+        Bitmap photoBitmap;
         Bitmap rotatedBitmap = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -320,5 +321,49 @@ public class CommonUtils {
                     Uri.parse("file://"
                             + Environment.getExternalStorageDirectory())));
         }
+    }
+
+    /**
+     * Helper method that maps the supplied Matrix to the current Drawable
+     *
+     * @param matrix - Matrix to map Drawable against
+     * @return RectF - Displayed Rectangle
+     */
+    public static RectF getDisplayRect(Matrix matrix, Drawable drawable) {
+        if (null != drawable) {
+            RectF mDisplayRect = new RectF();
+            mDisplayRect.set(0, 0, drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight());
+            matrix.mapRect(mDisplayRect);
+            return mDisplayRect;
+        }
+        return null;
+    }
+
+    /**
+     * Get coordinate translation to fix image
+     *
+     * @param trans     translation coordinate(x or y)
+     * @param viewSize  size of view (width or height)
+     * @param imageSize size of image bitmap in view (width or height)
+     * @return fix translation coordinate
+     */
+    public static float getFixTrans(float trans, float viewSize, float imageSize) {
+        float minTrans, maxTrans;
+
+        if (imageSize <= viewSize) {
+            minTrans = 0;
+            maxTrans = viewSize - imageSize;
+
+        } else {
+            minTrans = viewSize - imageSize;
+            maxTrans = 0;
+        }
+
+        if (trans < minTrans)
+            return -trans + minTrans;
+        if (trans > maxTrans)
+            return -trans + maxTrans;
+        return 0;
     }
 }
