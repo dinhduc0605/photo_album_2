@@ -20,10 +20,13 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
     View mDecorView;
-    @Bind(R.id.photoEditor)
+    @Bind(R.id.photo_editor)
     Button mPhotoEditorBtn;
     @Bind(R.id.collage)
-    Button collage;
+    Button mCollage;
+    @Bind(R.id.video_maker)
+    Button mVideoMakerBtn;
+    private Intent mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,33 +50,48 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @OnClick(R.id.photoEditor)
+    @OnClick({R.id.video_maker, R.id.collage, R.id.photo_editor})
     public void onClick(View v) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestWriteStoragePermission(this, R.id.rootView);
-        } else {
-            Intent intent = new Intent(getBaseContext(), ChooseImageActivity.class);
-            startActivity(intent);
+        switch (v.getId()) {
+            case R.id.photo_editor: {
+                mIntent = new Intent(getBaseContext(), ChooseImageActivity.class);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    PermissionUtils.requestWriteStoragePermission(this, R.id.rootView);
+                } else {
+                    startActivity(mIntent);
+                }
+                break;
+            }
+            case R.id.collage: {
+                mIntent = new Intent(getBaseContext(), CollageActivity.class);
+                startActivity(mIntent);
+                break;
+            }
+            case R.id.video_maker: {
+                mIntent = new Intent(getBaseContext(), ChooseMultipleImagesActivity.class);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    PermissionUtils.requestWriteStoragePermission(this, R.id.rootView);
+                } else {
+                    startActivity(mIntent);
+                }
+                break;
+            }
         }
-    }
 
-    @OnClick(R.id.collage)
-    public void onClick() {
-        Intent intent = new Intent(getBaseContext(), CollageActivity.class);
-        startActivity(intent);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PermissionUtils.REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (permissions.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(getBaseContext(), ChooseImageActivity.class);
-                startActivity(intent);
+                startActivity(mIntent);
             } else {
                 Toast.makeText(this, getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
 }

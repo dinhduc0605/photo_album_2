@@ -1,10 +1,8 @@
 package com.framgia.photoalbum.ui.activity;
 
 import android.Manifest;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -76,48 +74,11 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
         //init view
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 3);
         mImageGrid.setLayoutManager(layoutManager);
-        mImageItems = getImageList();
+        mImageItems = CommonUtils.getImageList(this);
 
         //set up image grid
         mAdapter = new ImageGridAdapter(this, mImageItems, this);
         mImageGrid.setAdapter(mAdapter);
-    }
-
-    /**
-     * Get image list in device
-     *
-     * @return image list
-     */
-    private ArrayList<ImageItem> getImageList() {
-        ArrayList<ImageItem> imageItems = new ArrayList<>();
-        //get cursor loader of Thumbnail table
-        CursorLoader imageLoader = new CursorLoader(this,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                //get image id & thumbnail path
-                new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
-                null,
-                null,
-                MediaStore.Images.Media._ID);
-        //get cursor point to thumbnail table
-        try {
-            Cursor imageCursor = imageLoader.loadInBackground();
-            if (imageCursor.moveToLast()) {
-                do {
-                    //get image path
-                    String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                    //get image id
-                    int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
-
-                    ImageItem imageItem = new ImageItem(imagePath, id);
-                    imageItems.add(imageItem);
-                } while (imageCursor.moveToPrevious());
-            }
-            imageCursor.close();
-        } catch (SecurityException e) {
-            e.printStackTrace();
-            Toast.makeText(this, getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
-        }
-        return imageItems;
     }
 
     /**
