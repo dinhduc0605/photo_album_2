@@ -30,14 +30,8 @@ public class FileUtils {
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
         }
-
         File file = new File(cacheDir.getAbsolutePath(), IMG_TEMP_FILE_NAME);
-        if (file.exists()) {
-            file.delete();
-        }
-
         file.createNewFile();
-
         return file;
     }
 

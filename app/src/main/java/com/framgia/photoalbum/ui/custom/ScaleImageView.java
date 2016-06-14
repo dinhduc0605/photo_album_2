@@ -15,6 +15,9 @@ import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 
 import com.framgia.photoalbum.BuildConfig;
+import com.framgia.photoalbum.util.CommonUtils;
+
+import static com.framgia.photoalbum.util.CommonUtils.*;
 
 /**
  * Created by dinhduc on 17/05/2016.
@@ -57,6 +60,7 @@ public class ScaleImageView extends ImageView {
 
     @Override
     public void setImageBitmap(final Bitmap bm) {
+        mScaleFactorTotal = 1;
         if (bm != null) {
             RectF drawableRectF = new RectF(0, 0, bm.getWidth(), bm.getHeight());
             RectF viewRectF = new RectF(0, 0, getWidth(), getHeight());
@@ -68,21 +72,20 @@ public class ScaleImageView extends ImageView {
     }
 
     /**
-     * Helper method that maps the supplied Matrix to the current Drawable
-     *
-     * @param matrix - Matrix to map Drawable against
-     * @return RectF - Displayed Rectangle
+     * fix image with returned fix translation coordinate
      */
-    private RectF getDisplayRect(Matrix matrix) {
-        Drawable d = getDrawable();
-        if (null != d) {
-            RectF mDisplayRect = new RectF();
-            mDisplayRect.set(0, 0, d.getIntrinsicWidth(),
-                    d.getIntrinsicHeight());
-            matrix.mapRect(mDisplayRect);
-            return mDisplayRect;
+    private void fixTrans(Matrix matrix, Drawable drawable) {
+        float[] m = new float[9];
+        matrix.getValues(m);
+        float transX = m[Matrix.MTRANS_X];
+        float transY = m[Matrix.MTRANS_Y];
+        RectF rectF = getDisplayRect(matrix, drawable);
+        float fixTransX = getFixTrans(transX, getWidth(), rectF.width());
+        float fixTransY = getFixTrans(transY, getHeight(), rectF.height());
+
+        if (fixTransX != 0 || fixTransY != 0) {
+            mMatrix.postTranslate(fixTransX, fixTransY);
         }
-        return null;
     }
 
     private class ScaleImageDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -97,7 +100,7 @@ public class ScaleImageView extends ImageView {
             }
             mScaleFactorTotal *= mScaleFactor;
             mMatrix.postScale(mScaleFactor, mScaleFactor, getWidth() / 2, getHeight() / 2);
-            RectF rectF = getDisplayRect(mMatrix);
+            RectF rectF = getDisplayRect(mMatrix, getDrawable());
             if (mScaleFactor < 1) {
                 float deltaX = (float) getWidth() / 2 - rectF.centerX();
                 float deltaY = (float) getHeight() / 2 - rectF.centerY();
@@ -127,9 +130,10 @@ public class ScaleImageView extends ImageView {
         }
 
         @Override
-        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float distanceX, float distanceY) {
             if (!mScaleGestureDetector.isInProgress() && mScaleFactorTotal > 1.1) {
-                mMatrix.postTranslate(-v, -v1);
+                mMatrix.postTranslate(-distanceX, -distanceY);
+                fixTrans(mMatrix, getDrawable());
                 setImageMatrix(mMatrix);
             }
             return true;

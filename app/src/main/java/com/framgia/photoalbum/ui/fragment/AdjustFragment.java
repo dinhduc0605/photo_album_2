@@ -74,11 +74,7 @@ public class AdjustFragment extends EditFragment implements AdjustFeatureAdapter
         View view = inflater.inflate(R.layout.fragment_adjust, container, false);
         ButterKnife.bind(this, view);
         mImageBitmapSrc = EditActivity.sSourceBitmap;
-        mImageBitmapDes = Bitmap.createBitmap(
-                mImageBitmapSrc.getWidth(),
-                mImageBitmapSrc.getHeight(),
-                mImageBitmapSrc.getConfig()
-        );
+        mImageBitmapDes = mImageBitmapSrc.copy(mImageBitmapSrc.getConfig(), true);
         mSlideDownAnim = (AnimatorSet) AnimatorInflater.loadAnimator(
                 getContext(),
                 R.animator.slide_down_animator

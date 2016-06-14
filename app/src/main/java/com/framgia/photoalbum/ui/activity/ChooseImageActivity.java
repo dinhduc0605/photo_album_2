@@ -16,7 +16,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -45,6 +44,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     private ArrayList<ImageItem> mImageItems = new ArrayList<>();
     private ImageGridAdapter mAdapter;
     private String mImagePath;
+    private String mTempImagePath;
 
     @Bind(R.id.imageGrid)
     RecyclerView mImageGrid;
@@ -52,6 +52,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     FloatingActionButton mCameraBtn;
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +131,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     public void onClick(View view) {
         try {
             File photo = FileUtils.createCacheFile();
+            mTempImagePath = photo.getAbsolutePath();
             mPhotoUri = Uri.fromFile(photo);
             startCapture(mPhotoUri);
         } catch (IOException e) {
@@ -144,14 +146,13 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
 
         // Handle image captured callback
         if (requestCode == REQUEST_CAPTURE_IMAGE && resultCode == RESULT_OK) {
-            String photoPath = FileUtils.getPathFromUri(mPhotoUri, this);
             if (getIntent().getBooleanExtra(CollageActivity.KEY_COLLAGE, false)) {
-                returnResultToCollage(photoPath);
+                returnResultToCollage(mTempImagePath);
             } else {
-                startEditorActivity(photoPath);
+                startEditorActivity(mTempImagePath);
             }
             if (BuildConfig.DEBUG)
-                Log.d(TAG, photoPath);
+                Log.d(TAG, mTempImagePath);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -165,7 +166,9 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     }
 
     private void returnResultToCollage(String photoPath) {
-        setResult(RESULT_OK, getIntent().setData(Uri.parse("file://" + photoPath)));
+        Intent intent = new Intent();
+        intent.putExtra(IMAGE_PATH, photoPath);
+        setResult(RESULT_OK, intent);
         finish();
     }
 
