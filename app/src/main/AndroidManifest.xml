@@ -40,6 +40,8 @@
             android:label="@string/label_choose_image">
 
         </activity>
+
+        <activity android:name=".ui.activity.ConfigVideoActivity" />
     </application>
 
 </manifest>

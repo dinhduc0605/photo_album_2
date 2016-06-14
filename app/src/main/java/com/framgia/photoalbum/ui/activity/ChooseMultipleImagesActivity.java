@@ -1,5 +1,6 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -21,6 +22,8 @@ import butterknife.ButterKnife;
 
 public class ChooseMultipleImagesActivity extends AppCompatActivity {
     private static final String TAG = "ChooseMultipleActivity";
+    protected static final String KEY_IMAGE_PATHS = "KEY_IMAGE_PATHS";
+
     @Bind(R.id.multiple_image_grid)
     RecyclerView mImageGrid;
     @Bind(R.id.toolbar)
@@ -52,10 +55,17 @@ public class ChooseMultipleImagesActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_done) {
             ArrayList<String> chosenImages = mAdapter.getChosenImages();
             Log.d(TAG, chosenImages + "");
+            startConfigVideoActivity(chosenImages);
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
         return true;
+    }
+
+    private void startConfigVideoActivity(ArrayList<String> listPaths) {
+        Intent intent = new Intent(this, ConfigVideoActivity.class);
+        intent.putStringArrayListExtra(KEY_IMAGE_PATHS, listPaths);
+        startActivity(intent);
     }
 
     @Override
