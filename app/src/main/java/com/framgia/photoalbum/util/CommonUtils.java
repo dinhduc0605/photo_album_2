@@ -2,9 +2,11 @@ package com.framgia.photoalbum.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -21,16 +23,21 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.framgia.photoalbum.BuildConfig;
+import com.framgia.photoalbum.R;
+import com.framgia.photoalbum.data.model.ImageItem;
 import com.framgia.photoalbum.ui.activity.EditActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -365,5 +372,42 @@ public class CommonUtils {
         if (trans > maxTrans)
             return -trans + maxTrans;
         return 0;
+    }
+
+    /**
+     * Get image list in device
+     *
+     * @return image list
+     */
+    public static ArrayList<ImageItem> getImageList(Context context) {
+        ArrayList<ImageItem> imageItems = new ArrayList<>();
+        //get cursor loader of Thumbnail table
+        CursorLoader imageLoader = new CursorLoader(context,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                //get image id & thumbnail path
+                new String[]{MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA},
+                null,
+                null,
+                MediaStore.Images.Media._ID);
+        //get cursor point to thumbnail table
+        try {
+            Cursor imageCursor = imageLoader.loadInBackground();
+            if (imageCursor.moveToLast()) {
+                do {
+                    //get image path
+                    String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    //get image id
+                    int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+
+                    ImageItem imageItem = new ImageItem(imagePath, id);
+                    imageItems.add(imageItem);
+                } while (imageCursor.moveToPrevious());
+            }
+            imageCursor.close();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            Toast.makeText(context, context.getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
+        }
+        return imageItems;
     }
 }
