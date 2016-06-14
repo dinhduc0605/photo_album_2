@@ -1,5 +1,6 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,9 +9,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
+import com.framgia.photoalbum.util.VideoUtils;
 
 import java.util.ArrayList;
 
@@ -69,6 +72,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlayPreview:
+                makeVideo();
                 break;
             case R.id.btnTransition:
                 break;
@@ -79,6 +83,10 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         }
     }
 
+    private void makeVideo() {
+        new MakeVideoTask().execute(new VideoUtils(this));
+    }
+
     @Override
     public void onClick(View v, int position) {
         // TODO select image
@@ -87,6 +95,20 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     public void setToolbar() {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private class MakeVideoTask extends AsyncTask<VideoUtils, Void, String> {
+        @Override
+        protected String doInBackground(VideoUtils... videoUtils) {
+            videoUtils[0].prepare(5, mListPathImages);
+            return videoUtils[0].makeVideo();
+        }
+
+        @Override
+        protected void onPostExecute(String outputPath) {
+            super.onPostExecute(outputPath);
+            Toast.makeText(getBaseContext(), "Your video is saved to " + outputPath, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

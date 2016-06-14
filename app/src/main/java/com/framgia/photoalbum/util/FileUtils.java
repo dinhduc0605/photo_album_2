@@ -1,11 +1,8 @@
 package com.framgia.photoalbum.util;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
@@ -20,7 +17,8 @@ import java.util.Date;
  * Created by HungNT on 4/27/16.
  */
 public class FileUtils {
-
+    public static final int VIDEO_TYPE = 1;
+    public static final int IMAGE_TYPE = 0;
     private static final String IMG_TEMP_FILE_NAME = "img_temp.tmp";
 
     public static File createCacheFile() throws IOException {
@@ -35,7 +33,7 @@ public class FileUtils {
         return file;
     }
 
-    public static File createEditedImageFile() throws IOException {
+    public static File createMediaFile(int type) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File cacheDir = Environment.getExternalStorageDirectory();
 
@@ -44,29 +42,11 @@ public class FileUtils {
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
         }
-
-        return File.createTempFile(timeStamp, ".jpg", cacheDir);
-    }
-
-    /**
-     * get real file path from uri
-     */
-    public static String getPathFromUri(Uri uri, Context context) {
-        String[] dataColumn = {MediaStore.Images.Media.DATA};
-        String filePath;
-
-        Cursor cursor = context.getContentResolver().query(uri, dataColumn, null, null, null);
-
-        if (cursor != null) {
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(dataColumn[0]);
-            filePath = cursor.getString(columnIndex);
-            cursor.close();
+        if (type == IMAGE_TYPE) {
+            return File.createTempFile(timeStamp, ".jpg", cacheDir);
         } else {
-            filePath = uri.getPath();
+            return File.createTempFile(timeStamp, ".mp4", cacheDir);
         }
-
-        return filePath;
     }
 
     public static void saveEditedImage(Context context, Bitmap editedBitmap) {
@@ -74,7 +54,7 @@ public class FileUtils {
         File file;
 
         try {
-            file = FileUtils.createEditedImageFile();
+            file = FileUtils.createMediaFile(IMAGE_TYPE);
             outputStream = new FileOutputStream(file);
             editedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             CommonUtils.invalidateGallery(context, file);

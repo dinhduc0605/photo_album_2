@@ -70,7 +70,7 @@ public class ShareDialog extends Dialog {
     }
 
     private void saveImage() throws IOException {
-        File file = FileUtils.createEditedImageFile();
+        File file = FileUtils.createMediaFile(FileUtils.IMAGE_TYPE);
         FileOutputStream outputStream = new FileOutputStream(file);
         EditActivity.sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
         CommonUtils.invalidateGallery(getContext(), file);

@@ -296,7 +296,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         File file;
 
         try {
-            file = FileUtils.createEditedImageFile();
+            file = FileUtils.createMediaFile(FileUtils.IMAGE_TYPE);
             outputStream = new FileOutputStream(file);
             sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             CommonUtils.invalidateGallery(getApplicationContext(), file);
