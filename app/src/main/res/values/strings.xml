@@ -60,7 +60,18 @@
     <string name="storage_permission_explanation">Allow Photo Album to access your data and get all photos</string>
     <string name="write_permission_not_granted">Permission to access photos is not granted</string>
     <string name="title_image_not_chosen">Image is not choose</string>
+    <!-- Movie Maker -->
     <string name="transition">Transition</string>
     <string name="duration">Duration</string>
     <string name="music">Music</string>
+    <string name="duration_1sec">1s</string>
+    <string name="duration_2sec">2s</string>
+    <string name="duration_3sec">3s</string>
+    <string name="duration_4sec">4s</string>
+    <string name="duration_5sec">5s</string>
+    <string name="translate">Translate</string>
+    <string name="zoom">Zoom</string>
+    <string name="random">Random</string>
+    <string name="fade">Fade</string>
+    <string name="duration_per_image">Duration per Image</string>
 </resources>
