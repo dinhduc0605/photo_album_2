@@ -132,7 +132,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     private class MakeVideoTask extends AsyncTask<VideoUtils, Void, String> {
         @Override
         protected String doInBackground(VideoUtils... videoUtils) {
-            videoUtils[0].prepare(5, mListPathImages);
+            /** test time, transition effect **/
+            videoUtils[0].prepare(5, mListPathImages, true);
             return videoUtils[0].makeVideo();
         }
 

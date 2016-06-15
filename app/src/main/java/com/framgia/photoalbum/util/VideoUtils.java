@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 
@@ -19,11 +21,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by nguyendinhduc on 14/06/2016.
  */
 public class VideoUtils {
+    public static final int FADE_TRANSITION = 0;
+    public static final int SLIDE_TRANSITION = 1;
+    public static final int ZOOM_TRANSITION = 2;
+    public static final int ROTATE_TRANSITION = 3;
     private final long NANO_SECOND = 1000000000;
     private static final String TAG = "VideoUtils";
 
@@ -53,14 +60,17 @@ public class VideoUtils {
 
     private Context mContext;
     private File mOutputVideo;
-    private Bitmap bitmap;
+    private Bitmap mImageBmp, mBackgroundBmp;
     private Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG);
+    private int mTransitionType;
     /**
      * the number frames of video
      */
-    private int maxFrame;
-    private float currentZoom = 1.0f;
-    private int mDuration;
+    private int mNumFramePerImage;
+    private int mDurationPerImage;
+    private int mNumImage;
+    private ArrayList<String> mChosenImages;
+    private boolean mIsTransitionRandom;
 
     public VideoUtils(Context context) {
         mContext = context;
@@ -72,22 +82,37 @@ public class VideoUtils {
         }
     }
 
-    public void prepare(int duration, ArrayList<String> chosenImages) {
-        mDuration = duration;
-        /** Load image into bitmap **/
-        bitmap = BitmapFactory.decodeFile(chosenImages.get(0));
-        bitmap = Bitmap.createScaledBitmap(bitmap, 640, 480, true);
+    public void prepare(int duration, ArrayList<String> chosenImages, boolean isRandom) {
+        mChosenImages = chosenImages;
+        mDurationPerImage = duration;
+        mNumImage = chosenImages.size();
+        mIsTransitionRandom = isRandom;
     }
 
     /**
      * @return output video's path
      */
     public String makeVideo() {
-        maxFrame = mDuration * FRAMES_PER_SECOND;
-        for (int i = 0; i < maxFrame; i++) {
-            drainEncoder(false);
-            generateFrame(i);
-            float percent = 100f * i / maxFrame;
+        mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
+        for (int i = 0; i < mNumImage; i++) {
+            if (i > 2) {
+                mBackgroundBmp.recycle();
+            }
+            /** save previous image to present background image **/
+            mBackgroundBmp = mImageBmp;
+            /** Load image into imageBmp **/
+            mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(i));
+            mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
+
+            Random random = new Random();
+            if (mIsTransitionRandom) {
+                mTransitionType = random.nextInt(4);
+            }
+            for (int j = 1; j <= mNumFramePerImage; j++) {
+                drainEncoder(false);
+                generateFrame(j);
+            }
+//            float percent = 100f * i / mNumFramePerImage;
         }
         drainEncoder(true);
         releaseEncoder();
@@ -134,10 +159,19 @@ public class VideoUtils {
             mMuxer.release();
             mMuxer = null;
         }
+        if (mImageBmp != null) {
+            mImageBmp.recycle();
+            mImageBmp = null;
+        }
+        if (mBackgroundBmp != null) {
+            mBackgroundBmp.recycle();
+            mBackgroundBmp = null;
+        }
     }
 
     /**
      * get output buffer from encoder for muxer write to output file
+     *
      * @param endOfStream
      */
     private void drainEncoder(boolean endOfStream) {
@@ -209,20 +243,54 @@ public class VideoUtils {
      */
     private void generateFrame(int framePos) {
         Canvas canvas = mSurface.lockCanvas(null);
-        Matrix matrix = new Matrix();
-        matrix.setScale(currentZoom, currentZoom);
-        canvas.drawBitmap(bitmap, matrix, paint);
-        long currentDuration = computePresentationTime(framePos);
-        currentZoom = 1.0f + currentDuration * (1.3f - 1.0f) / NANO_SECOND / mDuration;
+        if (mBackgroundBmp != null) {
+            canvas.drawBitmap(mBackgroundBmp, new Matrix(), paint);
+        } else {
+            canvas.drawColor(Color.BLACK);
+        }
+
+        Matrix matrix = createTransitionEffect(framePos);
+        canvas.drawBitmap(mImageBmp, matrix, paint);
         mSurface.unlockCanvasAndPost(canvas);
     }
 
     /**
-     * @param framePos frame position
+     * @param framePos frame position of each image
      * @return presentation time of frame according to frame position
      */
     private long computePresentationTime(int framePos) {
         return framePos * NANO_SECOND / FRAMES_PER_SECOND;
     }
 
+    /**
+     * @param framePos frame position of each image
+     * @return effect matrix
+     */
+    private Matrix createTransitionEffect(int framePos) {
+        Matrix matrix = new Matrix();
+        long currentDuration = computePresentationTime(framePos);
+        DisplayMetrics displayMetrics = DimenUtils.getDisplayMetrics(mContext);
+        switch (mTransitionType) {
+            case ZOOM_TRANSITION:
+                float currentZoom = 0.1f + currentDuration * (1f - 0.1f) / NANO_SECOND / mDurationPerImage;
+                matrix.setScale(currentZoom, currentZoom);
+                paint.setAlpha(255);
+                break;
+            case SLIDE_TRANSITION:
+                float currentTranslate = -displayMetrics.widthPixels + (float) currentDuration * displayMetrics.widthPixels / NANO_SECOND / mDurationPerImage;
+                matrix.setTranslate(currentTranslate, 0);
+                paint.setAlpha(255);
+                break;
+            case FADE_TRANSITION:
+                float currentAlpha = (float) currentDuration * 255 / NANO_SECOND / mDurationPerImage;
+                paint.setAlpha((int) currentAlpha);
+                break;
+            case ROTATE_TRANSITION:
+                float currentAngle = -90 + (float) currentDuration * 90 / NANO_SECOND / mDurationPerImage;
+                matrix.setRotate(currentAngle);
+                paint.setAlpha(255);
+                break;
+        }
+        return matrix;
+    }
 }
