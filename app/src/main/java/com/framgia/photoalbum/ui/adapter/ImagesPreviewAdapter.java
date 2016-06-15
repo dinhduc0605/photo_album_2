@@ -11,14 +11,19 @@ import com.framgia.photoalbum.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdapter.ViewHolder> {
+    private final int IMAGE_WIDTH = 680;
+    private final int IMAGE_HEIGHT = 480;
+
     private Context mContext;
     private ArrayList<String> mListImagePaths;
     private OnItemClicked mOnFeatureClicked;
+
 
     public ImagesPreviewAdapter(Context context, ArrayList<String> featureItems,
                                 OnItemClicked onFeatureClicked) {
@@ -36,7 +41,7 @@ public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         String item = mListImagePaths.get(position);
-        Picasso.with(mContext).load("file://" + item).fit().centerInside().into(holder.imageView);
+        Picasso.with(mContext).load("file://" + item).resize(IMAGE_WIDTH, IMAGE_HEIGHT).into(holder.imageView);
     }
 
     @Override
@@ -47,6 +52,19 @@ public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdap
     public void remove(int position) {
         mListImagePaths.remove(position);
         notifyItemRemoved(position);
+    }
+
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(mListImagePaths, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(mListImagePaths, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

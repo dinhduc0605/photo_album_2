@@ -15,12 +15,20 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <SurfaceView
+        android:id="@+id/surfacePreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/list_effect_layout_height"
         android:background="@color/colorPrimary">
 
         <LinearLayout
+            android:id="@+id/layoutFeature"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -75,7 +83,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/btnMusic"
                 android:layout_width="@dimen/recycler_view_width"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -92,10 +99,175 @@
                     android:layout_marginTop="@dimen/item_recycler_view_margin"
                     android:text="@string/music" />
             </LinearLayout>
-
         </LinearLayout>
 
-    </FrameLayout>
+        <HorizontalScrollView
+            android:id="@+id/layoutTransition"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:visibility="gone">
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:divider="?android:dividerVertical"
+                android:orientation="horizontal"
+                android:showDividers="middle|end">
+
+                <ImageView
+                    android:layout_width="@dimen/btn_preview_size"
+                    android:layout_height="@dimen/btn_preview_size"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/item_recycler_view_margin"
+                    android:src="@drawable/btn_play" />
+
+                <LinearLayout
+                    android:layout_width="@dimen/recycler_view_width"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/item_list_transition_size"
+                        android:layout_height="@dimen/item_list_transition_size"
+                        android:src="@drawable/s_shuffle" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/random" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="@dimen/recycler_view_width"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/item_list_transition_size"
+                        android:layout_height="@dimen/item_list_transition_size"
+                        android:src="@drawable/s_backgroundfade" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fade" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="@dimen/recycler_view_width"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/item_list_transition_size"
+                        android:layout_height="@dimen/item_list_transition_size"
+                        android:src="@drawable/s_bottom" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/translate" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnMusic"
+                    android:layout_width="@dimen/recycler_view_width"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/item_list_transition_size"
+                        android:layout_height="@dimen/item_list_transition_size"
+                        android:src="@drawable/s_rotate" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/rotate" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="@dimen/recycler_view_width"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/item_list_transition_size"
+                        android:layout_height="@dimen/item_list_transition_size"
+                        android:src="@drawable/s_pan_and_zoom" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/zoom" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:id="@+id/layoutDuration"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_5dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_5dp"
+                android:text="@string/duration_per_image" />
+
+            <RadioGroup
+                android:id="@+id/radioDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:checkedButton="@+id/rb3Sec"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/duration_1sec" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/duration_2sec" />
+
+                <RadioButton
+                    android:id="@+id/rb3Sec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/duration_3sec" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/duration_4sec" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/duration_5sec" />
+
+            </RadioGroup>
+        </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>

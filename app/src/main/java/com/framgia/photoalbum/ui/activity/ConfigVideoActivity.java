@@ -8,11 +8,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.SurfaceView;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
+import com.framgia.photoalbum.ui.custom.VerticalSpaceItemDecoration;
+import com.framgia.photoalbum.util.DimenUtils;
 import com.framgia.photoalbum.util.VideoUtils;
 
 import java.util.ArrayList;
@@ -29,6 +33,14 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     Toolbar mToolbar;
     @Bind(R.id.listFeature)
     RecyclerView mRvListFeature;
+    @Bind(R.id.surfacePreview)
+    SurfaceView mSurfacePreview;
+    @Bind(R.id.layoutFeature)
+    LinearLayout layoutFeature;
+    @Bind(R.id.layoutDuration)
+    LinearLayout layoutDuration;
+    @Bind(R.id.layoutTransition)
+    View layoutTransition;
 
     private ArrayList<String> mListPathImages;
     private ImagesPreviewAdapter mPreviewAdapter;
@@ -42,19 +54,37 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
 
         mListPathImages = getIntent().
                 getStringArrayListExtra(ChooseMultipleImagesActivity.KEY_IMAGE_PATHS);
+        configureList();
+    }
 
+
+    private void configureList() {
         mPreviewAdapter = new ImagesPreviewAdapter(this, mListPathImages, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(
                 this,
                 LinearLayoutManager.VERTICAL,
                 false);
+
         mRvListFeature.setLayoutManager(layoutManager);
         mRvListFeature.setAdapter(mPreviewAdapter);
+        mRvListFeature.addItemDecoration(
+                new VerticalSpaceItemDecoration(
+                        (int) DimenUtils.dpToPx(
+                                this,
+                                getResources().getDimension(R.dimen.image_preview_divider)
+                        )
+                )
+        );
 
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        // Handle Swipe and Drag Gesture
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
+                mPreviewAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                return true;
             }
 
             @Override
@@ -65,8 +95,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(mRvListFeature);
-
     }
+
 
     @OnClick({R.id.btnPlayPreview, R.id.btnTransition, R.id.btnDuration, R.id.btnMusic})
     public void onClick(View view) {
@@ -75,8 +105,10 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
                 makeVideo();
                 break;
             case R.id.btnTransition:
+                toggleEffectBar(layoutTransition);
                 break;
             case R.id.btnDuration:
+                toggleEffectBar(layoutDuration);
                 break;
             case R.id.btnMusic:
                 break;
@@ -111,4 +143,23 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         }
     }
 
+    private void toggleEffectBar(View view) {
+        if (layoutFeature.getVisibility() == View.GONE) {
+            layoutFeature.setVisibility(View.VISIBLE);
+            layoutDuration.setVisibility(View.GONE);
+            layoutTransition.setVisibility(View.GONE);
+        } else {
+            layoutFeature.setVisibility(View.GONE);
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (layoutFeature.getVisibility() == View.GONE) {
+            toggleEffectBar(null);
+        } else {
+            super.onBackPressed();
+        }
+    }
 }
