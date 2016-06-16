@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -47,8 +48,9 @@ public class VideoUtils {
      */
     private static final int FRAMES_PER_SECOND = 30;
     private static final int I_FRAME_INTERVAL = 5;
-    private static final int VIDEO_WIDTH = 640;
-    private static final int VIDEO_HEIGHT = 480;
+    private static final int VIDEO_WIDTH = 768;
+    private static final int VIDEO_HEIGHT = 432;
+    private final float SCALE_PREVIEW;
 
     private MediaCodec.BufferInfo mBufferInfo;
     private MediaCodec mEncoder;
@@ -71,15 +73,15 @@ public class VideoUtils {
     private int mNumImage;
     private ArrayList<String> mChosenImages;
     private boolean mIsTransitionRandom;
+    private int mTotalFrame;
 
     public VideoUtils(Context context) {
         mContext = context;
-        try {
-            mOutputVideo = FileUtils.createMediaFile(FileUtils.VIDEO_TYPE);
-            prepareEncoder(mOutputVideo);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SCALE_PREVIEW = (float) DimenUtils.getDisplayMetrics(mContext).widthPixels / VIDEO_WIDTH;
+    }
+
+    public int getTotalFrame() {
+        return mTotalFrame;
     }
 
     public void prepare(int duration, ArrayList<String> chosenImages, boolean isRandom) {
@@ -89,10 +91,22 @@ public class VideoUtils {
         mIsTransitionRandom = isRandom;
     }
 
+    public void preparePreview(int duration, ArrayList<String> chosenImages, boolean isRandom) {
+        prepare(duration, chosenImages, isRandom);
+        mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
+        mTotalFrame = mNumImage * mDurationPerImage * FRAMES_PER_SECOND;
+    }
+
     /**
      * @return output video's path
      */
     public String makeVideo() {
+        try {
+            mOutputVideo = FileUtils.createMediaFile(FileUtils.VIDEO_TYPE);
+            prepareEncoder(mOutputVideo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
         for (int i = 0; i < mNumImage; i++) {
             if (i > 2) {
@@ -253,6 +267,41 @@ public class VideoUtils {
         canvas.drawBitmap(mImageBmp, matrix, paint);
         mSurface.unlockCanvasAndPost(canvas);
     }
+
+    public void generateFramePreview(Canvas canvas, int framePos) {
+        if (framePos >= mTotalFrame) {
+            mImageBmp.eraseColor(Color.TRANSPARENT);
+            canvas.drawBitmap(mImageBmp, 0, 0, paint);
+            return;
+        }
+
+        int imagePos = framePos / mNumFramePerImage;
+        if (framePos % mNumFramePerImage == 0) {
+            if (imagePos > 2) {
+                mBackgroundBmp.recycle();
+            }
+            /** save previous image to present background image **/
+            mBackgroundBmp = mImageBmp;
+            /** Load image into imageBmp **/
+            mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(imagePos));
+            mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
+
+            if (mIsTransitionRandom) {
+                mTransitionType = new Random().nextInt(4);
+            }
+        }
+
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        canvas.scale(SCALE_PREVIEW, SCALE_PREVIEW);
+
+        if (mBackgroundBmp != null) {
+            canvas.drawBitmap(mBackgroundBmp, 0, 0, paint);
+        }
+
+        Matrix matrix = createTransitionEffect(framePos % mNumFramePerImage + 1);
+        canvas.drawBitmap(mImageBmp, matrix, paint);
+    }
+
 
     /**
      * @param framePos frame position of each image
