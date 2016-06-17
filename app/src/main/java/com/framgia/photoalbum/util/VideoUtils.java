@@ -12,11 +12,13 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.media.MediaPlayer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 
 import com.framgia.photoalbum.BuildConfig;
+import com.framgia.photoalbum.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,6 +76,8 @@ public class VideoUtils {
     private ArrayList<String> mChosenImages;
     private boolean mIsTransitionRandom;
     private int mTotalFrame;
+    private MediaPlayer mPreviewPlayer;
+    private int previousImage = 0;
 
     public VideoUtils(Context context) {
         mContext = context;
@@ -95,6 +99,11 @@ public class VideoUtils {
         prepare(duration, chosenImages, isRandom);
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
         mTotalFrame = mNumImage * mDurationPerImage * FRAMES_PER_SECOND;
+        previousImage = 0;
+        CommonUtils.recycleBitmap(mBackgroundBmp);
+        CommonUtils.recycleBitmap(mImageBmp);
+        mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(0));
+        mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
     }
 
     /**
@@ -269,6 +278,7 @@ public class VideoUtils {
     }
 
     public void generateFramePreview(Canvas canvas, int framePos) {
+        Log.d("hung", "generateFramePreview: " + framePos);
         if (framePos >= mTotalFrame) {
             mImageBmp.eraseColor(Color.TRANSPARENT);
             canvas.drawBitmap(mImageBmp, 0, 0, paint);
@@ -276,7 +286,8 @@ public class VideoUtils {
         }
 
         int imagePos = framePos / mNumFramePerImage;
-        if (framePos % mNumFramePerImage == 0) {
+        if (imagePos > previousImage) {
+            previousImage = imagePos;
             if (imagePos > 2) {
                 mBackgroundBmp.recycle();
             }
@@ -294,7 +305,7 @@ public class VideoUtils {
         canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         canvas.scale(SCALE_PREVIEW, SCALE_PREVIEW);
 
-        if (mBackgroundBmp != null) {
+        if (mBackgroundBmp != null && !mBackgroundBmp.isRecycled()) {
             canvas.drawBitmap(mBackgroundBmp, 0, 0, paint);
         }
 
@@ -341,5 +352,17 @@ public class VideoUtils {
                 break;
         }
         return matrix;
+    }
+
+    public void playPreviewMusic() {
+        mPreviewPlayer = MediaPlayer.create(mContext, R.raw.music_sample);
+        mPreviewPlayer.setLooping(true);
+        mPreviewPlayer.start();
+    }
+
+    public void stopPreviewMusic() {
+        if (mPreviewPlayer != null && mPreviewPlayer.isPlaying()) {
+            mPreviewPlayer.stop();
+        }
     }
 }

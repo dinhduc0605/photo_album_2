@@ -1,5 +1,6 @@
 package com.framgia.photoalbum.ui.activity;
 
+import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +17,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -23,6 +26,7 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.asynctask.PreviewRenderThread;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
 import com.framgia.photoalbum.ui.custom.VerticalSpaceItemDecoration;
+import com.framgia.photoalbum.ui.dialog.ChooseMusicDialog;
 import com.framgia.photoalbum.util.DimenUtils;
 import com.framgia.photoalbum.util.VideoUtils;
 
@@ -50,12 +54,16 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     LinearLayout layoutDuration;
     @Bind(R.id.layoutTransition)
     View layoutTransition;
+    @Bind(R.id.btnPlayPreview)
+    View btnPlayPreview;
 
     private static final float VIDEO_ASPECT_RATIO = 16.0f / 9.0f;
 
     private ArrayList<String> mListPathImages;
     private ImagesPreviewAdapter mPreviewAdapter;
     private VideoUtils mVideoUtils;
+    private PreviewRenderThread thread;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +71,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         setContentView(R.layout.activity_config_video);
         ButterKnife.bind(this);
         setToolbar();
+
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mListPathImages = getIntent().
                 getStringArrayListExtra(ChooseMultipleImagesActivity.KEY_IMAGE_PATHS);
@@ -124,16 +134,20 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlayPreview:
+                setButtonEnable(btnPlayPreview, false);
                 gotoPreview();
-
                 break;
             case R.id.btnTransition:
                 toggleEffectBar(layoutTransition);
                 break;
             case R.id.btnDuration:
                 toggleEffectBar(layoutDuration);
+                if (thread != null && thread.isAlive()) {
+                    thread.stopPlaying();
+                }
                 break;
             case R.id.btnMusic:
+                new ChooseMusicDialog(this).show();
                 break;
         }
     }
@@ -154,20 +168,34 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     }
 
     @Override
-    public void onFinish() {
+    public void onStartPreview() {
+    }
+
+    @Override
+    public void onFinishPreview() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                setButtonEnable(btnPlayPreview, true);
                 mSurfacePreview.setVisibility(View.GONE);
                 mRvListFeature.setVisibility(View.VISIBLE);
             }
         });
     }
 
+    public void setButtonEnable(View view, boolean enable) {
+        if (enable) {
+            view.setAlpha(1);
+        } else {
+            view.setAlpha(0.5f);
+        }
+        view.setClickable(enable);
+    }
+
     private void gotoPreview() {
         mRvListFeature.setVisibility(View.GONE);
         mSurfacePreview.setVisibility(View.VISIBLE);
-        Animation fadeIn = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         fadeIn.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -177,7 +205,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
             @Override
             public void onAnimationEnd(Animation animation) {
                 mVideoUtils.preparePreview(2, mListPathImages, true);
-                PreviewRenderThread thread = new PreviewRenderThread(mVideoUtils, mSurfacePreview.getHolder());
+                thread = new PreviewRenderThread(mVideoUtils, mSurfacePreview.getHolder());
                 thread.setPreviewFinishListener(ConfigVideoActivity.this);
                 thread.start();
             }
@@ -239,5 +267,13 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
             finish();
         }
         return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (thread != null && thread.isAlive()) {
+            thread.stopPlaying();
+        }
     }
 }

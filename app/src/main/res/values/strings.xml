@@ -76,4 +76,5 @@
     <string name="duration_per_image">Duration per Image</string>
     <string name="export_video">Export Video</string>
     <string name="create_video">Create Video Slide</string>
+    <string name="select_song">Select Song</string>
 </resources>
