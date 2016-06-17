@@ -8,12 +8,19 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
+import com.framgia.photoalbum.asynctask.PreviewRenderThread;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
 import com.framgia.photoalbum.ui.custom.VerticalSpaceItemDecoration;
 import com.framgia.photoalbum.util.DimenUtils;
@@ -25,10 +32,12 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+
 /**
  * Created by HungNT on 6/14/16.
  */
-public class ConfigVideoActivity extends AppCompatActivity implements ImagesPreviewAdapter.OnItemClicked {
+public class ConfigVideoActivity extends AppCompatActivity implements ImagesPreviewAdapter.OnItemClicked,
+        PreviewRenderThread.OnPreviewListener {
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
     @Bind(R.id.listFeature)
@@ -42,8 +51,11 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     @Bind(R.id.layoutTransition)
     View layoutTransition;
 
+    private static final float VIDEO_ASPECT_RATIO = 16.0f / 9.0f;
+
     private ArrayList<String> mListPathImages;
     private ImagesPreviewAdapter mPreviewAdapter;
+    private VideoUtils mVideoUtils;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +67,16 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         mListPathImages = getIntent().
                 getStringArrayListExtra(ChooseMultipleImagesActivity.KEY_IMAGE_PATHS);
         configureList();
+        int scrW = DimenUtils.getDisplayMetrics(getApplicationContext()).widthPixels;
+
+        mVideoUtils = new VideoUtils(this);
+        mSurfacePreview.setLayoutParams(
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        (int) (scrW / VIDEO_ASPECT_RATIO),
+                        Gravity.CENTER
+                )
+        );
     }
 
 
@@ -102,7 +124,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlayPreview:
-                makeVideo();
+                gotoPreview();
+
                 break;
             case R.id.btnTransition:
                 toggleEffectBar(layoutTransition);
@@ -116,7 +139,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     }
 
     private void makeVideo() {
-        new MakeVideoTask().execute(new VideoUtils(this));
+        new MakeVideoTask().execute(mVideoUtils);
     }
 
     @Override
@@ -127,6 +150,44 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     public void setToolbar() {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.create_video);
+    }
+
+    @Override
+    public void onFinish() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mSurfacePreview.setVisibility(View.GONE);
+                mRvListFeature.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void gotoPreview() {
+        mRvListFeature.setVisibility(View.GONE);
+        mSurfacePreview.setVisibility(View.VISIBLE);
+        Animation fadeIn = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mVideoUtils.preparePreview(2, mListPathImages, true);
+                PreviewRenderThread thread = new PreviewRenderThread(mVideoUtils, mSurfacePreview.getHolder());
+                thread.setPreviewFinishListener(ConfigVideoActivity.this);
+                thread.start();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        mSurfacePreview.startAnimation(fadeIn);
     }
 
     private class MakeVideoTask extends AsyncTask<VideoUtils, Void, String> {
@@ -162,5 +223,21 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_configure_video, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.exportVideo) {
+            makeVideo();
+        } else if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return true;
     }
 }

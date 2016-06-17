@@ -74,4 +74,6 @@
     <string name="random">Random</string>
     <string name="fade">Fade</string>
     <string name="duration_per_image">Duration per Image</string>
+    <string name="export_video">Export Video</string>
+    <string name="create_video">Create Video Slide</string>
 </resources>

@@ -1,6 +1,11 @@
 package com.framgia.photoalbum.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +22,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdapter.ViewHolder> {
-    private final int IMAGE_WIDTH = 680;
+    private final int IMAGE_WIDTH = 640;
     private final int IMAGE_HEIGHT = 480;
 
     private Context mContext;
