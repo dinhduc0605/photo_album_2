@@ -24,5 +24,6 @@
     <dimen name="image_preview_divider">6dp</dimen>
     <dimen name="padding_5dp">5dp</dimen>
     <dimen name="item_list_transition_size">40dp</dimen>
+    <dimen name="margin_20dp">20dp</dimen>
 
 </resources>

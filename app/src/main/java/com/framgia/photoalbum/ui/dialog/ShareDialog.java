@@ -38,10 +38,19 @@ public class ShareDialog extends Dialog {
 
     private List<ResolveInfo> mListApps;
     private Uri mImageUri;
+    private String mType;
 
     public ShareDialog(Context context, List<ResolveInfo> listApps) {
         super(context);
         this.mListApps = listApps;
+        mType = "image/jpeg";
+    }
+
+    public ShareDialog(Context context, List<ResolveInfo> listApps, String type, Uri uri) {
+        super(context);
+        this.mListApps = listApps;
+        mImageUri = uri;
+        mType = type;
     }
 
     @Override
@@ -56,15 +65,17 @@ public class ShareDialog extends Dialog {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ResolveInfo resolveInfo = mListApps.get(position);
-                try {
-                    saveImage();
-                    shareIntent(resolveInfo);
-                } catch (IOException e) {
-                    Toast.makeText(getContext(),
-                            getContext().getString(R.string.error_cannot_save_image),
-                            Toast.LENGTH_SHORT)
-                            .show();
+                if (mImageUri == null) {
+                    try {
+                        saveImage();
+                    } catch (IOException e) {
+                        Toast.makeText(getContext(),
+                                getContext().getString(R.string.error_cannot_save_image),
+                                Toast.LENGTH_SHORT)
+                                .show();
+                    }
                 }
+                shareIntent(resolveInfo);
             }
         });
     }
@@ -83,7 +94,7 @@ public class ShareDialog extends Dialog {
 
     private void shareIntent(ResolveInfo item) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("image/jpeg");
+        shareIntent.setType(mType);
         shareIntent.putExtra(Intent.EXTRA_STREAM, mImageUri);
         shareIntent.setComponent(new ComponentName(
                 item.activityInfo.packageName,

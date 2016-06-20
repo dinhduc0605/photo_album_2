@@ -77,4 +77,9 @@
     <string name="export_video">Export Video</string>
     <string name="create_video">Create Video Slide</string>
     <string name="select_song">Select Song</string>
+    <string name="export_complete">Export Complete!</string>
+    <string name="share">Share</string>
+    <string name="play">Play</string>
+    <string name="swipe_to_remove">Swipe to remove an image</string>
+    <string name="drag_to_reorder">Hold and drag to re-order images</string>
 </resources>

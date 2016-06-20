@@ -46,6 +46,8 @@ public class VideoUtils {
     public static final int SLIDE_TRANSITION = 1;
     public static final int ZOOM_TRANSITION = 2;
     public static final int ROTATE_TRANSITION = 3;
+    private static final int ROTATE_NEW_TRANSITION = 4;
+
     private static final String TAG = "VideoUtils";
 
     /**
@@ -89,6 +91,7 @@ public class VideoUtils {
     private int mTotalFrame;
     private MediaPlayer mPreviewPlayer;
     private int previousImage = 0;
+    private int[] mArrTransition;
 
     public VideoUtils(Context context) {
         mContext = context;
@@ -125,7 +128,10 @@ public class VideoUtils {
     }
 
     public void preparePreview(int duration, ArrayList<String> chosenImages, boolean isRandom) {
-        prepare(duration, chosenImages, isRandom);
+        mChosenImages = chosenImages;
+        mDurationPerImage = duration;
+        mNumImage = chosenImages.size();
+        mIsTransitionRandom = isRandom;
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
         mTotalFrame = mNumImage * mDurationPerImage * FRAMES_PER_SECOND;
         previousImage = 0;
@@ -133,6 +139,10 @@ public class VideoUtils {
         CommonUtils.recycleBitmap(mImageBmp);
         mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(0));
         mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
+        if (isRandom) {
+            generateRandTransition();
+            mTransitionType = mArrTransition[0];
+        }
     }
 
     /**
@@ -140,6 +150,9 @@ public class VideoUtils {
      */
     public String makeVideo(UpdateProgress updateProgress) {
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
+        if (mIsTransitionRandom && mArrTransition == null) {
+            generateRandTransition();
+        }
 
         for (int i = 0; i < mNumImage; i++) {
             if (i > 2) {
@@ -151,9 +164,8 @@ public class VideoUtils {
 
             mImageBmp = CommonUtils.decodeSampledBitmapResource(mChosenImages.get(i), VIDEO_WIDTH, VIDEO_HEIGHT);
             mImageBmp = CommonUtils.centerCropImage(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT);
-            Random random = new Random();
             if (mIsTransitionRandom) {
-                mTransitionType = random.nextInt(4);
+                mTransitionType = mArrTransition[i];
             }
             for (int j = 1; j <= mNumFramePerImage; j++) {
                 drainEncoder(false);
@@ -302,7 +314,6 @@ public class VideoUtils {
     }
 
     public void generateFramePreview(Canvas canvas, int framePos) {
-        Log.d("hung", "generateFramePreview: " + framePos);
         if (framePos >= mTotalFrame) {
             mImageBmp.eraseColor(Color.TRANSPARENT);
             canvas.drawBitmap(mImageBmp, 0, 0, paint);
@@ -322,7 +333,7 @@ public class VideoUtils {
             mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
 
             if (mIsTransitionRandom) {
-                mTransitionType = new Random().nextInt(4);
+                mTransitionType = mArrTransition[imagePos];
             }
         }
 
@@ -367,6 +378,13 @@ public class VideoUtils {
                     matrix.setRotate(currentAngle);
                     paint.setAlpha(255);
                     break;
+                case ROTATE_NEW_TRANSITION:
+                    float currentAngle1 = -90 + (float) 2 * framePos * 720 / totalFramePerImage;
+                    float currentZoom1 = (float) framePos / totalFramePerImage;
+                    matrix.postScale(currentZoom1, currentZoom1);
+                    matrix.postRotate(currentAngle1, VIDEO_WIDTH / 2, VIDEO_HEIGHT / 2);
+                    paint.setAlpha(255);
+                    break;
             }
         }
         return matrix;
@@ -383,8 +401,10 @@ public class VideoUtils {
             mPreviewPlayer.stop();
         }
     }
+
     /**
      * Mix audio and video
+     *
      * @param videoSource video from chosen image
      * @param audioSource chosen audio
      * @return
@@ -454,9 +474,10 @@ public class VideoUtils {
 
     /**
      * find the sample of audio according to time
-     * @param track audio track
+     *
+     * @param track   audio track
      * @param cutHere time to find sample
-     * @param next check if get the previous sample or present sample
+     * @param next    check if get the previous sample or present sample
      * @return time to cut
      */
     private static double correctTimeToSyncSample(Track track, double cutHere, boolean next) {
@@ -490,5 +511,13 @@ public class VideoUtils {
 
     public interface UpdateProgress {
         void update(int percent);
+    }
+
+    public void generateRandTransition() {
+        mArrTransition = new int[mNumImage];
+        Random random = new Random();
+        for (int i = 0; i < mArrTransition.length; i++) {
+            mArrTransition[i] = random.nextInt(5);
+        }
     }
 }

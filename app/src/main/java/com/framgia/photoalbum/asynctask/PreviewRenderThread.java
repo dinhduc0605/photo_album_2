@@ -21,6 +21,7 @@ public class PreviewRenderThread extends Thread {
     private int fps;
 
     private OnPreviewListener mOnPreviewListener;
+    private boolean isPlay = true;
 
     public PreviewRenderThread(VideoUtils videoUtils, SurfaceHolder holder) {
         this.mVideoUtils = videoUtils;
@@ -39,7 +40,7 @@ public class PreviewRenderThread extends Thread {
         mOnPreviewListener.onStartPreview();
         mVideoUtils.playPreviewMusic();
 
-        while (frame < maxFrame) {
+        while (frame < maxFrame && isPlay) {
             Canvas canvas = null;
             long now = System.nanoTime();
 
@@ -75,8 +76,8 @@ public class PreviewRenderThread extends Thread {
         mOnPreviewListener.onFinishPreview();
     }
 
-    public synchronized void stopPlaying() {
-        frame = maxFrame;
+    public void stopPlaying() {
+        isPlay = false;
     }
 
     public interface OnPreviewListener {
