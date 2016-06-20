@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.framgia.photoalbum.R;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,18 +21,21 @@ import java.util.Date;
 public class FileUtils {
     public static final int VIDEO_TYPE = 1;
     public static final int IMAGE_TYPE = 0;
-    private static final String IMG_TEMP_FILE_NAME = "img_temp.tmp";
-    public static final String TEMP_VIDEO_FILE_NAME = "vid_temp.mp4";
-    public static final String APP_DIR = Environment.getExternalStorageDirectory()+File.separator + "Photo Album";
-    public static final String CACHED_DIR = Environment.getExternalStorageDirectory()+File.separator + ".PhotoAlbumCached";
+    public static final String IMG_TEMP_FILE_NAME = "img_temp.tmp";
+    public static final String VIDEO_TEMP_FILE_NAME = "vid_temp.mp4";
+    public static final String APP_DIR = Environment.getExternalStorageDirectory() + File.separator + "Photo Album";
+    public static final String CACHED_DIR = Environment.getExternalStorageDirectory() + File.separator + ".PhotoAlbumCached";
 
-    public static File createCacheFile() throws IOException {
-        File cacheDir = new File(CACHED_DIR);
+    public static File createTempFile(String directory, String filename) throws IOException {
+        File cacheDir = new File(directory);
 
         if (!cacheDir.exists()) {
             cacheDir.mkdirs();
         }
-        File file = new File(cacheDir.getAbsolutePath(), IMG_TEMP_FILE_NAME);
+        File file = new File(cacheDir.getAbsolutePath(), filename);
+        if (file.exists()){
+            file.delete();
+        }
         file.createNewFile();
         return file;
     }
@@ -80,12 +84,12 @@ public class FileUtils {
     }
 
     public static String copyAudioToDevice(Context context, int audioRes, String filename) throws IOException {
-        File musicDir = new File(Environment.getExternalStorageDirectory() + "/Photo Album" + "/Audio");
+        File musicDir = new File(FileUtils.APP_DIR + File.separator + "Audio");
         if (!musicDir.exists()) {
             musicDir.mkdirs();
         }
         String outputPath = musicDir.getAbsolutePath() + "/" + filename;
-        if(new File(outputPath).exists()){
+        if (new File(outputPath).exists()) {
             return outputPath;
         }
         InputStream inputStream = context.getResources().openRawResource(audioRes);
@@ -98,5 +102,22 @@ public class FileUtils {
         inputStream.close();
         fileOutputStream.close();
         return outputPath;
+    }
+
+    public static String copyFile(String input, String output) throws IOException {
+        File inputFile = new File(input);
+        if (!inputFile.exists()) {
+            return null;
+        }
+        FileInputStream inputStream = new FileInputStream(inputFile);
+        FileOutputStream fileOutputStream = new FileOutputStream(output);
+        int read = 0;
+        byte buff[] = new byte[1024];
+        while ((read = inputStream.read(buff)) > 0) {
+            fileOutputStream.write(buff, 0, read);
+        }
+        inputStream.close();
+        fileOutputStream.close();
+        return output;
     }
 }

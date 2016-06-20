@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -36,9 +37,11 @@ public class ChooseMusicDialog extends Dialog {
     private ArrayList<Song> mListMusic = new ArrayList<>();
     private ChooseMusicAdapter mAdapter;
     private int mChosenPosition;
+    private OnAudioSelected mOnAudioSelected;
 
-    public ChooseMusicDialog(Context context) {
+    public ChooseMusicDialog(Context context, OnAudioSelected onAudioSelected) {
         super(context);
+        mOnAudioSelected = onAudioSelected;
     }
 
     @Override
@@ -108,12 +111,11 @@ public class ChooseMusicDialog extends Dialog {
     private void prepareListMusic() {
         //TODO this is sample, add music
         mListMusic.add(new Song("None", -1));
-        mListMusic.add(new Song("Music 1", R.raw.music_sample));
-        mListMusic.add(new Song("Music 1", R.raw.music_sample));
-        mListMusic.add(new Song("Music 1", R.raw.music_sample));
-        mListMusic.add(new Song("Music 1", R.raw.music_sample));
-        mListMusic.add(new Song("Music 1", R.raw.music_sample));
-        mListMusic.add(new Song("Music 1", R.raw.music_sample));
+        mListMusic.add(new Song("A Little Love", R.raw.a_little_love));
+        mListMusic.add(new Song("Fade", R.raw.fade));
+        mListMusic.add(new Song("Hoa Giang Ho", R.raw.hoa_giang_ho));
+        mListMusic.add(new Song("Trai Tao Nho", R.raw.trai_tao_nho));
+        mListMusic.add(new Song("Unfinished", R.raw.unfinished));
     }
 
     private class ChooseMusicAdapter extends BaseAdapter {
@@ -134,7 +136,7 @@ public class ChooseMusicDialog extends Dialog {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_list_music, parent, false);
             }
@@ -144,6 +146,12 @@ public class ChooseMusicDialog extends Dialog {
 
             tvNameSong.setText(mListMusic.get(position).getName());
             rbChecked.setChecked(mListMusic.get(position).isChecked());
+            rbChecked.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mOnAudioSelected.onSelected(mListMusic.get(position));
+                }
+            });
 
             return convertView;
         }
@@ -157,5 +165,9 @@ public class ChooseMusicDialog extends Dialog {
             mListMusic.get(position).setChecked(true);
             notifyDataSetChanged();
         }
+    }
+
+    public interface OnAudioSelected {
+        void onSelected(Song song);
     }
 }

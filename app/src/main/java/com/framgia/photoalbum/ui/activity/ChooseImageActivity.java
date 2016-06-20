@@ -23,7 +23,6 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.ImageItem;
 import com.framgia.photoalbum.ui.adapter.ImageGridAdapter;
 import com.framgia.photoalbum.util.CommonUtils;
-import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.PermissionUtils;
 
 import java.io.File;
@@ -33,6 +32,10 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static com.framgia.photoalbum.util.FileUtils.CACHED_DIR;
+import static com.framgia.photoalbum.util.FileUtils.IMG_TEMP_FILE_NAME;
+import static com.framgia.photoalbum.util.FileUtils.createTempFile;
 
 public class ChooseImageActivity extends AppCompatActivity implements ImageGridAdapter.OnItemClickListener {
     public static final String IMAGE_PATH = "image_path";
@@ -91,7 +94,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     @OnClick(R.id.btnCamera)
     public void onClick(View view) {
         try {
-            File photo = FileUtils.createCacheFile();
+            File photo = createTempFile(CACHED_DIR, IMG_TEMP_FILE_NAME);
             mTempImagePath = photo.getAbsolutePath();
             mPhotoUri = Uri.fromFile(photo);
             startCapture(mPhotoUri);

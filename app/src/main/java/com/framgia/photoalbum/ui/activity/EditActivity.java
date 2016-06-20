@@ -50,6 +50,11 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+import static com.framgia.photoalbum.util.FileUtils.APP_DIR;
+import static com.framgia.photoalbum.util.FileUtils.CACHED_DIR;
+import static com.framgia.photoalbum.util.FileUtils.IMG_TEMP_FILE_NAME;
+import static com.framgia.photoalbum.util.FileUtils.createTempFile;
+
 public class EditActivity extends AppCompatActivity implements ListFeatureAdapter.OnFeatureClicked {
     private static final String TAG = "EditActivity";
     public static final int EFFECT_FEATURE = 0;
@@ -326,7 +331,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         File file;
 
         try {
-            file = FileUtils.createCacheFile();
+            file = createTempFile(CACHED_DIR, IMG_TEMP_FILE_NAME);
             outputStream = new FileOutputStream(file);
             sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             mImagePath = file.getAbsolutePath();
