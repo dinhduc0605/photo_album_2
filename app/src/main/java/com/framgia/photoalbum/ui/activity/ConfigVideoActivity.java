@@ -1,6 +1,8 @@
 package com.framgia.photoalbum.ui.activity;
 
 import android.media.AudioManager;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,9 +29,13 @@ import com.framgia.photoalbum.asynctask.PreviewRenderThread;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
 import com.framgia.photoalbum.ui.custom.VerticalSpaceItemDecoration;
 import com.framgia.photoalbum.ui.dialog.ChooseMusicDialog;
+import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.DimenUtils;
+import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.VideoUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import butterknife.Bind;
@@ -64,6 +70,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     private VideoUtils mVideoUtils;
     private PreviewRenderThread thread;
 
+    private MakeVideoTask makeVideoTask;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -153,7 +161,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     }
 
     private void makeVideo() {
-        new MakeVideoTask().execute(mVideoUtils);
+        makeVideoTask = new MakeVideoTask();
+        makeVideoTask.execute(mVideoUtils);
     }
 
     @Override
@@ -218,18 +227,57 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         mSurfacePreview.startAnimation(fadeIn);
     }
 
-    private class MakeVideoTask extends AsyncTask<VideoUtils, Void, String> {
+    private class MakeVideoTask extends AsyncTask<VideoUtils, Void, String> implements VideoUtils.UpdateProgress {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(ConfigVideoActivity.this);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setMessage("Exporting Video");
+            progressDialog.setMax(100);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(true);
+            progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    makeVideoTask.cancel(true);
+                }
+            });
+            progressDialog.setProgress(0);
+            progressDialog.show();
+        }
+
         @Override
         protected String doInBackground(VideoUtils... videoUtils) {
             /** test time, transition effect **/
             videoUtils[0].prepare(5, mListPathImages, true);
-            return videoUtils[0].makeVideo();
+            String srcVideo = videoUtils[0].makeVideo(this);
+            String muxedVideoPath = null;
+            String audioFilePath = null;
+            try {
+                audioFilePath = FileUtils.copyAudioToDevice(getBaseContext(), R.raw.fade, "Fade.aac");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                muxedVideoPath = videoUtils[0].addAudio(srcVideo, audioFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return muxedVideoPath;
         }
 
         @Override
         protected void onPostExecute(String outputPath) {
             super.onPostExecute(outputPath);
+            progressDialog.dismiss();
+            CommonUtils.invalidateGallery(getBaseContext(), new File(outputPath));
             Toast.makeText(getBaseContext(), "Your video is saved to " + outputPath, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void update(int percent) {
+            progressDialog.setProgress(percent);
         }
     }
 

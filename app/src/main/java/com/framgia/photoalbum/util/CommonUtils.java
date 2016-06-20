@@ -87,7 +87,7 @@ public class CommonUtils {
         if (reqHeight < height || reqWidth < width) {
             final int haftHeight = height / 2;
             final int haftWidth = width / 2;
-            while ((haftHeight / inSampleSize) > reqHeight || (haftWidth / inSampleSize) > reqWidth) {
+            while ((haftHeight / inSampleSize) > reqHeight && (haftWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }
@@ -409,5 +409,14 @@ public class CommonUtils {
             Toast.makeText(context, context.getString(R.string.write_permission_not_granted), Toast.LENGTH_SHORT).show();
         }
         return imageItems;
+    }
+
+    public static Bitmap centerCropImage(Bitmap srcBitmap, int reqWidth, int reqHeight) {
+        if (srcBitmap.getWidth() < reqWidth) {
+            srcBitmap = Bitmap.createScaledBitmap(srcBitmap, reqWidth, (int) ((float) reqWidth / srcBitmap.getWidth() * srcBitmap.getHeight()), true);
+        }
+        int posX = srcBitmap.getWidth() / 2 - reqWidth / 2;
+        int posY = srcBitmap.getHeight() / 2 - reqHeight / 2;
+        return Bitmap.createBitmap(srcBitmap, posX, posY, reqWidth, reqHeight);
     }
 }

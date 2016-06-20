@@ -17,13 +17,25 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 
+import com.coremedia.iso.IsoFile;
+import com.coremedia.iso.boxes.Container;
 import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
+import com.googlecode.mp4parser.FileDataSourceImpl;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Track;
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.googlecode.mp4parser.authoring.tracks.AACTrackImpl;
+import com.googlecode.mp4parser.authoring.tracks.CroppedTrack;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -34,7 +46,6 @@ public class VideoUtils {
     public static final int SLIDE_TRANSITION = 1;
     public static final int ZOOM_TRANSITION = 2;
     public static final int ROTATE_TRANSITION = 3;
-    private final long NANO_SECOND = 1000000000;
     private static final String TAG = "VideoUtils";
 
     /**
@@ -82,6 +93,19 @@ public class VideoUtils {
     public VideoUtils(Context context) {
         mContext = context;
         SCALE_PREVIEW = (float) DimenUtils.getDisplayMetrics(mContext).widthPixels / VIDEO_WIDTH;
+        mOutputVideo = new File(
+                FileUtils.APP_DIR
+                        + File.separator
+                        + FileUtils.TEMP_VIDEO_FILE_NAME);
+        File appDir = new File(FileUtils.APP_DIR);
+        if (!appDir.exists()) {
+            appDir.mkdirs();
+        }
+        try {
+            mOutputVideo.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getTotalFrame() {
@@ -93,6 +117,11 @@ public class VideoUtils {
         mDurationPerImage = duration;
         mNumImage = chosenImages.size();
         mIsTransitionRandom = isRandom;
+        try {
+            prepareEncoder(mOutputVideo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void preparePreview(int duration, ArrayList<String> chosenImages, boolean isRandom) {
@@ -109,14 +138,9 @@ public class VideoUtils {
     /**
      * @return output video's path
      */
-    public String makeVideo() {
-        try {
-            mOutputVideo = FileUtils.createMediaFile(FileUtils.VIDEO_TYPE);
-            prepareEncoder(mOutputVideo);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public String makeVideo(UpdateProgress updateProgress) {
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
+
         for (int i = 0; i < mNumImage; i++) {
             if (i > 2) {
                 mBackgroundBmp.recycle();
@@ -124,9 +148,9 @@ public class VideoUtils {
             /** save previous image to present background image **/
             mBackgroundBmp = mImageBmp;
             /** Load image into imageBmp **/
-            mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(i));
-            mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
 
+            mImageBmp = CommonUtils.decodeSampledBitmapResource(mChosenImages.get(i), VIDEO_WIDTH, VIDEO_HEIGHT);
+            mImageBmp = CommonUtils.centerCropImage(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT);
             Random random = new Random();
             if (mIsTransitionRandom) {
                 mTransitionType = random.nextInt(4);
@@ -134,8 +158,8 @@ public class VideoUtils {
             for (int j = 1; j <= mNumFramePerImage; j++) {
                 drainEncoder(false);
                 generateFrame(j);
+                updateProgress.update((int) ((float) (i * mNumFramePerImage + j) / (mNumImage * mNumFramePerImage) * 100));
             }
-//            float percent = 100f * i / mNumFramePerImage;
         }
         drainEncoder(true);
         releaseEncoder();
@@ -267,7 +291,7 @@ public class VideoUtils {
     private void generateFrame(int framePos) {
         Canvas canvas = mSurface.lockCanvas(null);
         if (mBackgroundBmp != null) {
-            canvas.drawBitmap(mBackgroundBmp, new Matrix(), paint);
+            canvas.drawBitmap(mBackgroundBmp, new Matrix(), null);
         } else {
             canvas.drawColor(Color.BLACK);
         }
@@ -316,40 +340,34 @@ public class VideoUtils {
 
     /**
      * @param framePos frame position of each image
-     * @return presentation time of frame according to frame position
-     */
-    private long computePresentationTime(int framePos) {
-        return framePos * NANO_SECOND / FRAMES_PER_SECOND;
-    }
-
-    /**
-     * @param framePos frame position of each image
      * @return effect matrix
      */
     private Matrix createTransitionEffect(int framePos) {
         Matrix matrix = new Matrix();
-        long currentDuration = computePresentationTime(framePos);
-        DisplayMetrics displayMetrics = DimenUtils.getDisplayMetrics(mContext);
-        switch (mTransitionType) {
-            case ZOOM_TRANSITION:
-                float currentZoom = 0.1f + currentDuration * (1f - 0.1f) / NANO_SECOND / mDurationPerImage;
-                matrix.setScale(currentZoom, currentZoom);
-                paint.setAlpha(255);
-                break;
-            case SLIDE_TRANSITION:
-                float currentTranslate = -displayMetrics.widthPixels + (float) currentDuration * displayMetrics.widthPixels / NANO_SECOND / mDurationPerImage;
-                matrix.setTranslate(currentTranslate, 0);
-                paint.setAlpha(255);
-                break;
-            case FADE_TRANSITION:
-                float currentAlpha = (float) currentDuration * 255 / NANO_SECOND / mDurationPerImage;
-                paint.setAlpha((int) currentAlpha);
-                break;
-            case ROTATE_TRANSITION:
-                float currentAngle = -90 + (float) currentDuration * 90 / NANO_SECOND / mDurationPerImage;
-                matrix.setRotate(currentAngle);
-                paint.setAlpha(255);
-                break;
+        int totalFramePerImage = FRAMES_PER_SECOND * mDurationPerImage;
+        if (framePos <= totalFramePerImage / 2) {
+            DisplayMetrics displayMetrics = DimenUtils.getDisplayMetrics(mContext);
+            switch (mTransitionType) {
+                case ZOOM_TRANSITION:
+                    float currentZoom = 0.1f + 2 * framePos * (1f - 0.1f) / totalFramePerImage;
+                    matrix.setScale(currentZoom, currentZoom);
+                    paint.setAlpha(255);
+                    break;
+                case SLIDE_TRANSITION:
+                    float currentTranslate = -displayMetrics.widthPixels + (float) 2 * framePos * displayMetrics.widthPixels / totalFramePerImage;
+                    matrix.setTranslate(currentTranslate, 0);
+                    paint.setAlpha(255);
+                    break;
+                case FADE_TRANSITION:
+                    float currentAlpha = (float) 2 * framePos * 255 / totalFramePerImage;
+                    paint.setAlpha((int) currentAlpha);
+                    break;
+                case ROTATE_TRANSITION:
+                    float currentAngle = -90 + (float) 2 * framePos * 90 / totalFramePerImage;
+                    matrix.setRotate(currentAngle);
+                    paint.setAlpha(255);
+                    break;
+            }
         }
         return matrix;
     }
@@ -364,5 +382,113 @@ public class VideoUtils {
         if (mPreviewPlayer != null && mPreviewPlayer.isPlaying()) {
             mPreviewPlayer.stop();
         }
+    }
+    /**
+     * Mix audio and video
+     * @param videoSource video from chosen image
+     * @param audioSource chosen audio
+     * @return
+     * @throws IOException
+     */
+    public String addAudio(String videoSource, String audioSource) throws IOException {
+        File output = FileUtils.createMediaFile(FileUtils.VIDEO_TYPE);
+
+        Movie mp4Vid = MovieCreator.build(videoSource);
+        /** get duration of video **/
+        IsoFile isoFile = new IsoFile(videoSource);
+        double lengthInSeconds = (double)
+                isoFile.getMovieBox().getMovieHeaderBox().getDuration() /
+                isoFile.getMovieBox().getMovieHeaderBox().getTimescale();
+        Track mp4Track = mp4Vid.getTracks().get(0);
+        Track audioTrack = new AACTrackImpl(new FileDataSourceImpl(audioSource));
+
+        double startTime1 = 0;
+        double endTime1 = lengthInSeconds;
+
+
+        if (audioTrack.getSyncSamples() != null && audioTrack.getSyncSamples().length > 0) {
+            startTime1 = correctTimeToSyncSample(audioTrack, startTime1, false);
+            endTime1 = correctTimeToSyncSample(audioTrack, endTime1, true);
+        }
+
+        long currentSample = 0;
+        double currentTime = 0;
+        double lastTime = -1;
+        long startSample1 = -1;
+        long endSample1 = -1;
+
+
+        for (int i = 0; i < audioTrack.getSampleDurations().length; i++) {
+            long delta = audioTrack.getSampleDurations()[i];
+
+
+            if (currentTime > lastTime && currentTime <= startTime1) {
+                /** current sample is still before the new start time **/
+                startSample1 = currentSample;
+            }
+            if (currentTime > lastTime && currentTime <= endTime1) {
+                /** current sample is after the new start time and still before the new end time **/
+                endSample1 = currentSample;
+            }
+
+            lastTime = currentTime;
+            currentTime += (double) delta / (double) audioTrack.getTrackMetaData().getTimescale();
+            currentSample++;
+        }
+
+        CroppedTrack cropperAacTrack = new CroppedTrack(audioTrack, startSample1, endSample1);
+
+        Movie movie = new Movie();
+
+        movie.addTrack(mp4Track);
+        movie.addTrack(cropperAacTrack);
+
+        Container mp4file = new DefaultMp4Builder().build(movie);
+
+        FileChannel fc = new FileOutputStream(output).getChannel();
+        mp4file.writeContainer(fc);
+        fc.close();
+
+        return output.getAbsolutePath();
+    }
+
+    /**
+     * find the sample of audio according to time
+     * @param track audio track
+     * @param cutHere time to find sample
+     * @param next check if get the previous sample or present sample
+     * @return time to cut
+     */
+    private static double correctTimeToSyncSample(Track track, double cutHere, boolean next) {
+        double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
+        long currentSample = 0;
+        double currentTime = 0;
+        for (int i = 0; i < track.getSampleDurations().length; i++) {
+            long delta = track.getSampleDurations()[i];
+            int samplePosition = Arrays.binarySearch(track.getSyncSamples(), currentSample + 1);
+            if (samplePosition >= 0) {
+                /** samples always start with 1 but we start with zero therefore +1 **/
+                timeOfSyncSamples[samplePosition] = currentTime;
+            }
+            currentTime += (double) delta / (double) track.getTrackMetaData().getTimescale();
+            currentSample++;
+
+        }
+        double previous = 0;
+        for (double timeOfSyncSample : timeOfSyncSamples) {
+            if (timeOfSyncSample > cutHere) {
+                if (next) {
+                    return timeOfSyncSample;
+                } else {
+                    return previous;
+                }
+            }
+            previous = timeOfSyncSample;
+        }
+        return timeOfSyncSamples[timeOfSyncSamples.length - 1];
+    }
+
+    public interface UpdateProgress {
+        void update(int percent);
     }
 }

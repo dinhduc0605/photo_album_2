@@ -41,7 +41,11 @@ public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         String item = mListImagePaths.get(position);
-        Picasso.with(mContext).load("file://" + item).resize(IMAGE_WIDTH, IMAGE_HEIGHT).centerCrop().into(holder.imageView);
+        Picasso.with(mContext)
+                .load("file://" + item)
+                .resize(IMAGE_WIDTH, IMAGE_HEIGHT)
+                .centerCrop()
+                .into(holder.imageView);
     }
 
     @Override
