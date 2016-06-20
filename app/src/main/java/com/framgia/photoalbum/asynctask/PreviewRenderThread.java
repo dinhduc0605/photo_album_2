@@ -36,6 +36,8 @@ public class PreviewRenderThread extends Thread {
     public void run() {
         long startTime = System.nanoTime();
         long updateLength;
+        mOnPreviewListener.onStartPreview();
+        mVideoUtils.playPreviewMusic();
 
         while (frame < maxFrame) {
             Canvas canvas = null;
@@ -69,10 +71,16 @@ public class PreviewRenderThread extends Thread {
             }
         }
 
-        mOnPreviewListener.onFinish();
+        mVideoUtils.stopPreviewMusic();
+        mOnPreviewListener.onFinishPreview();
+    }
+
+    public synchronized void stopPlaying() {
+        frame = maxFrame;
     }
 
     public interface OnPreviewListener {
-        void onFinish();
+        void onStartPreview();
+        void onFinishPreview();
     }
 }

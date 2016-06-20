@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="5dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_music_small" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:id="@+id/tvNameSong"
+        android:textSize="@dimen/text_size_desc"
+        android:paddingLeft="@dimen/padding_5dp"
+        android:paddingRight="@dimen/padding_5dp"
+        android:text="None" />
+
+    <RadioButton
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:clickable="false"
+        android:id="@+id/rbChecked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

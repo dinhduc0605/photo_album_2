@@ -1,11 +1,6 @@
 package com.framgia.photoalbum.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +17,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdapter.ViewHolder> {
-    private final int IMAGE_WIDTH = 640;
-    private final int IMAGE_HEIGHT = 480;
+    private final int IMAGE_WIDTH = 720;
+    private final int IMAGE_HEIGHT = 405;
 
     private Context mContext;
     private ArrayList<String> mListImagePaths;
@@ -46,7 +41,7 @@ public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         String item = mListImagePaths.get(position);
-        Picasso.with(mContext).load("file://" + item).resize(IMAGE_WIDTH, IMAGE_HEIGHT).into(holder.imageView);
+        Picasso.with(mContext).load("file://" + item).resize(IMAGE_WIDTH, IMAGE_HEIGHT).centerCrop().into(holder.imageView);
     }
 
     @Override
