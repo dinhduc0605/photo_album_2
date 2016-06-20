@@ -29,4 +29,5 @@ dependencies {
     compile 'com.android.support:design:23.3.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.squareup.picasso:picasso:2.3.3'
+    compile 'com.googlecode.mp4parser:isoparser:1.1.7'
 }
