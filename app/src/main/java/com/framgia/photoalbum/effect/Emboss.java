@@ -7,7 +7,6 @@ import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicConvolve3x3;
 
 import com.framgia.photoalbum.ui.activity.EditActivity;
-import com.framgia.photoalbum.util.ConvolutionMatrix;
 
 /**
  * Created by HungNT on 5/12/16.
