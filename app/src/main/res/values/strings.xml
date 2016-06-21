@@ -7,12 +7,10 @@
     <string name="tab_effect">Effect</string>
     <string name="tab_adjust">Adjust</string>
     <string name="tab_crop">Crop</string>
-    <string name="tab_merge">Merge</string>
     <string name="tab_high_light">Highlight</string>
     <string name="label_edit_activity">Edit Photo</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_highlight_fragment">HightLight</string>
     <string name="done">Done</string>
     <string name="loading">Loading</string>
@@ -31,15 +29,12 @@
     <string name="sharpen">Sharpen</string>
     <string name="emboss">Emboss</string>
     <string name="noise">Noise</string>
-    <string name="sketch">Sketch</string>
     <string name="label_effect_fragment">Effect</string>
     <string name="label_color_fragment">Color</string>
     <string name="label_adjust_fragment">Adjust</string>
     <string name="label_crop_fragment">Crop</string>
-    <string name="label_merge_fragment">Merge</string>
     <string name="label_rotate_fragment">Rotate</string>
     <string name="collage">Collage</string>
-    <string name="layout">Layout 1</string>
     <string name="collage_1">Collage 1</string>
     <string name="collage_2">Collage 2</string>
     <string name="collage_3">Collage 3</string>
@@ -64,7 +59,6 @@
     <string name="transition">Transition</string>
     <string name="duration">Duration</string>
     <string name="music">Music</string>
-    <string name="duration_1sec">1s</string>
     <string name="duration_2sec">2s</string>
     <string name="duration_3sec">3s</string>
     <string name="duration_4sec">4s</string>
