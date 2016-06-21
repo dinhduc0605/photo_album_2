@@ -22,14 +22,11 @@ public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdap
 
     private Context mContext;
     private ArrayList<String> mListImagePaths;
-    private OnItemClicked mOnFeatureClicked;
 
 
-    public ImagesPreviewAdapter(Context context, ArrayList<String> featureItems,
-                                OnItemClicked onFeatureClicked) {
+    public ImagesPreviewAdapter(Context context, ArrayList<String> featureItems) {
         mContext = context;
         mListImagePaths = featureItems;
-        mOnFeatureClicked = onFeatureClicked;
     }
 
     @Override
@@ -78,16 +75,6 @@ public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdap
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnFeatureClicked.onClick(v, getAdapterPosition());
-                }
-            });
         }
-    }
-
-    public interface OnItemClicked {
-        void onClick(View v, int position);
     }
 }

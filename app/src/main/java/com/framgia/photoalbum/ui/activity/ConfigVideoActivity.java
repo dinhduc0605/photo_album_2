@@ -1,17 +1,23 @@
 package com.framgia.photoalbum.ui.activity;
 
-import android.media.AudioManager;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.media.AudioManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,13 +28,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
+import com.framgia.photoalbum.Constant;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.asynctask.PreviewRenderThread;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
 import com.framgia.photoalbum.ui.custom.VerticalSpaceItemDecoration;
 import com.framgia.photoalbum.ui.dialog.ChooseMusicDialog;
+import com.framgia.photoalbum.ui.dialog.ShareDialog;
 import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.DimenUtils;
 import com.framgia.photoalbum.util.FileUtils;
@@ -37,6 +44,7 @@ import com.framgia.photoalbum.util.VideoUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -46,8 +54,7 @@ import butterknife.OnClick;
 /**
  * Created by HungNT on 6/14/16.
  */
-public class ConfigVideoActivity extends AppCompatActivity implements ImagesPreviewAdapter.OnItemClicked,
-        PreviewRenderThread.OnPreviewListener {
+public class ConfigVideoActivity extends AppCompatActivity implements PreviewRenderThread.OnPreviewListener {
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
     @Bind(R.id.listFeature)
@@ -95,11 +102,31 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
                         Gravity.CENTER
                 )
         );
+
+        showSuggestDialog();
+    }
+
+    private void showSuggestDialog() {
+        SharedPreferences pref = getSharedPreferences(Constant.PREF_NAME, MODE_PRIVATE);
+        if (pref.getBoolean(Constant.KEY_PREF_FIRST_TIME, false)) {
+            return;
+        }
+
+        pref.edit().putBoolean(Constant.KEY_PREF_FIRST_TIME, true).apply();
+        final Dialog dialog = new Dialog(this, android.R.style.Theme_Translucent_NoTitleBar);
+        dialog.setContentView(R.layout.dialog_suggest);
+        dialog.findViewById(R.id.btnOk).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 
 
     private void configureList() {
-        mPreviewAdapter = new ImagesPreviewAdapter(this, mListPathImages, this);
+        mPreviewAdapter = new ImagesPreviewAdapter(this, mListPathImages);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(
                 this,
                 LinearLayoutManager.VERTICAL,
@@ -130,6 +157,10 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 mPreviewAdapter.remove(viewHolder.getAdapterPosition());
+                // if remove all image from list => finish config activity and back to choose image
+                if (mListPathImages.isEmpty()) {
+                    finish();
+                }
             }
         };
 
@@ -142,8 +173,12 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlayPreview:
-                setButtonEnable(btnPlayPreview, false);
-                gotoPreview();
+                view.setClickable(false);
+                if (view.isSelected()) {
+                    stopPreview();
+                } else {
+                    gotoPreview();
+                }
                 break;
             case R.id.btnTransition:
                 toggleEffectBar(layoutTransition);
@@ -165,11 +200,6 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         makeVideoTask.execute(mVideoUtils);
     }
 
-    @Override
-    public void onClick(View v, int position) {
-        // TODO select image
-    }
-
     public void setToolbar() {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -178,6 +208,13 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
 
     @Override
     public void onStartPreview() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setButtonStop(true);
+                btnPlayPreview.setClickable(true);
+            }
+        });
     }
 
     @Override
@@ -185,20 +222,21 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setButtonEnable(btnPlayPreview, true);
+                setButtonStop(false);
+                btnPlayPreview.setClickable(true);
                 mSurfacePreview.setVisibility(View.GONE);
                 mRvListFeature.setVisibility(View.VISIBLE);
             }
         });
     }
 
-    public void setButtonEnable(View view, boolean enable) {
-        if (enable) {
-            view.setAlpha(1);
-        } else {
-            view.setAlpha(0.5f);
-        }
-        view.setClickable(enable);
+    /**
+     * Set button play or stop
+     *
+     * @param enable true in stop state, false in play state
+     */
+    public void setButtonStop(boolean enable) {
+        btnPlayPreview.setSelected(enable);
     }
 
     private void gotoPreview() {
@@ -272,7 +310,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
             super.onPostExecute(outputPath);
             progressDialog.dismiss();
             CommonUtils.invalidateGallery(getBaseContext(), new File(outputPath));
-            Toast.makeText(getBaseContext(), "Your video is saved to " + outputPath, Toast.LENGTH_SHORT).show();
+            showExportCompleteDialog(outputPath);
         }
 
         @Override
@@ -312,7 +350,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
         if (item.getItemId() == R.id.exportVideo) {
             makeVideo();
         } else if (item.getItemId() == android.R.id.home) {
-            finish();
+            onBackPressed();
         }
         return true;
     }
@@ -320,8 +358,54 @@ public class ConfigVideoActivity extends AppCompatActivity implements ImagesPrev
     @Override
     protected void onPause() {
         super.onPause();
+        stopPreview();
+    }
+
+    private void stopPreview() {
         if (thread != null && thread.isAlive()) {
             thread.stopPlaying();
         }
+    }
+
+    private void showExportCompleteDialog(final String path) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.export_complete);
+
+        builder.setPositiveButton(getString(R.string.share), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                new ShareDialog(ConfigVideoActivity.this,
+                        getListApps(), "video/mp4",
+                        Uri.fromFile(new File(path)
+                        )
+                ).show();
+            }
+        });
+        builder.setNegativeButton(getString(R.string.play), null);
+        builder.setNeutralButton(getString(R.string.cancel), null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String videoPath = "file://" + path;
+                Intent mVideoWatch = new Intent(Intent.ACTION_VIEW);
+                mVideoWatch.setDataAndType(Uri.parse(videoPath), "video/mp4");
+                startActivity(mVideoWatch);
+            }
+        });
+    }
+
+    private List<ResolveInfo> getListApps() {
+        List<ResolveInfo> listApp;
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("video/mp4");
+        PackageManager manager = getPackageManager();
+        listApp = manager.queryIntentActivities(intent,
+                PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
+
+        return listApp;
     }
 }

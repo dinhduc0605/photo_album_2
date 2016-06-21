@@ -419,4 +419,5 @@ public class CommonUtils {
         int posY = srcBitmap.getHeight() / 2 - reqHeight / 2;
         return Bitmap.createBitmap(srcBitmap, posX, posY, reqWidth, reqHeight);
     }
+
 }

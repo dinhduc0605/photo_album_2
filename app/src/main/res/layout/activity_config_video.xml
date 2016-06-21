@@ -53,7 +53,7 @@
                 android:layout_height="@dimen/btn_preview_size"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/item_recycler_view_margin"
-                android:src="@drawable/btn_play" />
+                android:src="@drawable/bg_cb_play_preview" />
 
             <LinearLayout
                 android:id="@+id/btnTransition"
@@ -127,13 +127,6 @@
                 android:divider="?android:dividerVertical"
                 android:orientation="horizontal"
                 android:showDividers="middle|end">
-
-                <ImageView
-                    android:layout_width="@dimen/btn_preview_size"
-                    android:layout_height="@dimen/btn_preview_size"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/item_recycler_view_margin"
-                    android:src="@drawable/btn_play" />
 
                 <LinearLayout
                     android:layout_width="@dimen/recycler_view_width"
