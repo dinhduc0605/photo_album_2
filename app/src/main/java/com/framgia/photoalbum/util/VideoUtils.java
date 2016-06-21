@@ -111,6 +111,12 @@ public class VideoUtils {
         return mTotalFrame;
     }
 
+    /**
+     * Apply user's choice
+     * @param duration duration time per image
+     * @param chosenImages images which user chose
+     * @param transitionType transition type
+     */
     public void setUp(int duration, ArrayList<String> chosenImages, int transitionType) {
         mChosenImages = chosenImages;
         mDurationPerImage = duration;
