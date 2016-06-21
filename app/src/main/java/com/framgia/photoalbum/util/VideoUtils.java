@@ -2,7 +2,6 @@ package com.framgia.photoalbum.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -20,7 +19,6 @@ import android.view.Surface;
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Container;
 import com.framgia.photoalbum.BuildConfig;
-import com.framgia.photoalbum.R;
 import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
@@ -38,16 +36,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static com.framgia.photoalbum.util.FileUtils.APP_DIR;
+import static com.framgia.photoalbum.util.FileUtils.VIDEO_TEMP_FILE_NAME;
+import static com.framgia.photoalbum.util.FileUtils.createTempFile;
+
 /**
  * Created by nguyendinhduc on 14/06/2016.
  */
 public class VideoUtils {
+    public static final int NONE_AUDIO = -1;
     public static final int FADE_TRANSITION = 0;
-    public static final int SLIDE_TRANSITION = 1;
+    public static final int TRANSLATE_TRANSITION = 1;
     public static final int ZOOM_TRANSITION = 2;
     public static final int ROTATE_TRANSITION = 3;
     private static final int ROTATE_NEW_TRANSITION = 4;
-
+    public static final int RANDOM_TRANSITION = 5;
     private static final String TAG = "VideoUtils";
 
     /**
@@ -63,8 +66,8 @@ public class VideoUtils {
      */
     private static final int FRAMES_PER_SECOND = 30;
     private static final int I_FRAME_INTERVAL = 5;
-    private static final int VIDEO_WIDTH = 768;
-    private static final int VIDEO_HEIGHT = 432;
+    private static final int VIDEO_WIDTH = 720;
+    private static final int VIDEO_HEIGHT = 720;
     private final float SCALE_PREVIEW;
 
     private MediaCodec.BufferInfo mBufferInfo;
@@ -92,20 +95,13 @@ public class VideoUtils {
     private MediaPlayer mPreviewPlayer;
     private int previousImage = 0;
     private int[] mArrTransition;
+    private int mAudioRes = NONE_AUDIO;
 
     public VideoUtils(Context context) {
         mContext = context;
         SCALE_PREVIEW = (float) DimenUtils.getDisplayMetrics(mContext).widthPixels / VIDEO_WIDTH;
-        mOutputVideo = new File(
-                FileUtils.APP_DIR
-                        + File.separator
-                        + FileUtils.TEMP_VIDEO_FILE_NAME);
-        File appDir = new File(FileUtils.APP_DIR);
-        if (!appDir.exists()) {
-            appDir.mkdirs();
-        }
         try {
-            mOutputVideo.createNewFile();
+            mOutputVideo = createTempFile(APP_DIR, VIDEO_TEMP_FILE_NAME);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -115,40 +111,49 @@ public class VideoUtils {
         return mTotalFrame;
     }
 
-    public void prepare(int duration, ArrayList<String> chosenImages, boolean isRandom) {
+    public void setUp(int duration, ArrayList<String> chosenImages, int transitionType) {
         mChosenImages = chosenImages;
         mDurationPerImage = duration;
         mNumImage = chosenImages.size();
-        mIsTransitionRandom = isRandom;
-        try {
-            prepareEncoder(mOutputVideo);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (transitionType == RANDOM_TRANSITION) {
+            mIsTransitionRandom = true;
+        } else {
+            mIsTransitionRandom = false;
+            mTransitionType = transitionType;
         }
+
     }
 
-    public void preparePreview(int duration, ArrayList<String> chosenImages, boolean isRandom) {
-        mChosenImages = chosenImages;
-        mDurationPerImage = duration;
-        mNumImage = chosenImages.size();
-        mIsTransitionRandom = isRandom;
+    public void setAudio(int mAudio) {
+        mAudioRes = mAudio;
+    }
+
+    public void preparePreview(int duration, ArrayList<String> chosenImages, int transitionType) {
+        setUp(duration, chosenImages, transitionType);
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
         mTotalFrame = mNumImage * mDurationPerImage * FRAMES_PER_SECOND;
         previousImage = 0;
         CommonUtils.recycleBitmap(mBackgroundBmp);
         CommonUtils.recycleBitmap(mImageBmp);
-        mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(0));
-        mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
-        if (isRandom) {
+        if (mIsTransitionRandom) {
             generateRandTransition();
             mTransitionType = mArrTransition[0];
         }
+
+        mImageBmp = CommonUtils.decodeSampledBitmapResource(mChosenImages.get(0), VIDEO_WIDTH, VIDEO_HEIGHT);
+        mImageBmp = CommonUtils.centerCropImage(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT);
     }
 
     /**
      * @return output video's path
      */
     public String makeVideo(UpdateProgress updateProgress) {
+        try {
+            prepareEncoder(mOutputVideo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         mNumFramePerImage = mDurationPerImage * FRAMES_PER_SECOND;
         if (mIsTransitionRandom && mArrTransition == null) {
             generateRandTransition();
@@ -329,8 +334,8 @@ public class VideoUtils {
             /** save previous image to present background image **/
             mBackgroundBmp = mImageBmp;
             /** Load image into imageBmp **/
-            mImageBmp = BitmapFactory.decodeFile(mChosenImages.get(imagePos));
-            mImageBmp = Bitmap.createScaledBitmap(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT, true);
+            mImageBmp = CommonUtils.decodeSampledBitmapResource(mChosenImages.get(imagePos), VIDEO_WIDTH, VIDEO_HEIGHT);
+            mImageBmp = CommonUtils.centerCropImage(mImageBmp, VIDEO_WIDTH, VIDEO_HEIGHT);
 
             if (mIsTransitionRandom) {
                 mTransitionType = mArrTransition[imagePos];
@@ -364,7 +369,7 @@ public class VideoUtils {
                     matrix.setScale(currentZoom, currentZoom);
                     paint.setAlpha(255);
                     break;
-                case SLIDE_TRANSITION:
+                case TRANSLATE_TRANSITION:
                     float currentTranslate = -displayMetrics.widthPixels + (float) 2 * framePos * displayMetrics.widthPixels / totalFramePerImage;
                     matrix.setTranslate(currentTranslate, 0);
                     paint.setAlpha(255);
@@ -391,9 +396,11 @@ public class VideoUtils {
     }
 
     public void playPreviewMusic() {
-        mPreviewPlayer = MediaPlayer.create(mContext, R.raw.music_sample);
-        mPreviewPlayer.setLooping(true);
-        mPreviewPlayer.start();
+        if (mAudioRes != NONE_AUDIO) {
+            mPreviewPlayer = MediaPlayer.create(mContext, mAudioRes);
+            mPreviewPlayer.setLooping(true);
+            mPreviewPlayer.start();
+        }
     }
 
     public void stopPreviewMusic() {
@@ -412,7 +419,6 @@ public class VideoUtils {
      */
     public String addAudio(String videoSource, String audioSource) throws IOException {
         File output = FileUtils.createMediaFile(FileUtils.VIDEO_TYPE);
-
         Movie mp4Vid = MovieCreator.build(videoSource);
         /** get duration of video **/
         IsoFile isoFile = new IsoFile(videoSource);
@@ -424,7 +430,6 @@ public class VideoUtils {
 
         double startTime1 = 0;
         double endTime1 = lengthInSeconds;
-
 
         if (audioTrack.getSyncSamples() != null && audioTrack.getSyncSamples().length > 0) {
             startTime1 = correctTimeToSyncSample(audioTrack, startTime1, false);

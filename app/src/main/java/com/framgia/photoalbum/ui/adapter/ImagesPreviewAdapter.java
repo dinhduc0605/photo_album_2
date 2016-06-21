@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
 
 public class ImagesPreviewAdapter extends RecyclerView.Adapter<ImagesPreviewAdapter.ViewHolder> {
     private final int IMAGE_WIDTH = 720;
-    private final int IMAGE_HEIGHT = 405;
+    private final int IMAGE_HEIGHT = 720;
 
     private Context mContext;
     private ArrayList<String> mListImagePaths;

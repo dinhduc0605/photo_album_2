@@ -28,8 +28,8 @@
             android:id="@+id/surfacePreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:visibility="gone" />
 
     </FrameLayout>
 
@@ -122,15 +122,17 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:divider="?android:dividerVertical"
                 android:orientation="horizontal"
                 android:showDividers="middle|end">
 
                 <LinearLayout
+                    android:id="@+id/random_transition"
                     android:layout_width="@dimen/recycler_view_width"
                     android:layout_height="match_parent"
+                    android:background="@drawable/transition_effect_background"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -146,8 +148,10 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/fade_transition"
                     android:layout_width="@dimen/recycler_view_width"
                     android:layout_height="match_parent"
+                    android:background="@drawable/transition_effect_background"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -163,8 +167,10 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/translate_transition"
                     android:layout_width="@dimen/recycler_view_width"
                     android:layout_height="match_parent"
+                    android:background="@drawable/transition_effect_background"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -180,8 +186,10 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/rotate_transition"
                     android:layout_width="@dimen/recycler_view_width"
                     android:layout_height="match_parent"
+                    android:background="@drawable/transition_effect_background"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -197,8 +205,10 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/zoom_transition"
                     android:layout_width="@dimen/recycler_view_width"
                     android:layout_height="match_parent"
+                    android:background="@drawable/transition_effect_background"
                     android:gravity="center"
                     android:orientation="vertical">
 

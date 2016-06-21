@@ -28,17 +28,19 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.framgia.photoalbum.Constant;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.asynctask.PreviewRenderThread;
+import com.framgia.photoalbum.data.model.Song;
 import com.framgia.photoalbum.ui.adapter.ImagesPreviewAdapter;
 import com.framgia.photoalbum.ui.custom.VerticalSpaceItemDecoration;
 import com.framgia.photoalbum.ui.dialog.ChooseMusicDialog;
 import com.framgia.photoalbum.ui.dialog.ShareDialog;
 import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.DimenUtils;
-import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.VideoUtils;
 
 import java.io.File;
@@ -50,6 +52,16 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.framgia.photoalbum.util.FileUtils.VIDEO_TYPE;
+import static com.framgia.photoalbum.util.FileUtils.copyAudioToDevice;
+import static com.framgia.photoalbum.util.FileUtils.copyFile;
+import static com.framgia.photoalbum.util.FileUtils.createMediaFile;
+import static com.framgia.photoalbum.util.VideoUtils.FADE_TRANSITION;
+import static com.framgia.photoalbum.util.VideoUtils.NONE_AUDIO;
+import static com.framgia.photoalbum.util.VideoUtils.RANDOM_TRANSITION;
+import static com.framgia.photoalbum.util.VideoUtils.ROTATE_TRANSITION;
+import static com.framgia.photoalbum.util.VideoUtils.TRANSLATE_TRANSITION;
+import static com.framgia.photoalbum.util.VideoUtils.ZOOM_TRANSITION;
 
 /**
  * Created by HungNT on 6/14/16.
@@ -69,16 +81,29 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
     View layoutTransition;
     @Bind(R.id.btnPlayPreview)
     View btnPlayPreview;
-
-    private static final float VIDEO_ASPECT_RATIO = 16.0f / 9.0f;
+    @Bind(R.id.radioDuration)
+    RadioGroup mRadioDurationGroup;
+    @Bind({
+            R.id.random_transition,
+            R.id.fade_transition,
+            R.id.translate_transition,
+            R.id.rotate_transition,
+            R.id.zoom_transition
+    })
+    LinearLayout effectLayouts[];
+    private static final float VIDEO_ASPECT_RATIO = 1.0f / 1.0f;
 
     private ArrayList<String> mListPathImages;
     private ImagesPreviewAdapter mPreviewAdapter;
     private VideoUtils mVideoUtils;
-    private PreviewRenderThread thread;
+    private PreviewRenderThread mThread;
 
-    private MakeVideoTask makeVideoTask;
-    private ProgressDialog progressDialog;
+    private MakeVideoTask mMakeVideoTask;
+    private ProgressDialog mProgressDialog;
+    private int mDurationPerImage = 3;
+    private int mTransitionType;
+    private Song mSong;
+    private ChooseMusicDialog mChooseMusicDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,6 +127,20 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
                         Gravity.CENTER
                 )
         );
+        mRadioDurationGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton = (RadioButton) findViewById(checkedId);
+                mDurationPerImage = Integer.parseInt(radioButton.getText().toString().substring(0, 1));
+            }
+        });
+        mChooseMusicDialog = new ChooseMusicDialog(this, new ChooseMusicDialog.OnAudioSelected() {
+            @Override
+            public void onSelected(Song song) {
+                mSong = song;
+                mVideoUtils.setAudio(mSong.getId());
+            }
+        });
 
         showSuggestDialog();
     }
@@ -169,7 +208,18 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
     }
 
 
-    @OnClick({R.id.btnPlayPreview, R.id.btnTransition, R.id.btnDuration, R.id.btnMusic})
+    @OnClick({
+            R.id.btnPlayPreview,
+            R.id.btnTransition,
+            R.id.btnDuration,
+            R.id.btnMusic,
+            R.id.random_transition,
+            R.id.fade_transition,
+            R.id.translate_transition,
+            R.id.rotate_transition,
+            R.id.zoom_transition,
+            R.id.radioDuration
+    })
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnPlayPreview:
@@ -185,19 +235,46 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
                 break;
             case R.id.btnDuration:
                 toggleEffectBar(layoutDuration);
-                if (thread != null && thread.isAlive()) {
-                    thread.stopPlaying();
+                if (mThread != null && mThread.isAlive()) {
+                    mThread.stopPlaying();
                 }
                 break;
             case R.id.btnMusic:
-                new ChooseMusicDialog(this).show();
+                mChooseMusicDialog.show();
+                break;
+            case R.id.random_transition:
+                mTransitionType = RANDOM_TRANSITION;
+                selectTransitionEffect(0);
+                break;
+            case R.id.fade_transition:
+                mTransitionType = FADE_TRANSITION;
+                selectTransitionEffect(1);
+                break;
+            case R.id.translate_transition:
+                mTransitionType = TRANSLATE_TRANSITION;
+                selectTransitionEffect(2);
+                break;
+            case R.id.rotate_transition:
+                mTransitionType = ROTATE_TRANSITION;
+                selectTransitionEffect(3);
+                break;
+            case R.id.zoom_transition:
+                mTransitionType = ZOOM_TRANSITION;
+                selectTransitionEffect(4);
                 break;
         }
     }
 
+    public void selectTransitionEffect(int position) {
+        for (int i = 0; i < effectLayouts.length; i++) {
+            effectLayouts[i].setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        }
+        effectLayouts[position].setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+    }
+
     private void makeVideo() {
-        makeVideoTask = new MakeVideoTask();
-        makeVideoTask.execute(mVideoUtils);
+        mMakeVideoTask = new MakeVideoTask();
+        mMakeVideoTask.execute(mVideoUtils);
     }
 
     public void setToolbar() {
@@ -251,10 +328,10 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                mVideoUtils.preparePreview(2, mListPathImages, true);
-                thread = new PreviewRenderThread(mVideoUtils, mSurfacePreview.getHolder());
-                thread.setPreviewFinishListener(ConfigVideoActivity.this);
-                thread.start();
+                mVideoUtils.preparePreview(mDurationPerImage, mListPathImages, mTransitionType);
+                mThread = new PreviewRenderThread(mVideoUtils, mSurfacePreview.getHolder());
+                mThread.setPreviewFinishListener(ConfigVideoActivity.this);
+                mThread.start();
             }
 
             @Override
@@ -265,40 +342,50 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         mSurfacePreview.startAnimation(fadeIn);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
+        }
+    }
+
     private class MakeVideoTask extends AsyncTask<VideoUtils, Void, String> implements VideoUtils.UpdateProgress {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(ConfigVideoActivity.this);
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressDialog.setMessage("Exporting Video");
-            progressDialog.setMax(100);
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setCancelable(true);
-            progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            mProgressDialog = new ProgressDialog(ConfigVideoActivity.this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgressDialog.setMessage("Exporting Video");
+            mProgressDialog.setMax(100);
+            mProgressDialog.setCanceledOnTouchOutside(false);
+            mProgressDialog.setCancelable(true);
+            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    makeVideoTask.cancel(true);
+                    mMakeVideoTask.cancel(true);
                 }
             });
-            progressDialog.setProgress(0);
-            progressDialog.show();
+            mProgressDialog.setProgress(0);
+            mProgressDialog.show();
         }
 
         @Override
         protected String doInBackground(VideoUtils... videoUtils) {
             /** test time, transition effect **/
-            videoUtils[0].prepare(5, mListPathImages, true);
+            videoUtils[0].setUp(mDurationPerImage, mListPathImages, mTransitionType);
             String srcVideo = videoUtils[0].makeVideo(this);
             String muxedVideoPath = null;
-            String audioFilePath = null;
+            String audioFilePath;
             try {
-                audioFilePath = FileUtils.copyAudioToDevice(getBaseContext(), R.raw.fade, "Fade.aac");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                muxedVideoPath = videoUtils[0].addAudio(srcVideo, audioFilePath);
+                if (mSong != null && mSong.getId() != NONE_AUDIO) {
+                    audioFilePath = copyAudioToDevice(getBaseContext(), mSong.getId(), mSong.getName() + ".aac");
+                    muxedVideoPath = videoUtils[0].addAudio(srcVideo, audioFilePath);
+                } else {
+                    File output = createMediaFile(VIDEO_TYPE);
+                    muxedVideoPath = copyFile(srcVideo, output.getAbsolutePath());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -308,14 +395,16 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         @Override
         protected void onPostExecute(String outputPath) {
             super.onPostExecute(outputPath);
-            progressDialog.dismiss();
+            mProgressDialog.dismiss();
             CommonUtils.invalidateGallery(getBaseContext(), new File(outputPath));
             showExportCompleteDialog(outputPath);
         }
 
         @Override
         public void update(int percent) {
-            progressDialog.setProgress(percent);
+            if (!isCancelled()) {
+                mProgressDialog.setProgress(percent);
+            }
         }
     }
 
@@ -362,8 +451,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
     }
 
     private void stopPreview() {
-        if (thread != null && thread.isAlive()) {
-            thread.stopPlaying();
+        if (mThread != null && mThread.isAlive()) {
+            mThread.stopPlaying();
         }
     }
 
@@ -408,4 +497,5 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
 
         return listApp;
     }
+
 }
