@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -54,7 +55,7 @@ import butterknife.OnClick;
 
 import static com.framgia.photoalbum.util.FileUtils.VIDEO_TYPE;
 import static com.framgia.photoalbum.util.FileUtils.copyAudioToDevice;
-import static com.framgia.photoalbum.util.FileUtils.copyFile;
+import static com.framgia.photoalbum.util.FileUtils.copyFileToOther;
 import static com.framgia.photoalbum.util.FileUtils.createMediaFile;
 import static com.framgia.photoalbum.util.VideoUtils.FADE_TRANSITION;
 import static com.framgia.photoalbum.util.VideoUtils.NONE_AUDIO;
@@ -101,7 +102,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
     private MakeVideoTask mMakeVideoTask;
     private ProgressDialog mProgressDialog;
     private int mDurationPerImage = 3;
-    private int mTransitionType;
+    private int mTransitionType = RANDOM_TRANSITION;
     private Song mSong;
     private ChooseMusicDialog mChooseMusicDialog;
 
@@ -112,6 +113,8 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         ButterKnife.bind(this);
         setToolbar();
 
+        effectLayouts[0].setBackgroundColor(
+                ContextCompat.getColor(this, R.color.colorPrimaryDark));
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mListPathImages = getIntent().
@@ -145,6 +148,9 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         showSuggestDialog();
     }
 
+    /**
+     * Show dialog guide to how delete and swap image position in list preview images
+     */
     private void showSuggestDialog() {
         SharedPreferences pref = getSharedPreferences(Constant.PREF_NAME, MODE_PRIVATE);
         if (pref.getBoolean(Constant.KEY_PREF_FIRST_TIME, false)) {
@@ -164,6 +170,9 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
     }
 
 
+    /**
+     * Create configure bar at bottom
+     */
     private void configureList() {
         mPreviewAdapter = new ImagesPreviewAdapter(this, mListPathImages);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(
@@ -265,11 +274,17 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         }
     }
 
+    /**
+     * highlight the chosen effect
+     * @param position chosen effect's position
+     */
     public void selectTransitionEffect(int position) {
-        for (int i = 0; i < effectLayouts.length; i++) {
-            effectLayouts[i].setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        for (LinearLayout effectLayout : effectLayouts) {
+            effectLayout.setBackgroundColor(
+                    ContextCompat.getColor(this, R.color.colorPrimary));
         }
-        effectLayouts[position].setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+        effectLayouts[position].setBackgroundColor(
+                ContextCompat.getColor(this, R.color.colorPrimaryDark));
     }
 
     private void makeVideo() {
@@ -316,6 +331,9 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         btnPlayPreview.setSelected(enable);
     }
 
+    /**
+     * Play preview
+     */
     private void gotoPreview() {
         mRvListFeature.setVisibility(View.GONE);
         mSurfacePreview.setVisibility(View.VISIBLE);
@@ -384,7 +402,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
                     muxedVideoPath = videoUtils[0].addAudio(srcVideo, audioFilePath);
                 } else {
                     File output = createMediaFile(VIDEO_TYPE);
-                    muxedVideoPath = copyFile(srcVideo, output.getAbsolutePath());
+                    muxedVideoPath = copyFileToOther(srcVideo, output.getAbsolutePath());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -408,6 +426,10 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         }
     }
 
+    /**
+     * show and hide configure bar at bottom
+     * @param view
+     */
     private void toggleEffectBar(View view) {
         if (layoutFeature.getVisibility() == View.GONE) {
             layoutFeature.setVisibility(View.VISIBLE);
@@ -437,6 +459,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.exportVideo) {
+            stopPreview();
             makeVideo();
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
@@ -486,6 +509,10 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         });
     }
 
+    /**
+     * Get list app can play video
+     * @return list app
+     */
     private List<ResolveInfo> getListApps() {
         List<ResolveInfo> listApp;
 

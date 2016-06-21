@@ -26,6 +26,13 @@ public class FileUtils {
     public static final String APP_DIR = Environment.getExternalStorageDirectory() + File.separator + "Photo Album";
     public static final String CACHED_DIR = Environment.getExternalStorageDirectory() + File.separator + ".PhotoAlbumCached";
 
+    /**
+     * Create a temp file to store video or image temporarily
+     * @param directory
+     * @param filename
+     * @return
+     * @throws IOException
+     */
     public static File createTempFile(String directory, String filename) throws IOException {
         File cacheDir = new File(directory);
 
@@ -40,6 +47,12 @@ public class FileUtils {
         return file;
     }
 
+    /**
+     * Create a file video or image with the name is timestamp
+     * @param type type video or image
+     * @return
+     * @throws IOException
+     */
     public static File createMediaFile(int type) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File appDir = new File(APP_DIR);
@@ -54,6 +67,11 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Save the image after it's edited
+     * @param context
+     * @param editedBitmap
+     */
     public static void saveEditedImage(Context context, Bitmap editedBitmap) {
         FileOutputStream outputStream = null;
         File file;
@@ -83,6 +101,14 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Copy audio file from raw folder to sdcard
+     * @param context
+     * @param audioRes
+     * @param filename
+     * @return
+     * @throws IOException
+     */
     public static String copyAudioToDevice(Context context, int audioRes, String filename) throws IOException {
         File musicDir = new File(FileUtils.APP_DIR + File.separator + "Audio");
         if (!musicDir.exists()) {
@@ -104,7 +130,14 @@ public class FileUtils {
         return outputPath;
     }
 
-    public static String copyFile(String input, String output) throws IOException {
+    /**
+     * Copy from a file to another file
+     * @param input input file's path
+     * @param output output file's path
+     * @return output file's path
+     * @throws IOException
+     */
+    public static String copyFileToOther(String input, String output) throws IOException {
         File inputFile = new File(input);
         if (!inputFile.exists()) {
             return null;
