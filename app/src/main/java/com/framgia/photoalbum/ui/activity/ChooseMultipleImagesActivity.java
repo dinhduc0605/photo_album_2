@@ -6,9 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.ImageItem;
@@ -54,8 +54,11 @@ public class ChooseMultipleImagesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_done) {
             ArrayList<String> chosenImages = mAdapter.getChosenImages();
-            Log.d(TAG, chosenImages + "");
-            startConfigVideoActivity(chosenImages);
+            if (chosenImages.size() == 0) {
+                Toast.makeText(this, "Please choose images to create video", Toast.LENGTH_SHORT).show();
+            }else {
+                startConfigVideoActivity(chosenImages);
+            }
         } else if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }

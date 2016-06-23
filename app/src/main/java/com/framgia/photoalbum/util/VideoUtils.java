@@ -12,6 +12,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
@@ -64,7 +65,7 @@ public class VideoUtils {
     /**
      * video's fps
      */
-    private static final int FRAMES_PER_SECOND = 30;
+    private static final int FRAMES_PER_SECOND = 60;
     private static final int I_FRAME_INTERVAL = 5;
     private static final int VIDEO_WIDTH = 720;
     private static final int VIDEO_HEIGHT = 720;
@@ -113,8 +114,9 @@ public class VideoUtils {
 
     /**
      * Apply user's choice
-     * @param duration duration time per image
-     * @param chosenImages images which user chose
+     *
+     * @param duration       duration time per image
+     * @param chosenImages   images which user chose
      * @param transitionType transition type
      */
     public void setUp(int duration, ArrayList<String> chosenImages, int transitionType) {
@@ -153,7 +155,8 @@ public class VideoUtils {
     /**
      * @return output video's path
      */
-    public String makeVideo(UpdateProgress updateProgress) {
+    public String makeVideo(AsyncTask asyncTask) {
+        UpdateProgress updateProgress = (UpdateProgress) asyncTask;
         try {
             prepareEncoder(mOutputVideo);
         } catch (IOException e) {
@@ -179,6 +182,9 @@ public class VideoUtils {
                 mTransitionType = mArrTransition[i];
             }
             for (int j = 1; j <= mNumFramePerImage; j++) {
+                if (asyncTask.isCancelled()) {
+                    return null;
+                }
                 drainEncoder(false);
                 generateFrame(j);
                 updateProgress.update((int) ((float) (i * mNumFramePerImage + j) / (mNumImage * mNumFramePerImage) * 100));
@@ -290,7 +296,7 @@ public class VideoUtils {
                     encodedData.position(mBufferInfo.offset);
                     encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
                     mBufferInfo.presentationTimeUs = mPresentationTime;
-                    mPresentationTime += 1000000L / FRAMES_PER_SECOND;
+                    mPresentationTime += 1000000f / FRAMES_PER_SECOND;
                     mMuxer.writeSampleData(mTrackIndex, encodedData, mBufferInfo);
                 }
                 mEncoder.releaseOutputBuffer(encoderStatus, false);
