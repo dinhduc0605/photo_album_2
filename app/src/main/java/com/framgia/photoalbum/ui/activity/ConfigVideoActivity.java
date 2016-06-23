@@ -276,6 +276,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
 
     /**
      * highlight the chosen effect
+     *
      * @param position chosen effect's position
      */
     public void selectTransitionEffect(int position) {
@@ -366,6 +367,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
         if (mProgressDialog != null) {
             mProgressDialog.dismiss();
             mProgressDialog = null;
+            mMakeVideoTask.cancel(true);
         }
     }
 
@@ -394,6 +396,9 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
             /** test time, transition effect **/
             videoUtils[0].setUp(mDurationPerImage, mListPathImages, mTransitionType);
             String srcVideo = videoUtils[0].makeVideo(this);
+            if (srcVideo == null) {
+                return null;
+            }
             String muxedVideoPath = null;
             String audioFilePath;
             try {
@@ -428,6 +433,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
 
     /**
      * show and hide configure bar at bottom
+     *
      * @param view
      */
     private void toggleEffectBar(View view) {
@@ -511,6 +517,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
 
     /**
      * Get list app can play video
+     *
      * @return list app
      */
     private List<ResolveInfo> getListApps() {
