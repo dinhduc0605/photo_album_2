@@ -141,7 +141,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_edit_toolbar, menu);
-        getMenuInflater().inflate(R.menu.menu_edit_toolbar, menu);
         return true;
     }
 
