@@ -104,11 +104,11 @@ public class CommonUtils {
      * @return
      */
     public static Bitmap decodeSampledBitmapResource(String path, int reqWidth, int reqHeight) {
-        float angle;
+        float angle = 0;
         if (path == null) return null;
         Log.d(TAG, path);
         Bitmap photoBitmap;
-        Bitmap rotatedBitmap = null;
+        Bitmap rotatedBitmap;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(path, options);
@@ -137,12 +137,12 @@ public class CommonUtils {
                     angle = 0;
                     break;
             }
-            photoBitmap = BitmapFactory.decodeFile(path, options);
-            rotatedBitmap = CommonUtils.rotateImage(photoBitmap, angle);
-        } catch (Exception e) {
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
+        photoBitmap = BitmapFactory.decodeFile(path, options);
+        rotatedBitmap = CommonUtils.rotateImage(photoBitmap, angle);
         return rotatedBitmap;
     }
 
@@ -413,7 +413,20 @@ public class CommonUtils {
 
     public static Bitmap centerCropImage(Bitmap srcBitmap, int reqWidth, int reqHeight) {
         if (srcBitmap.getWidth() < reqWidth) {
-            srcBitmap = Bitmap.createScaledBitmap(srcBitmap, reqWidth, (int) ((float) reqWidth / srcBitmap.getWidth() * srcBitmap.getHeight()), true);
+            srcBitmap = Bitmap.createScaledBitmap(
+                    srcBitmap,
+                    reqWidth,
+                    (int) ((float) reqWidth / srcBitmap.getWidth() * srcBitmap.getHeight()),
+                    true
+            );
+        }
+        if (srcBitmap.getHeight() < reqHeight) {
+            srcBitmap = Bitmap.createScaledBitmap(
+                    srcBitmap,
+                    (int) ((float) reqHeight / srcBitmap.getHeight() * srcBitmap.getWidth()),
+                    reqHeight,
+                    true
+            );
         }
         int posX = srcBitmap.getWidth() / 2 - reqWidth / 2;
         int posY = srcBitmap.getHeight() / 2 - reqHeight / 2;

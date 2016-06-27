@@ -41,7 +41,6 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
     private static final String TAG = "ChooseImageActivity";
     private static final String CAMERA_IMAGE_PATH = "CAMERA_IMAGE_PATH";
-
     private ArrayList<ImageItem> mImageItems = new ArrayList<>();
     private ImageGridAdapter mAdapter;
     private String mImagePath;
