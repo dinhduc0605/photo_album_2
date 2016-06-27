@@ -1,13 +1,15 @@
 package com.framgia.photoalbum.ui.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,25 +25,23 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.ImageItem;
 import com.framgia.photoalbum.ui.adapter.ImageGridAdapter;
 import com.framgia.photoalbum.util.CommonUtils;
+import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.PermissionUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-import static com.framgia.photoalbum.util.FileUtils.CACHED_DIR;
-import static com.framgia.photoalbum.util.FileUtils.IMG_TEMP_FILE_NAME;
-import static com.framgia.photoalbum.util.FileUtils.createTempFile;
-
 public class ChooseImageActivity extends AppCompatActivity implements ImageGridAdapter.OnItemClickListener {
     public static final String IMAGE_PATH = "image_path";
     private static final int REQUEST_CAPTURE_IMAGE = 1001;
     private static final String TAG = "ChooseImageActivity";
-    private Uri mPhotoUri;
+    private static final String CAMERA_IMAGE_PATH = "CAMERA_IMAGE_PATH";
+
     private ArrayList<ImageItem> mImageItems = new ArrayList<>();
     private ImageGridAdapter mAdapter;
     private String mImagePath;
@@ -49,8 +49,6 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
 
     @Bind(R.id.imageGrid)
     RecyclerView mImageGrid;
-    @Bind(R.id.btnCamera)
-    FloatingActionButton mCameraBtn;
     @Bind(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -93,16 +91,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
 
     @OnClick(R.id.btnCamera)
     public void onClick(View view) {
-        try {
-            File photo = createTempFile(CACHED_DIR, IMG_TEMP_FILE_NAME);
-            mTempImagePath = photo.getAbsolutePath();
-            mPhotoUri = Uri.fromFile(photo);
-            startCapture(mPhotoUri);
-        } catch (IOException e) {
-            Toast.makeText(this,
-                    getResources().getString(R.string.error_create_file_failed),
-                    Toast.LENGTH_SHORT).show();
-        }
+        startCapture();
     }
 
     @Override
@@ -116,14 +105,13 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
                 startEditorActivity(mTempImagePath);
             }
             if (BuildConfig.DEBUG)
-                Log.d(TAG, mTempImagePath);
+                Log.d(TAG, "IMAGE SAVED: " + mTempImagePath);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void startEditorActivity(String photoPath) {
-        // TODO start editor activity with path of photo which captured or picked from album
         Intent intent = new Intent(this, EditActivity.class);
         intent.putExtra(IMAGE_PATH, photoPath);
         startActivity(intent);
@@ -136,17 +124,27 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
         finish();
     }
 
-    private void startCapture(Uri path) {
+    private void startCapture() {
+        if (!hasIntent(this, MediaStore.ACTION_IMAGE_CAPTURE)) {
+            Toast.makeText(this, getResources().getString(R.string.error_camera_not_available),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
         Intent takeIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, path);
-
-        if (!CommonUtils.isAvailable(this, takeIntent)) {
-            Toast.makeText(this,
-                    getResources().getString(R.string.error_camera_not_available),
+        File outPut = FileUtils.createImageFile("IMG_",
+                FileUtils.getCacheDirectory(), ".JPEG");
+        if (outPut == null) {
+            Toast.makeText(
+                    this,
+                    getResources()
+                            .getString(R.string.error_create_file_failed),
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
+        mTempImagePath = outPut.getAbsolutePath();
+        takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outPut));
+        takeIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
         if (takeIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(takeIntent, REQUEST_CAPTURE_IMAGE);
         }
@@ -188,5 +186,28 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
             finish();
         }
         return true;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        if (mTempImagePath != null) {
+            outState.putString(CAMERA_IMAGE_PATH, mTempImagePath);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState.containsKey(CAMERA_IMAGE_PATH)) {
+            mTempImagePath = savedInstanceState.getString(CAMERA_IMAGE_PATH, "");
+        }
+    }
+
+    private boolean hasIntent(Context context, String action) {
+        final PackageManager packageManager = context.getPackageManager();
+        final Intent it = new Intent(action);
+        List<ResolveInfo> lst = packageManager.queryIntentActivities(it, PackageManager.MATCH_DEFAULT_ONLY);
+        return lst.size() > 0;
     }
 }

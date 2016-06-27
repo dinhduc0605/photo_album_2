@@ -135,6 +135,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton radioButton = (RadioButton) findViewById(checkedId);
                 mDurationPerImage = Integer.parseInt(radioButton.getText().toString().substring(0, 1));
+                onBackPressed();
             }
         });
         mChooseMusicDialog = new ChooseMusicDialog(this, new ChooseMusicDialog.OnAudioSelected() {
@@ -251,6 +252,19 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
             case R.id.btnMusic:
                 mChooseMusicDialog.show();
                 break;
+
+        }
+    }
+
+    @OnClick({
+            R.id.random_transition,
+            R.id.fade_transition,
+            R.id.translate_transition,
+            R.id.rotate_transition,
+            R.id.zoom_transition,
+    })
+    public void onTrasitionClick(View view) {
+        switch (view.getId()) {
             case R.id.random_transition:
                 mTransitionType = RANDOM_TRANSITION;
                 selectTransitionEffect(0);
@@ -272,6 +286,7 @@ public class ConfigVideoActivity extends AppCompatActivity implements PreviewRen
                 selectTransitionEffect(4);
                 break;
         }
+        onBackPressed();
     }
 
     /**

@@ -3,6 +3,7 @@ package com.framgia.photoalbum.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
@@ -23,11 +24,13 @@ public class FileUtils {
     public static final int IMAGE_TYPE = 0;
     public static final String IMG_TEMP_FILE_NAME = "img_temp.tmp";
     public static final String VIDEO_TEMP_FILE_NAME = "vid_temp.mp4";
+    public static final String CACHED_FOLDER = "PhotoAlbumCached";
     public static final String APP_DIR = Environment.getExternalStorageDirectory() + File.separator + "Photo Album";
-    public static final String CACHED_DIR = Environment.getExternalStorageDirectory() + File.separator + ".PhotoAlbumCached";
+    public static final String CACHED_DIR = Environment.getExternalStorageDirectory() + File.separator + CACHED_FOLDER;
 
     /**
      * Create a temp file to store video or image temporarily
+     *
      * @param directory
      * @param filename
      * @return
@@ -40,7 +43,7 @@ public class FileUtils {
             cacheDir.mkdirs();
         }
         File file = new File(cacheDir.getAbsolutePath(), filename);
-        if (file.exists()){
+        if (file.exists()) {
             file.delete();
         }
         file.createNewFile();
@@ -49,6 +52,7 @@ public class FileUtils {
 
     /**
      * Create a file video or image with the name is timestamp
+     *
      * @param type type video or image
      * @return
      * @throws IOException
@@ -69,6 +73,7 @@ public class FileUtils {
 
     /**
      * Save the image after it's edited
+     *
      * @param context
      * @param editedBitmap
      */
@@ -103,6 +108,7 @@ public class FileUtils {
 
     /**
      * Copy audio file from raw folder to sdcard
+     *
      * @param context
      * @param audioRes
      * @param filename
@@ -132,7 +138,8 @@ public class FileUtils {
 
     /**
      * Copy from a file to another file
-     * @param input input file's path
+     *
+     * @param input  input file's path
      * @param output output file's path
      * @return output file's path
      * @throws IOException
@@ -152,5 +159,39 @@ public class FileUtils {
         inputStream.close();
         fileOutputStream.close();
         return output;
+    }
+
+    public static File createImageFile(String prefix, File dir, String extension) {
+        String id = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        if (isExternalStorageWritable()) {
+            try {
+                File file = new File(dir, prefix + id + extension);
+                if (!file.exists()) {
+                    file.getParentFile().mkdirs();
+                    file.createNewFile();
+                }
+                return file;
+            } catch (IOException ex) {
+                Log.e("FileUtils", "Cannot create image file folder");
+            }
+        }
+        return null;
+    }
+
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    public static File getCacheDirectory() {
+        File file = new File(Environment.getExternalStorageDirectory(), CACHED_FOLDER);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                Log.v("CACHE FOLDER", "not create");
+            }
+        }
+
+        return file;
     }
 }
