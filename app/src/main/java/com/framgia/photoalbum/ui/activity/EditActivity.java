@@ -38,7 +38,6 @@ import com.framgia.photoalbum.ui.fragment.EffectFragment;
 import com.framgia.photoalbum.ui.fragment.GammaFragment;
 import com.framgia.photoalbum.ui.fragment.HighlightFragment;
 import com.framgia.photoalbum.ui.fragment.OrientationFragment;
-import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.FileUtils;
 
 import java.io.File;
@@ -50,7 +49,12 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-import static com.framgia.photoalbum.util.FileUtils.APP_DIR;
+import static com.framgia.photoalbum.util.CommonUtils.calculateInSampleSize;
+import static com.framgia.photoalbum.util.CommonUtils.decodeSampledBitmapResource;
+import static com.framgia.photoalbum.util.CommonUtils.getDisplaySize;
+import static com.framgia.photoalbum.util.CommonUtils.invalidateGallery;
+import static com.framgia.photoalbum.util.CommonUtils.recycleBitmap;
+import static com.framgia.photoalbum.util.CommonUtils.setImageViewBitmap;
 import static com.framgia.photoalbum.util.FileUtils.CACHED_DIR;
 import static com.framgia.photoalbum.util.FileUtils.IMG_TEMP_FILE_NAME;
 import static com.framgia.photoalbum.util.FileUtils.createTempFile;
@@ -92,6 +96,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         mImagePath = getImagePath();
+        Log.e(TAG, mImagePath);
 
         initView();
         bindViewControl();
@@ -224,8 +229,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
         @Override
         protected Bitmap doInBackground(String... paths) {
-            Point screenSize = CommonUtils.getDisplaySize(EditActivity.this);
-            return CommonUtils.decodeSampledBitmapResource(paths[0], screenSize.x, screenSize.y);
+            Point screenSize = getDisplaySize(EditActivity.this);
+            return decodeSampledBitmapResource(paths[0], screenSize.x, screenSize.y);
         }
 
         @Override
@@ -249,25 +254,25 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public void saveEffect() {
 
         if (sResultBitmap != null && !sResultBitmap.isRecycled()) {
-            CommonUtils.recycleBitmap(sSourceBitmap);
+            recycleBitmap(sSourceBitmap);
             sSourceBitmap = sResultBitmap.copy(sResultBitmap.getConfig(), true);
             saveTempImage();
         }
     }
 
     public static void setResultBitmap(Bitmap bitmap) {
-        CommonUtils.recycleBitmap(sResultBitmap);
+        recycleBitmap(sResultBitmap);
         sResultBitmap = bitmap;
     }
 
     @Override
     protected void onDestroy() {
-        CommonUtils.setImageViewBitmap(mEditImage, null);
+        setImageViewBitmap(mEditImage, null);
         if (mLoadImageTask != null && mLoadImageTask.isCancelled()) {
             mLoadImageTask.cancel(true);
         }
-        CommonUtils.recycleBitmap(sSourceBitmap);
-        CommonUtils.recycleBitmap(sResultBitmap);
+        recycleBitmap(sSourceBitmap);
+        recycleBitmap(sResultBitmap);
         super.onDestroy();
     }
 
@@ -304,7 +309,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             file = FileUtils.createMediaFile(FileUtils.IMAGE_TYPE);
             outputStream = new FileOutputStream(file);
             sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            CommonUtils.invalidateGallery(getApplicationContext(), file);
+            invalidateGallery(getApplicationContext(), file);
 
             Toast.makeText(this,
                     getString(R.string.error_save_image_success) + file.getPath(), Toast.LENGTH_LONG)
@@ -335,8 +340,8 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             sSourceBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
             mImagePath = file.getAbsolutePath();
 
-            Point screenSize = CommonUtils.getDisplaySize(EditActivity.this);
-            CommonUtils.calculateInSampleSize(
+            Point screenSize = getDisplaySize(EditActivity.this);
+            calculateInSampleSize(
                     sSourceBitmap.getWidth(),
                     sSourceBitmap.getHeight(),
                     screenSize.x,

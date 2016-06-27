@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -25,7 +24,6 @@ import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.FeatureItem;
 import com.framgia.photoalbum.ui.adapter.ListFeatureAdapter;
 import com.framgia.photoalbum.ui.custom.PartImageView;
-import com.framgia.photoalbum.util.CollageUtils;
 import com.framgia.photoalbum.util.CommonUtils;
 import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.PermissionUtils;
@@ -35,7 +33,15 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-import static com.framgia.photoalbum.util.CollageUtils.*;
+import static com.framgia.photoalbum.util.CollageUtils.PickImageToMergeListener;
+import static com.framgia.photoalbum.util.CollageUtils.createLayout_2_1;
+import static com.framgia.photoalbum.util.CollageUtils.createLayout_2_2;
+import static com.framgia.photoalbum.util.CollageUtils.createLayout_2_3;
+import static com.framgia.photoalbum.util.CollageUtils.createLayout_3_1;
+import static com.framgia.photoalbum.util.CollageUtils.createLayout_3_2;
+import static com.framgia.photoalbum.util.CollageUtils.createLayout_4_1;
+import static com.framgia.photoalbum.util.CollageUtils.isAllChose;
+import static com.framgia.photoalbum.util.CollageUtils.releaseMemory;
 
 public class CollageActivity extends AppCompatActivity implements PickImageToMergeListener {
     private static final String TAG = "CollageActivity";
@@ -77,7 +83,12 @@ public class CollageActivity extends AppCompatActivity implements PickImageToMer
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CHOOSE_IMAGE) {
             if (resultCode == RESULT_OK) {
-                Bitmap bitmap = BitmapFactory.decodeFile(data.getStringExtra(ChooseImageActivity.IMAGE_PATH));
+                String imagePath = data.getStringExtra(ChooseImageActivity.IMAGE_PATH);
+                Bitmap bitmap = CommonUtils.decodeSampledBitmapResource(
+                        imagePath,
+                        mPartImageViews[mPosition].getWidth(),
+                        mPartImageViews[mPosition].getHeight()
+                );
                 mImageBitmaps[mPosition] = bitmap;
                 mPartImageViews[mPosition].setImageBitmap(bitmap);
             }
