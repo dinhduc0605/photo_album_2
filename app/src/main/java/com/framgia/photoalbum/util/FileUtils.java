@@ -2,8 +2,8 @@ package com.framgia.photoalbum.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.framgia.photoalbum.R;
@@ -161,37 +161,10 @@ public class FileUtils {
         return output;
     }
 
-    public static File createImageFile(String prefix, File dir, String extension) {
-        String id = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-
-        if (isExternalStorageWritable()) {
-            try {
-                File file = new File(dir, prefix + id + extension);
-                if (!file.exists()) {
-                    file.getParentFile().mkdirs();
-                    file.createNewFile();
-                }
-                return file;
-            } catch (IOException ex) {
-                Log.e("FileUtils", "Cannot create image file folder");
-            }
-        }
-        return null;
-    }
-
-    public static boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    public static File getCacheDirectory() {
-        File file = new File(Environment.getExternalStorageDirectory(), CACHED_FOLDER);
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                Log.v("CACHE FOLDER", "not create");
-            }
-        }
-
-        return file;
+    public static boolean isPhotoValid(String path) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+        return options.outWidth != 0 && options.outWidth != -1;
     }
 }

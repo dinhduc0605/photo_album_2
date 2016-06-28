@@ -65,7 +65,7 @@ public class VideoUtils {
     /**
      * video's fps
      */
-    private static final int FRAMES_PER_SECOND = 60;
+    public static final int FRAMES_PER_SECOND = 60;
     private static final int I_FRAME_INTERVAL = 5;
     private static final int VIDEO_WIDTH = 720;
     private static final int VIDEO_HEIGHT = 720;

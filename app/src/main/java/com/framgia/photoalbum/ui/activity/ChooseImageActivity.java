@@ -29,6 +29,7 @@ import com.framgia.photoalbum.util.FileUtils;
 import com.framgia.photoalbum.util.PermissionUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,6 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
         }
         ButterKnife.bind(this);
         initView();
-        bindViewControl();
     }
 
     /**
@@ -81,13 +81,6 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
         mImageGrid.setAdapter(mAdapter);
     }
 
-    /**
-     * bind handle to each view in layout
-     */
-    private void bindViewControl() {
-
-    }
-
     @OnClick(R.id.btnCamera)
     public void onClick(View view) {
         startCapture();
@@ -98,6 +91,7 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
 
         // Handle image captured callback
         if (requestCode == REQUEST_CAPTURE_IMAGE && resultCode == RESULT_OK) {
+            mTempImagePath = FileUtils.APP_DIR + "/" + FileUtils.IMG_TEMP_FILE_NAME;
             if (getIntent().getBooleanExtra(CollageActivity.KEY_COLLAGE, false)) {
                 returnResultToCollage(mTempImagePath);
             } else {
@@ -130,22 +124,24 @@ public class ChooseImageActivity extends AppCompatActivity implements ImageGridA
             return;
         }
         Intent takeIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File outPut = FileUtils.createImageFile("IMG_",
-                FileUtils.getCacheDirectory(), ".JPEG");
-        if (outPut == null) {
-            Toast.makeText(
-                    this,
-                    getResources()
-                            .getString(R.string.error_create_file_failed),
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
+        try {
+            File outPut = FileUtils.createTempFile(FileUtils.APP_DIR, FileUtils.IMG_TEMP_FILE_NAME);
+            if (outPut == null) {
+                Toast.makeText(
+                        this,
+                        getResources()
+                                .getString(R.string.error_create_file_failed),
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        mTempImagePath = outPut.getAbsolutePath();
-        takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outPut));
-        takeIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-        if (takeIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takeIntent, REQUEST_CAPTURE_IMAGE);
+            takeIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outPut));
+            takeIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+            if (takeIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takeIntent, REQUEST_CAPTURE_IMAGE);
+            }
+        } catch (IOException e) {
+            Toast.makeText(ChooseImageActivity.this, "Cannot Create Image File", Toast.LENGTH_SHORT).show();
         }
     }
 
