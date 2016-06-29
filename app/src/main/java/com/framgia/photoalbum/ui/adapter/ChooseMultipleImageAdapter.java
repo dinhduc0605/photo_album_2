@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import com.framgia.photoalbum.BuildConfig;
 import com.framgia.photoalbum.R;
 import com.framgia.photoalbum.data.model.ImageItem;
+import com.framgia.photoalbum.util.FileUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -61,14 +62,16 @@ public class ChooseMultipleImageAdapter extends RecyclerView.Adapter<ChooseMulti
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        final String imagePath = mImageItems.get(position).getImagePath();
-        holder.mCheckBox.setChecked(mChosenImages.contains(imagePath));
+
         ImageItem image = mImageItems.get(position);
+        final String imagePath = mImageItems.get(position).getImagePath();
+        Log.d("hung", imagePath + " ---" + FileUtils.isPhotoValid(imagePath));
+        holder.mCheckBox.setChecked(mChosenImages.contains(imagePath));
         if (BuildConfig.DEBUG) {
-            Log.w(TAG, image.getImagePath());
+            Log.w(TAG, imagePath);
         }
         Picasso.with(mContext)
-                .load("file://" + image.getImagePath())
+                .load("file://" + imagePath)
                 .config(Bitmap.Config.RGB_565)
                 .resize(150, 150)
                 .centerCrop()
@@ -76,13 +79,27 @@ public class ChooseMultipleImageAdapter extends RecyclerView.Adapter<ChooseMulti
                 .into(holder.mImageView);
         holder.mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 if (holder.mCheckBox.isChecked()) {
                     holder.mCheckBox.setChecked(false);
                     mChosenImages.remove(imagePath);
                 } else {
                     holder.mCheckBox.setChecked(true);
-                    mChosenImages.add(imagePath);
+                    if (!mChosenImages.contains(imagePath)) {
+                        mChosenImages.add(imagePath);
+                    }
+                }
+            }
+        });
+        holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!holder.mCheckBox.isChecked()) {
+                    mChosenImages.remove(imagePath);
+                } else {
+                    if (!mChosenImages.contains(imagePath)) {
+                        mChosenImages.add(imagePath);
+                    }
                 }
             }
         });

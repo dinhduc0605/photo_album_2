@@ -85,6 +85,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
     public static Context sContext;
     public static int sScale = 1;
     public static boolean isProcessing = false;
+    private boolean isEdited = false;
 
 
     private LoadImageTask mLoadImageTask;
@@ -96,7 +97,6 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit);
         mImagePath = getImagePath();
-        Log.e(TAG, mImagePath);
 
         initView();
         bindViewControl();
@@ -158,6 +158,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             if (mEditFragment != null) {
                 mEditFragment.apply();
                 saveEffect();
+                isEdited = true;
                 mEditImage.setImageBitmap(sSourceBitmap);
                 onBackPressed();
             } else {
@@ -283,6 +284,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 saveImage();
+                isEdited = false;
                 if (isBackActivity) {
                     finish();
                 }
@@ -380,7 +382,7 @@ public class EditActivity extends AppCompatActivity implements ListFeatureAdapte
 
     @Override
     public void onBackPressed() {
-        if (mEditFragment == null) {
+        if (mEditFragment == null && isEdited) {
             showSaveConfirmDialog(true);
         } else {
             mActionBar.setTitle(getString(R.string.label_edit_activity));

@@ -396,6 +396,9 @@ public class CommonUtils {
                 do {
                     //get image path
                     String imagePath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    if (!FileUtils.isPhotoValid(imagePath)) {
+                        continue;
+                    }
                     //get image id
                     int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
 

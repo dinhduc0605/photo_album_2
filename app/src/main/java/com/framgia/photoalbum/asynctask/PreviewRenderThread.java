@@ -9,8 +9,7 @@ import com.framgia.photoalbum.util.VideoUtils;
 
 public class PreviewRenderThread extends Thread {
 
-    private final int FPS = 30;
-    private final long OPTIMAL_TIME = 1000000000 / FPS;
+    private final long OPTIMAL_TIME = 1000000000 / VideoUtils.FRAMES_PER_SECOND;
 
     private int frame;
     private int maxFrame;
