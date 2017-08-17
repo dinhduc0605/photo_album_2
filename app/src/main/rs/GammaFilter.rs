@@ -36,7 +36,7 @@ static void initLUTtable() {
 void filter() {
 	setup();
 	initLUTtable();
-    rsForEach(gScript, gIn, gOut, 0, 0);
+    rsForEach(gScript, gIn, gOut);
 }
 
 void root(const uchar4 *v_in, uchar4 *v_out, const void *usrData, uint32_t x, uint32_t y) {
