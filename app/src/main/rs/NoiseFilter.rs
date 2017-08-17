@@ -11,7 +11,7 @@ rs_script gScript;
 static const float Intensity = 0.2f;
 
 void filter() {
-    rsForEach(gScript, gIn, gOut, 0, 0);	// for each element of the input allocation,
+    rsForEach(gScript, gIn, gOut);	// for each element of the input allocation,
     										// call root() method on gScript
 }
 
