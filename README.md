@@ -15,4 +15,4 @@ collage photo and mp4 video from other photos and music.
 ### Download
 Download file apk below and install on Android phone with
 minimum version is KitKat (api 19). <br>
-[PhotoAlbum.apk](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bTi1NSWZ2VnFZbGs)
+[PhotoAlbum.apk](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bellVY3pZNHE3Vkk)
