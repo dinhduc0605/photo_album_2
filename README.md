@@ -9,7 +9,7 @@ collage photo and mp4 video from other photos and music.
  -	Make and export video from chosen photos and music.
 
 ### Demo
-| ![](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bSVdHNkJNVVhPUjQ)  | ![](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bZlhuRUZrNXlVQnc) | ![](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bN3Vzc0U0MkltSFE) |
+| ![](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bdUlvVFRoVDlGUE0)  | ![](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bQ25mRXQyS2JHVjQ) | ![](https://drive.google.com/uc?export=download&id=0B38iwm_f8P7bT0VNZW9TMW5idWc) |
 |:---:|:---:|:---:|
 | Edit Photo | Make Collage Photo | Make Video |
 ### Download
